@@ -1,5 +1,8 @@
 # chat21-ionic ver 3.0
 
+### 3.0.64
+- Fixes the bug: in the conversation list, for the direct convesations, the name of the requester changes according to the order of arrival of the conversations
+
 ### 3.0.63
 - Deploys in production
 
