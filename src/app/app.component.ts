@@ -918,10 +918,8 @@ export class AppComponent implements OnInit {
     }
 
     this.BSAuthStateChangedSubscriptionRef = this.messagingAuthService.BSAuthStateChanged
-
       // .pipe(takeUntil(this.unsubscribe$))
-      .pipe(filter((state) => state !== null))
-      .subscribe((state: any) => {
+      .pipe(filter((state) => state !== null)).subscribe((state: any) => {
         this.logger.log('initialize FROM [APP-COMP] - [APP-COMP] ***** BSAuthStateChanged  state', state);
 
         if (state && state === AUTH_STATE_ONLINE) {

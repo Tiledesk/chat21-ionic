@@ -106,12 +106,12 @@ export function isEmojii(message: any) {
   // }
   // https://localcoder.org/javascript-detect-if-a-string-contains-only-unicode-emojis
   try {
-    if (!message) return false;
+    if(!message) return false;
     const onlyEmojis = message.replace(new RegExp('[\u0000-\u1eeff]', 'g'), '')
     const visibleChars = message.replace(new RegExp('[\n\r\s]+|( )+', 'g'), '')
-    if (onlyEmojis === '' || visibleChars == '') return false
+    if(onlyEmojis === '' || visibleChars == '') return false
     return onlyEmojis.length === visibleChars.length
-  } catch (e) {
+  } catch(e) {
     return false
   }
 }

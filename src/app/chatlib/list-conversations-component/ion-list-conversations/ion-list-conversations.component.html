@@ -90,7 +90,7 @@
     <!-- <div *ngIf="getImageAvatar(conversation.sender)" #avatarImage class="avatar-profile" [style.background-image]="'url(' + getImageAvatar(conversation.sender) + ')'"></div> -->
   </ion-avatar>
   <ion-label>
-    <div class="conversation_with truncate" [innerHTML]="conversation.conversation_with_fullname"></div>
+    <div class="conversation_with truncate">{{conversation.conversation_with_fullname}}</div>
     <div class="conversation_message truncate-conv-msg" [ngClass]="{'truncate-on-desktop': !isApp}">
 
       <!-- -------------------------------------------------------------------------- -->

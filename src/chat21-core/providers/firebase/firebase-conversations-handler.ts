@@ -477,14 +477,14 @@ export class FirebaseConversationsHandler extends ConversationsHandlerService {
             conversation_with = conv.recipient;
             conversation_with_fullname = conv.recipient_fullname;
             conv.sender_fullname = this.translationMap.get('YOU')
-
             // conv.last_message_text = YOU + conv.last_message_text;
             // } else if (conv.channel_type === TYPE_GROUP) {
         } else if (isGroup(conv)) {
             // conversation_with_fullname = conv.sender_fullname;
             // conv.last_message_text = conv.last_message_text;
             conversation_with = conv.recipient;
-            conversation_with_fullname = conv.recipient_fullname;
+            // conversation_with_fullname = conv.recipient_fullname;
+            conversation_with_fullname = this.changeSenderFullName(conv)
         }
         if (conv.attributes && conv.attributes.subtype) {
             if (conv.attributes.subtype === 'info' || conv.attributes.subtype === 'info/support') {
@@ -492,15 +492,32 @@ export class FirebaseConversationsHandler extends ConversationsHandlerService {
             }
         }
 
+        // Fixes the bug: if a snippet of code is pasted and sent it is not displayed correctly in the convesations list
+        // conv.time_last_message = this.getTimeLastMessage(conv.timestamp);
         conv.conversation_with = conversation_with;
         conv.conversation_with_fullname = conversation_with_fullname;
         conv.status = this.setStatusConversation(conv.sender, conv.uid);
-        // conv.time_last_message = this.getTimeLastMessage(conv.timestamp); // evaluate if is used
         conv.avatar = avatarPlaceholder(conversation_with_fullname);
         conv.color = getColorBck(conversation_with_fullname);
         //conv.image = this.imageRepo.getImagePhotoUrl(conversation_with);
         // getImageUrlThumbFromFirebasestorage(conversation_with, this.FIREBASESTORAGE_BASE_URL_IMAGE, this.urlStorageBucket);
         return conv;
+    }
+    
+
+    /**BUG-FIX: on Conversation-list, when conversation start, it continuosly change the sender_fullname info from Guest to others name */
+    private changeSenderFullName(conversation: ConversationModel): string {
+        let old_conv = this.conversations.find(conv => conv.uid === conversation.uid)
+        let conversation_with_fullname = conversation.recipient_fullname
+        if(old_conv){
+            if(conversation.recipient_fullname !== old_conv.recipient_fullname && conversation.recipient_fullname !== 'Guest '){
+                conversation_with_fullname = conversation.recipient_fullname
+            } else {
+                // conversation_with_fullname=  old_conv.recipient_fullname
+                conversation_with_fullname=  old_conv.conversation_with_fullname
+              } 
+        }
+        return conversation_with_fullname
     }
 
 
