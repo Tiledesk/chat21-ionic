@@ -184,7 +184,7 @@
   "Available": "Erhältlich",
   "Unavailable": "Nicht verfügbar",
   "Busy": "Beschäftigt",
-  "YouAreAboutToJoinThisChat": "Sie sind dabei, diesem Chat beizutreten",
+  "YouAreAboutToJoinThisChat": "Wenn Sie an dieser Konversation teilnehmen, wird sie in der Konversationsliste angezeigt. Sie müssen es dann auswählen, nachdem Sie die Seitenleiste für nicht zugewiesene Konversationen geschlossen haben, um mit dem Benutzer zu chatten",
   "Cancel": "Abbrechen",
   "AreYouSure": "Bist du sicher?",
   "UnassignedConversations": "Nicht zugewiesene Gespräche",

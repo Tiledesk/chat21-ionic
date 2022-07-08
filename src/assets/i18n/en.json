@@ -184,7 +184,7 @@
   "Available": "Available",
   "Unavailable": "Unavailable",
   "Busy": "Busy",
-  "YouAreAboutToJoinThisChat": "You are about to join this chat",
+  "YouAreAboutToJoinThisChat": "If you join this conversation, it will appear in the conversation list. You will then have to select it, after closing the unassigned conversations sidebar, to start chatting with the user",
   "Cancel": "Cancel",
   "AreYouSure": "Are you sure?",
   "UnassignedConversations": "Unassigned Conversations",

@@ -184,7 +184,7 @@
   "Available": "Disponível",
   "Unavailable": "Indisponível",
   "Busy": "Ocupado",
-  "YouAreAboutToJoinThisChat": "Você está prestes a participar deste bate-papo",
+  "YouAreAboutToJoinThisChat": "Se você participar desta conversa, ela aparecerá na lista de conversas. Você terá que selecioná-lo, depois de fechar a barra lateral de conversas não atribuídas, para começar a conversar com o usuário",
   "Cancel": "Cancelar",
   "AreYouSure": "Tem certeza?",
   "UnassignedConversations": "Conversas não atribuídas",

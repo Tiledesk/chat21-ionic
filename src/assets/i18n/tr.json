@@ -184,7 +184,7 @@
   "Available": "Mevcut",
   "Unavailable": "Kullanım dışı",
   "Busy": "Meşgul",
-  "YouAreAboutToJoinThisChat": "Bu sohbete katılmak üzeresiniz",
+  "YouAreAboutToJoinThisChat": "Bu sohbete katılırsanız, konuşma listesinde görünecektir. Daha sonra, kullanıcıyla sohbet etmeye başlamak için, atanmamış konuşmaların kenar çubuğunu kapattıktan sonra onu seçmeniz gerekecektir",
   "Cancel": "İptal etmek",
   "AreYouSure": "Emin misin?",
   "UnassignedConversations": "Atanmamış Görüşmeler",
