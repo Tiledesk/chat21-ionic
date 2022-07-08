@@ -1,5 +1,8 @@
 # chat21-ionic ver 3.0
 
+### 3.0.68-rc1
+- added: new languages az, sv, kk, uz
+
 ### 3.0.67 in PROD
 - added: control to 'foregroundCount' when tab is hidden/visible
 - added: sound control on/off to new conversations and conversations changed
