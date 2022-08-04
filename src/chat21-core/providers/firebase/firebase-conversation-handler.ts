@@ -22,7 +22,7 @@ import { MSG_STATUS_RECEIVED, CHAT_REOPENED, CHAT_CLOSED, MEMBER_JOINED_GROUP, T
 import { compareValues, searchIndexInArrayForUid, conversationMessagesRef } from '../../utils/utils';
 
 
-import { messageType, isEmojii } from 'src/chat21-core/utils/utils-message';
+import { messageType, isEmojii, hideInfoMessage, checkIfIsMemberJoinedGroup } from 'src/chat21-core/utils/utils-message';
 
 
 
@@ -46,6 +46,7 @@ export class FirebaseConversationHandler extends ConversationHandlerService {
 
     // private variables
     private translationMap: Map<string, string>; // LABEL_TODAY, LABEL_TOMORROW
+    private showInfoMessage: string[];
     private urlNodeFirebase: string;
     private recipientId: string;
     private recipientFullname: string;
@@ -58,14 +59,15 @@ export class FirebaseConversationHandler extends ConversationHandlerService {
     private logger: LoggerService = LoggerInstance.getInstance()
     private ref: firebase.database.Query;
 
-    constructor(@Inject('skipMessage') private skipMessage: boolean) {
+    constructor(@Inject('skipMessage') private skipInfoMessage: boolean) {
         super();
     }
 
     /**
      * inizializzo conversation handler
      */
-    initialize(recipientId: string, recipientFullName: string, loggedUser: UserModel, tenant: string, translationMap: Map<string, string>) {
+    initialize(recipientId: string, recipientFullName: string, loggedUser: UserModel, 
+                tenant: string, translationMap: Map<string, string>, showInfoMessage: string[]) {
         this.logger.log('[FIREBASEConversationHandlerSERVICE] initWithRecipient', recipientId, recipientFullName, loggedUser, tenant, translationMap)
         this.recipientId = recipientId;
         this.recipientFullname = recipientFullName;
@@ -80,6 +82,7 @@ export class FirebaseConversationHandler extends ConversationHandlerService {
         this.CLIENT_BROWSER = navigator.userAgent;
         this.conversationWith = recipientId;
         this.messages = [];
+        this.showInfoMessage = showInfoMessage
         // this.attributes = this.setAttributes();
     }
 
@@ -243,10 +246,19 @@ export class FirebaseConversationHandler extends ConversationHandlerService {
     private added(childSnapshot: any) {
         const msg = this.messageGenerate(childSnapshot);
         // msg.attributes && msg.attributes['subtype'] === 'info'
-        if (this.skipMessage && messageType(MESSAGE_TYPE_INFO, msg)) {
+        let isInfoMessage = messageType(MESSAGE_TYPE_INFO, msg)
+        if(isInfoMessage && hideInfoMessage(msg, this.showInfoMessage)){
+            //if showBubbleInfoMessage array keys not includes msg.attributes.messagelabel['key'] exclude CURRENT INFO MESSAGE
             return;
+        } else if(isInfoMessage && !hideInfoMessage(msg, this.showInfoMessage)){
+            if(!checkIfIsMemberJoinedGroup(msg, this.loggedUser)){
+                    //skipMessage= false: if showInfoMessageKeys includes msg.attributes.messagelabel['key'] include CURRENT INFO MESSAGE
+                    //only if a member (not a bot) has joined the group
+                return;
+            }
         }
-        if(!this.skipMessage && messageType(MESSAGE_TYPE_INFO, msg)) {
+
+        if(isInfoMessage){
             this.messageInfo.next(msg)
         }
         this.addRepalceMessageInArray(childSnapshot.key, msg);
@@ -258,7 +270,7 @@ export class FirebaseConversationHandler extends ConversationHandlerService {
         const msg = this.messageGenerate(childSnapshot);
         // imposto il giorno del messaggio per visualizzare o nascondere l'header data
         // msg.attributes && msg.attributes['subtype'] === 'info'
-        if (this.skipMessage && messageType(MESSAGE_TYPE_INFO, msg)) {
+        if (messageType(MESSAGE_TYPE_INFO, msg)) {
             return;
         }
         this.addRepalceMessageInArray(childSnapshot.key, msg);
@@ -297,10 +309,8 @@ export class FirebaseConversationHandler extends ConversationHandlerService {
         // msg.emoticon = isEmojii(msg.text)
 
         // traduco messaggi se sono del server
-        if (msg.attributes && msg.attributes.subtype) {
-            if (msg.attributes.subtype === 'info' || msg.attributes.subtype === 'info/support') {
-                this.translateInfoSupportMessages(msg);
-            }
+        if (messageType(MESSAGE_TYPE_INFO, msg)) {
+            this.translateInfoSupportMessages(msg);
         }
         /// commented because NOW ATTRIBUTES COMES FROM OUTSIDE 
         // if (msg.attributes && msg.attributes.projectId) {

@@ -27,7 +27,12 @@ export abstract class ConversationHandlerService {
 
   // functions
   abstract initialize(
-    recipientId: string, recipientFullName: string, loggedUser: UserModel, tenant: string, translationMap: Map<string, string>): void;
+    recipientId: string, 
+    recipientFullName: string, 
+    loggedUser: UserModel, 
+    tenant: string, 
+    translationMap: Map<string, string>,
+    showInfoMessage: Array<string>): void;
   abstract connect(): void;
   abstract sendMessage(
     msg: string,

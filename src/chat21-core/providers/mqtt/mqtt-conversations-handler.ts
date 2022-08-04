@@ -169,13 +169,14 @@ export class MQTTConversationsHandler extends ConversationsHandlerService {
         const handlerConversationDeleted = this.chat21Service.chatClient.onConversationDeleted( (conv, topic) => {
             this.logger.debug('[MQTTConversationsHandler] conversation deleted:', conv, topic);
             // example topic: apps.tilechat.users.ME.conversations.CONVERS-WITH.clientdeleted
-            const topic_parts = topic.split("/")
-            this.logger.debug('[MQTTConversationsHandler] topic and parts', topic_parts)
-            if (topic_parts.length < 7) {
-                this.logger.error('[MQTTConversationsHandler] Error. Not a conversation-deleted topic:', topic);
-                return
-            }
-            const convers_with = topic_parts[5];
+            // const topic_parts = topic.split("/")
+            // this.logger.debug('[MQTTConversationsHandler] topic and parts', topic_parts)
+            // if (topic_parts.leßngth < 7) {
+            //     this.logger.error('[MQTTConversationsHandler] Error. Not a conversation-deleted topic:', topic);
+            //     return
+            // }
+            // const convers_with = topic_parts[5];
+            const convers_with = topic.conversWith;
             this.removed({
                 uid: convers_with
             });

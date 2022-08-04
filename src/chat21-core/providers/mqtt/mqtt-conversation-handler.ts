@@ -23,7 +23,7 @@ import {
   setHeaderDate,
   conversationMessagesRef
 } from '../../utils/utils';
-import { messageType } from '../../utils/utils-message';
+import { checkIfIsMemberJoinedGroup, hideInfoMessage, messageType } from '../../utils/utils-message';
 
 
 @Injectable({ providedIn: 'root' })
@@ -44,6 +44,7 @@ export class MQTTConversationHandler extends ConversationHandlerService {
 
     // private variables
     private translationMap: Map<string, string>; // LABEL_TODAY, LABEL_TOMORROW
+    private showInfoMessage: string[];
     // private urlNodeFirebase: string;
     private recipientId: string;
     private recipientFullname: string;
@@ -66,7 +67,8 @@ export class MQTTConversationHandler extends ConversationHandlerService {
     /**
      * inizializzo conversation handler
      */
-    initialize(recipientId: string,recipientFullName: string,loggedUser: UserModel,tenant: string, translationMap: Map<string, string>) {
+    initialize(recipientId: string,recipientFullName: string,loggedUser: UserModel,
+                tenant: string, translationMap: Map<string, string>, showInfoMessage: string[]) {
         this.logger.log('[MQTTConversationHandler] initWithRecipient:', tenant);
         this.recipientId = recipientId;
         this.recipientFullname = recipientFullName;
@@ -81,6 +83,7 @@ export class MQTTConversationHandler extends ConversationHandlerService {
         this.CLIENT_BROWSER = navigator.userAgent;
         this.conversationWith = recipientId;
         this.messages = [];
+        this.showInfoMessage = showInfoMessage;
         // this.attributes = this.setAttributes();
     }
 
@@ -231,11 +234,18 @@ export class MQTTConversationHandler extends ConversationHandlerService {
     private addedMessage(messageSnapshot: any) {
         const msg = this.messageGenerate(messageSnapshot);
         msg.uid = msg.message_id;
-        if(this.skipInfoMessage && messageType(MESSAGE_TYPE_INFO, msg)){
+        let isInfoMessage = messageType(MESSAGE_TYPE_INFO, msg)
+        if(isInfoMessage && hideInfoMessage(msg, this.showInfoMessage)){
+            //if showBubbleInfoMessage array keys not includes msg.attributes.messagelabel['key'] exclude CURRENT INFO MESSAGE
             return;
-        }
-        if(!this.skipInfoMessage && messageType(MESSAGE_TYPE_INFO, msg)){
-            this.messageInfo.next(msg)
+        } else if(isInfoMessage && !hideInfoMessage(msg, this.showInfoMessage)){
+            if(!checkIfIsMemberJoinedGroup(msg, this.loggedUser)){
+                    //skipMessage= false: if showInfoMessageKeys includes msg.attributes.messagelabel['key'] include CURRENT INFO MESSAGE
+                    //only if a member (not a bot) has joined the group
+                return;
+            }
+        } else {
+            console.log('HIDE 33333')
         }
         // imposto il giorno del messaggio per visualizzare o nascondere l'header data
         msg.headerDate = null;
@@ -255,7 +265,7 @@ export class MQTTConversationHandler extends ConversationHandlerService {
 
     /** */
     private updatedMessageStatus(patch: any) {
-        if(this.skipInfoMessage && messageType(MESSAGE_TYPE_INFO, patch) ){
+        if(messageType(MESSAGE_TYPE_INFO, patch) ){
             return;
         }
         this.logger.log('[MQTTConversationHandler] updating message with patch', patch);
@@ -299,10 +309,8 @@ export class MQTTConversationHandler extends ConversationHandlerService {
         this.logger.log("[MQTTConversationHandler] ****>msg.sender:" + msg.sender);
         msg.isSender = this.isSender(msg.sender, this.loggedUser.uid);
         // traduco messaggi se sono del server
-        if (msg.attributes && msg.attributes.subtype) {
-            if (msg.attributes.subtype === 'info' || msg.attributes.subtype === 'info/support') {
-                this.translateInfoSupportMessages(msg);
-            }
+        if (messageType(MESSAGE_TYPE_INFO, msg)) {
+            this.translateInfoSupportMessages(msg);
         }
         return msg;
     }

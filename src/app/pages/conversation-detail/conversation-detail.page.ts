@@ -652,6 +652,7 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
   // -------------------------------------------------------------------------------------
   initConversationHandler() {
     const translationMap = this.setTranslationMapForConversationHandler()
+    const showInfoMessage = ['MEMBER_JOINED_GROUP', 'CHAT_REOPENED', 'CHAT_CLOSED']
     this.showMessageWelcome = false
     const handler: ConversationHandlerService = this.chatManager.getConversationHandlerByConversationId(this.conversationWith)
     this.logger.log('[CONVS-DETAIL] - initConversationHandler - handler ', handler, ' conversationWith ', this.conversationWith)
@@ -663,6 +664,7 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
         this.loggedUser,
         this.tenant,
         translationMap,
+        showInfoMessage
       )
       this.conversationHandlerService.connect()
       this.logger.log('[CONVS-DETAIL] - initConversationHandler - NEW handler - conversationHandlerService', this.conversationHandlerService)
