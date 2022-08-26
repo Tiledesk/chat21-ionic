@@ -1,3 +1,4 @@
+import { Chat21HttpService } from './../chat21-core/providers/native/chat21http.service';
 import { LogLevel, PUSH_ENGINE_FIREBASE, PUSH_ENGINE_MQTT } from './../chat21-core/utils/constants';
 import { CustomLogger } from 'src/chat21-core/providers/logger/customLogger';
 import { NgModule, ErrorHandler, APP_INITIALIZER } from '@angular/core';
@@ -369,7 +370,8 @@ const appInitializerFn = (appConfig: AppConfigProvider, logger: NGXLogger) => {
     EventsService,
     Chooser,
     Chat21Service,
-    WebSocketJs
+    WebSocketJs,
+    Chat21HttpService
   ]
 })
 export class AppModule { }

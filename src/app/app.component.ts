@@ -58,7 +58,6 @@ import * as PACKAGE from 'package.json';
 import { filter } from 'rxjs/operators'
 import { WebSocketJs } from './services/websocket/websocket-js';
 import { Location } from '@angular/common'
-
 // import { filter } from 'rxjs/operators';
 
 @Component({
