@@ -181,15 +181,15 @@ export class MQTTConversationsHandler extends ConversationsHandlerService {
                 uid: convers_with
             });
         });
-        this.chat21Service.chatClient.lastConversations( false, (err, conversations) => {
-            this.logger.debug('[MQTTConversationsHandler] Last conversations', conversations, 'err', err);
-            if (!err) {
-                conversations.forEach(conv => {
-                    this.added(conv);
-                });
-                loaded();
-            }
-        });
+        // this.chat21Service.chatClient.lastConversations( false, (err, conversations) => {
+        //     this.logger.debug('[MQTTConversationsHandler] Last conversations', conversations, 'err', err);
+        //     if (!err) {
+        //         conversations.forEach(conv => {
+        //             this.added(conv);
+        //         });
+        //         loaded();
+        //     }
+        // });
     }
 
     getLastConversation(callback: (conv: ConversationModel, error: string) => void): void {

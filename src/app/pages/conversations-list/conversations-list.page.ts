@@ -1,3 +1,4 @@
+import { Chat21HttpService } from 'src/chat21-core/providers/native/chat21http.service';
 import { AppStorageService } from 'src/chat21-core/providers/abstract/app-storage.service';
 import { ArchivedConversationsHandlerService } from 'src/chat21-core/providers/abstract/archivedconversations-handler.service'
 import { Component, OnInit, ViewChild } from '@angular/core'
@@ -111,6 +112,7 @@ export class ConversationListPage implements OnInit {
     public events: EventsService,
     public modalController: ModalController,
     // public databaseProvider: DatabaseProvider,
+    public chat21HttpService: Chat21HttpService,
     public conversationsHandlerService: ConversationsHandlerService,
     public archivedConversationsHandlerService: ArchivedConversationsHandlerService,
     public chatManager: ChatManager,
@@ -349,7 +351,13 @@ export class ConversationListPage implements OnInit {
   initConversationsHandler() {
     // this.conversations = this.manageStoredConversations()
     // this.manageStoredConversations()
-    this.conversations = this.conversationsHandlerService.conversations
+    this.chat21HttpService.getLastConversations(this.loggedUserUid).then(convs => {
+      if(convs){
+        this.conversationsHandlerService.conversations = convs
+        this.conversations = this.conversationsHandlerService.conversations
+      } 
+    })
+    // this.conversations = this.conversationsHandlerService.conversations
     this.logger.log('[CONVS-LIST-PAGE] - CONVERSATIONS ', this.conversations.length, this.conversations)
     // save conversationHandler in chatManager
     this.chatManager.setConversationsHandler(this.conversationsHandlerService)
