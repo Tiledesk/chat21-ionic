@@ -10,6 +10,7 @@ import 'firebase/messaging';
 import 'firebase/auth';
 // chat21
 import { Chat21Service } from './chat-service';
+import { Chat21HttpService } from '../native/chat21http.service';
 
 @Injectable({
     providedIn: 'root'
@@ -24,7 +25,7 @@ export class MQTTNotifications extends NotificationsService {
   private logger: LoggerService = LoggerInstance.getInstance();
 
   constructor(
-    public chat21Service: Chat21Service
+    public chat21HttpService: Chat21HttpService
   ) {
     super();
   }
@@ -107,7 +108,7 @@ export class MQTTNotifications extends NotificationsService {
       platform: 'ionic',
       platform_version: this.BUILD_VERSION
     }
-    this.chat21Service.chatClient.saveInstance(FCMcurrentToken,device_model,(err, response) => {
+    this.chat21HttpService.chatClient.saveInstance(FCMcurrentToken,device_model,(err, response) => {
       if (err) {
         this.logger.error('[MQTTNotificationService] Error saving FCMcurrentToken on chat21 App Instance', FCMcurrentToken);
       }

@@ -1,3 +1,4 @@
+import { Chat21HttpService } from 'src/chat21-core/providers/native/chat21http.service';
 import { Inject, Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
@@ -57,7 +58,7 @@ export class MQTTConversationHandler extends ConversationHandlerService {
     private logger: LoggerService = LoggerInstance.getInstance()
 
     constructor(
-        public chat21Service: Chat21Service,
+        public chat21HttpService : Chat21HttpService,
         @Inject('skipMessage') private skipInfoMessage: boolean
     ) {
         super();
@@ -96,19 +97,19 @@ export class MQTTConversationHandler extends ConversationHandlerService {
             this.logger.error('[MQTTConversationHandler] cant connect invalid this.conversationWith', this.conversationWith);
             return;
         }
-        this.chat21Service.chatClient.lastMessages(this.conversationWith, (err, messages) => {
-            if (!err) {
-                messages.forEach(msg => {
-                    this.addedMessage(msg);
-                });
-            }
-        });
-        const handler_message_added = this.chat21Service.chatClient.onMessageAddedInConversation(
+        // this.chat21Service.chatClient.lastMessages(this.conversationWith, (err, messages) => {
+        //     if (!err) {
+        //         messages.forEach(msg => {
+        //             this.addedMessage(msg);
+        //         });
+        //     }
+        // });
+        const handler_message_added = this.chat21HttpService.chatClient.onMessageAddedInConversation(
             this.conversationWith, (message, topic) => {
                 this.logger.log('[MQTTConversationHandler] message added:', message, 'on topic:', topic);
                 this.addedMessage(message);
         });
-        const handler_message_updated = this.chat21Service.chatClient.onMessageUpdatedInConversation(
+        const handler_message_updated = this.chat21HttpService.chatClient.onMessageUpdatedInConversation(
             this.conversationWith,  (message, topic) => {
             this.logger.log('[MQTTConversationHandler] message updated:', message, 'on topic:', topic);
             this.updatedMessageStatus(message);
@@ -163,7 +164,7 @@ export class MQTTConversationHandler extends ConversationHandlerService {
         const recipientFullname = conversationWithFullname;
         const recipientId = conversationWith;
         attributes.lang = language;
-        this.chat21Service.chatClient.sendMessage(
+        this.chat21HttpService.chatClient.sendMessage(
             msg,
             typeMsg,
             recipientId,
@@ -376,7 +377,7 @@ export class MQTTConversationHandler extends ConversationHandlerService {
             this.logger.log('[MQTTConversationHandler] status ', msg['status'], ' < (RECEIVED:200)', MSG_STATUS_RECEIVED);
             if (msg.sender !== this.loggedUser.uid && msg.status < MSG_STATUS_RECEIVED) {
                 this.logger.log('[MQTTConversationHandler] updating message with status received');
-                this.chat21Service.chatClient.updateMessageStatus(msg.message_id, this.conversationWith, MSG_STATUS_RECEIVED, null);
+                this.chat21HttpService.chatClient.updateMessageStatus(msg.message_id, this.conversationWith, MSG_STATUS_RECEIVED, null);
             }
         }
         // if (msg.status < MSG_STATUS_RECEIVED) {

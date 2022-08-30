@@ -7,6 +7,7 @@ import { CustomLogger } from '../logger/customLogger';
 import { Chat21Service } from './chat-service';
 import { LoggerInstance } from '../logger/loggerInstance';
 import { avatarPlaceholder, getColorBck } from 'src/chat21-core/utils/utils-user';
+import { Chat21HttpService } from '../native/chat21http.service';
 
 @Injectable({
     providedIn: 'root'
@@ -26,7 +27,7 @@ import { avatarPlaceholder, getColorBck } from 'src/chat21-core/utils/utils-user
     private logger: LoggerService = LoggerInstance.getInstance()
     
     constructor(
-        public chat21Service: Chat21Service
+        public chat21HttpService: Chat21HttpService
     ) {
         super();
     }
@@ -63,11 +64,11 @@ import { avatarPlaceholder, getColorBck } from 'src/chat21-core/utils/utils-user
 // abstract onGroupChange(groupId: string): Observable<GroupModel>;
     onGroupChange(groupId: string): Observable<GroupModel> {
         if (this.isGroup(groupId)) {
-            this.chat21Service.chatClient.groupData(groupId, (err, group) => {
+            this.chat21HttpService.chatClient.groupData(groupId, (err, group) => {
                 this.logger.log('[MQTT-GROUPS-HANDLER] onGroupChange: got result by REST call:', group);
                 this.groupValue(group.result);
                 this.logger.log('[MQTT-GROUPS-HANDLER] onGroupChange: subscribing to group updates...', groupId);
-                const handler_group_updated = this.chat21Service.chatClient.onGroupUpdated( (group, topic) => {
+                const handler_group_updated = this.chat21HttpService.chatClient.onGroupUpdated( (group, topic) => {
                     if (topic.conversWith === groupId) {
                         this.groupValue(group);
                     }

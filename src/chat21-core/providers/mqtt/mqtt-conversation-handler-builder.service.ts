@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { ConversationHandlerBuilderService } from '../abstract/conversation-handler-builder.service';
 import { MQTTConversationHandler } from './mqtt-conversation-handler';
 import { Chat21Service } from './chat-service';
+import { Chat21HttpService } from '../native/chat21http.service';
 
 @Injectable({
   providedIn: 'root'
@@ -10,16 +11,13 @@ import { Chat21Service } from './chat-service';
 export class MQTTConversationHandlerBuilderService extends ConversationHandlerBuilderService {
 
   constructor(
-    public chat21Service: Chat21Service
+    public chat21HttpService: Chat21HttpService
   ) {
     super();
   }
 
   public build(): any {
-    const conversationHandlerService = new MQTTConversationHandler(
-      this.chat21Service,
-      false
-    );
+    const conversationHandlerService = new MQTTConversationHandler(this.chat21HttpService, false);
     return conversationHandlerService;
   }
 }

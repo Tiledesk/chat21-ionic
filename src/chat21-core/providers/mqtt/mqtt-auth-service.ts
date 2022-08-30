@@ -1,3 +1,4 @@
+
 import { Injectable, ɵConsole } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { BehaviorSubject } from 'rxjs';
@@ -15,6 +16,7 @@ import { LoggerInstance } from '../logger/loggerInstance';
 // services
 // import { EventsService } from '../events-service';
 import { MessagingAuthService } from '../abstract/messagingAuth.service';
+import { Chat21HttpService } from 'src/chat21-core/providers/native/chat21http.service';
 import { Chat21Service } from './chat-service';
 // models
 import { UserModel } from '../../models/user';
@@ -44,8 +46,8 @@ export class MQTTAuthService extends MessagingAuthService {
   private logger: LoggerService = LoggerInstance.getInstance()
 
   constructor(
+    public chat21HttpService: Chat21HttpService,
     public http: HttpClient,
-    public chat21Service: Chat21Service,
     public appStorage: AppStorageService
   ) {
     super();
@@ -66,7 +68,7 @@ export class MQTTAuthService extends MessagingAuthService {
   logout(): Promise<boolean> {
     this.logger.log("[MQTTAuthService] logout: closing mqtt connection...");
     return new Promise((resolve, reject) => {
-      this.chat21Service.chatClient.close(() => {
+      this.chat21HttpService.chatClient.close(() => {
         console.log("[MQTTAuthService] logout: mqtt connection closed. OK");
         // remove
         // this.appStorage.removeItem('tiledeskToken');
@@ -266,7 +268,7 @@ z
   connectMQTT(credentials: any): any {
     this.logger.log('[MQTTAuthService] connectMQTT: **** credentials:', credentials);
     const userid = credentials.userid;
-    this.chat21Service.chatClient.connect(userid, credentials.token, () => {
+    this.chat21HttpService.chatClient.connect(userid, credentials.token, () => {
       this.logger.log('[MQTTAuthService] connectMQTT: Chat connected.');
       this.BSAuthStateChanged.next('online');
     });

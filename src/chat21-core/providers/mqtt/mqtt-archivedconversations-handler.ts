@@ -9,6 +9,7 @@ import { ConversationModel } from '../../models/conversation';
 
 // services
 import { ConversationsHandlerService } from '../abstract/conversations-handler.service';
+import { Chat21HttpService } from '../native/chat21http.service';
 
 // utils
 import { TYPE_GROUP } from '../../utils/constants';
@@ -17,6 +18,7 @@ import { compareValues, getFromNow, conversationsPathForUserId, searchIndexInArr
 import { ArchivedConversationsHandlerService } from '../abstract/archivedconversations-handler.service';
 import { LoggerService } from '../abstract/logger.service';
 import { LoggerInstance } from '../logger/loggerInstance';
+
 
 @Injectable({ providedIn: 'root' })
 export class MQTTArchivedConversationsHandler extends ArchivedConversationsHandlerService {
@@ -40,7 +42,7 @@ export class MQTTArchivedConversationsHandler extends ArchivedConversationsHandl
     private logger: LoggerService = LoggerInstance.getInstance()
 
     constructor(
-        public chat21Service: Chat21Service
+        public chat21HttpService: Chat21HttpService
     ) {
         super();
     }
@@ -61,14 +63,14 @@ export class MQTTArchivedConversationsHandler extends ArchivedConversationsHandl
         // 2 cerco remoto
         // callback
 
-        const conversation = this.archivedConversations.find(conv => conv.conversation_with === conversationWith);
+        const conversation = this.chat21HttpService.archivedConversations.find(conv => conv.conversation_with === conversationWith);
         this.logger.log('[MQTTArchivedConversationsHandler] getConversationDetail found locally? *****: ', conversation);
         if (conversation) {
             console.log('found!');
             callback(conversation);
         } else {
             this.logger.log('[MQTTArchivedConversationsHandler] getConversationDetail Not found locally, remote.getConversationDetail *****: ', conversation);
-            this.chat21Service.chatClient.archivedConversationDetail(conversationWith, (err, conversation) => {
+            this.chat21HttpService.chatClient.archivedConversationDetail(conversationWith, (err, conversation) => {
                 this.logger.log('[MQTTArchivedConversationsHandler] getConversationDetail --REMOTE CONV IS OBJ:', conversation);
                 if (conversation) {
                     if (callback) {
@@ -143,7 +145,7 @@ export class MQTTArchivedConversationsHandler extends ArchivedConversationsHandl
      //----------------------------------------------------------------------------------
      subscribeToConversations(loaded) {
         this.logger.debug('[MQTTArchivedConversationsHandler] connecting MQTT conversations handler');
-        const handlerConversationAdded = this.chat21Service.chatClient.onArchivedConversationAdded( (conv) => {
+        const handlerConversationAdded = this.chat21HttpService.chatClient.onArchivedConversationAdded( (conv) => {
             this.logger.log('[MQTTArchivedConversationsHandler] Added conv ->', conv.text)
             this.added(conv);
         });
@@ -151,11 +153,11 @@ export class MQTTArchivedConversationsHandler extends ArchivedConversationsHandl
         //     console.log('conversation updated:', conv.text);
         //     this.changed(conv);
         // });
-        const handlerConversationDeleted = this.chat21Service.chatClient.onArchivedConversationDeleted( (conv) => {
+        const handlerConversationDeleted = this.chat21HttpService.chatClient.onArchivedConversationDeleted( (conv) => {
             this.logger.debug('[MQTTArchivedConversationsHandler] conversation deleted:', conv);
             this.removed(conv);
         });
-        this.chat21Service.chatClient.lastConversations( true, (err, conversations) => {
+        this.chat21HttpService.chatClient.lastConversations( true, (err, conversations) => {
             this.logger.debug('[MQTTArchivedConversationsHandler] Last conversations', conversations, 'err', err);
             if (!err) {
                 conversations.forEach(conv => {
@@ -185,20 +187,20 @@ export class MQTTArchivedConversationsHandler extends ArchivedConversationsHandl
         // console.log("NUOVA CONVER;" + conversation.uid)
         if (this.isValidConversation(conversation)) {
             this.setClosingConversation(conversation.conversation_with, false);
-            this.logger.debug('[MQTTArchivedConversationsHandler] conversations:', conversation.uid, this.archivedConversations);
-            const index = this.searchIndexInArrayForConversationWith(this.archivedConversations, conversation.conversation_with);
+            this.logger.debug('[MQTTArchivedConversationsHandler] conversations:', conversation.uid, this.chat21HttpService.archivedConversations);
+            const index = this.searchIndexInArrayForConversationWith(this.chat21HttpService.archivedConversations, conversation.conversation_with);
             console.log("NUOVA CONVER;.uid2" + conversation.uid)
             if (index > -1) {
                 this.logger.debug('[MQTTArchivedConversationsHandler] TROVATO')
-                this.archivedConversations.splice(index, 1, conversation);
+                this.chat21HttpService.archivedConversations.splice(index, 1, conversation);
             } else {
                 this.logger.debug('[MQTTArchivedConversationsHandler] NON TROVATO')
-                this.archivedConversations.splice(0, 0, conversation);
+                this.chat21HttpService.archivedConversations.splice(0, 0, conversation);
                 // this.databaseProvider.setConversation(conversation);
             }
             this.logger.debug('[MQTTArchivedConversationsHandler] NUOVA CONVER;.uid3' + conversation.uid)
-            this.archivedConversations.sort(compareValues('timestamp', 'desc'));
-            this.logger.debug('[MQTTArchivedConversationsHandler] TUTTE:', this.archivedConversations)
+            this.chat21HttpService.archivedConversations.sort(compareValues('timestamp', 'desc'));
+            this.logger.debug('[MQTTArchivedConversationsHandler] TUTTE:', this.chat21HttpService.archivedConversations)
             this.archivedConversationChanged.next(conversation);
             this.archivedConversationAdded.next(conversation);
             // this.events.publish('conversationsChanged', this.conversations);
@@ -252,10 +254,10 @@ export class MQTTArchivedConversationsHandler extends ArchivedConversationsHandl
      * 5 -  elimino conversazione dall'array delle conversazioni chiuse
      */
     private removed(childSnapshot) {
-        const index = searchIndexInArrayForUid(this.archivedConversations, childSnapshot.key);
+        const index = searchIndexInArrayForUid(this.chat21HttpService.archivedConversations, childSnapshot.key);
         if (index > -1) {
-            const conversationRemoved = this.archivedConversations[index]
-            this.archivedConversations.splice(index, 1);
+            const conversationRemoved = this.chat21HttpService.archivedConversations[index]
+            this.chat21HttpService.archivedConversations.splice(index, 1);
             // this.conversations.sort(compareValues('timestamp', 'desc'));
             // this.databaseProvider.removeConversation(childSnapshot.key);
             this.archivedConversationRemoved.next(conversationRemoved);
@@ -268,8 +270,8 @@ export class MQTTArchivedConversationsHandler extends ArchivedConversationsHandl
      * dispose reference di conversations
      */
     dispose() {
-        this.archivedConversations = [];
-        this.archivedConversations.length = 0;
+        this.chat21HttpService.archivedConversations = [];
+        this.chat21HttpService.archivedConversations.length = 0;
         this.uidConvSelected = '';
     }
 
@@ -408,7 +410,7 @@ export class MQTTArchivedConversationsHandler extends ArchivedConversationsHandl
      */
     countIsNew(): number {
         let num = 0;
-        this.archivedConversations.forEach((element) => {
+        this.chat21HttpService.archivedConversations.forEach((element) => {
             if (element.is_new === true) {
                 num++;
             }
