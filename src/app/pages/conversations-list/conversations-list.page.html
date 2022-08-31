@@ -86,6 +86,7 @@
         <!-- ARCHIVED CONVERSATION LIST -->
         <!-- ---------------------------------- -->
         <ion-list-conversations *ngIf="conversationType ==='archived'" 
+          [uidConvSelected]="uidConvSelected"
           [listConversations]="archivedConversations"
           [stylesMap]="stylesMap" 
           [translationMap]="translationMapConversation"
