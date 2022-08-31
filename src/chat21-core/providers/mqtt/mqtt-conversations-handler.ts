@@ -1,3 +1,4 @@
+import { Keyboard } from '@ionic-native/keyboard/ngx';
 import { Chat21HttpService } from 'src/chat21-core/providers/native/chat21http.service';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
@@ -72,7 +73,7 @@ export class MQTTConversationsHandler extends ConversationsHandlerService {
                 this.logger.log('[MQTTConversationsHandler] getConversationDetail --REMOTE CONV IS OBJ:', conversation);
                 if (conversation) {
                     if (callback) {
-                        callback(this.completeConversation(conversation));
+                        callback(this.chat21HttpService.completeConversation(conversation));
                     }
                 }
                 else {
@@ -149,7 +150,7 @@ export class MQTTConversationsHandler extends ConversationsHandlerService {
          // lastTimestamp temporarily ignored
         this.logger.debug('[MQTTConversationsHandler] connecting MQTT conversations handler');
         const handlerConversationAdded = this.chat21HttpService.chatClient.onConversationAdded( (conv) => {
-            let conversation = this.completeConversation(conv); // needed to get the "conversation_with", and find the conv in the conv-history
+            let conversation = this.chat21HttpService.completeConversation(conv); // needed to get the "conversation_with", and find the conv in the conv-history
             this.logger.log("onConversationAdded completed:",conversation);
             const index = this.searchIndexInArrayForConversationWith(this.chat21HttpService.conversations, conversation.conversation_with);
             if (index > -1) {
@@ -197,8 +198,9 @@ export class MQTTConversationsHandler extends ConversationsHandlerService {
     
     private added(conv: any) {
         this.logger.debug('[MQTTConversationsHandler] NEW CONV childSnapshot', conv)
-        let conversation = this.completeConversation(conv);
-        if (this.isValidConversation(conversation)) {
+        let conversation = this.chat21HttpService.completeConversation(conv);
+        this.logger.debug('[MQTTConversationsHandler] NEW CONV completeConversation ', conversation)
+        if (this.chat21HttpService.isValidConversation(conversation)) {
             this.setClosingConversation(conversation.conversation_with, false);
             this.logger.debug('[MQTTConversationsHandler] conversations:', conversation.uid, this.chat21HttpService.conversations);
             const index = this.searchIndexInArrayForConversationWith(this.chat21HttpService.conversations, conversation.conversation_with);
@@ -238,27 +240,22 @@ export class MQTTConversationsHandler extends ConversationsHandlerService {
         // this.logger.log('changed conversation: ', childData);
         // const conversation = this.completeConversation(childData);
         this.logger.debug('[MQTTConversationsHandler] Conversation changed:', conversation)
-        // let conversation = this.completeConversation(childSnapshot);
-        // childSnapshot.uid = childSnapshot.conversation_with;
-        // let conversation = this.completeConversation(childSnapshot);
-        // this.logger.log("Conversation completed:", conversation);
-        // conversation.uid = conversation.conversation_with;
-        // this.logger.log("conversation.uid" + conversation.uid)
-        // this.logger.log("conversation.uid", conversation.uid)
-        // if (this.isValidConversation(conversation)) {
-        // this.setClosingConversation(conversation.uid, false);
+
         if (!conversation.conversation_with) {
             conversation.conversation_with = conversation.conversWith // conversWith comes from remote
         }
         const index = searchIndexInArrayForUid(this.chat21HttpService.conversations, conversation.conversation_with);
         if (index > -1) {
+            const oldConversation = this.chat21HttpService.conversations[index]
             // const conv = this.conversations[index];
             // this.logger.log("Conversation to update found", conv);
             this.updateConversationWithSnapshot(this.chat21HttpService.conversations[index], conversation);
+            this.chat21HttpService.conversations[index] = this.chat21HttpService.completeConversation(this.chat21HttpService.conversations[index])
             this.logger.debug('[MQTTConversationsHandler] conversationchanged.isnew', JSON.stringify(conversation))
             this.chat21HttpService.conversations.sort(compareValues('timestamp', 'desc'));
-            this.logger.log("this.conversations:" + JSON.stringify(this.chat21HttpService.conversations));
-            this.conversationChanged.next(this.chat21HttpService.conversations[index]);
+            const conversationChanged = this.chat21HttpService.conversations[index]
+            this.conversationChanged.next(conversationChanged);
+            this.conversationChangedDetailed.next({value: conversationChanged, previousValue: oldConversation});
         }
     }
 
@@ -301,7 +298,11 @@ export class MQTTConversationsHandler extends ConversationsHandlerService {
             }
             if (k === 'status') {
                 this.logger.debug('[MQTTConversationsHandler] aggiorno key:' + k);
-                conv.status = this.setStatusConversation(conv.sender, conv.uid);
+                conv.status = snap[k];
+            }
+            if (k === 'is_new') {
+                this.logger.debug('[MQTTConversationsHandler] aggiorno key:' + k);
+                conv.is_new = snap[k];
             }
             if (k === 'type') {
                 this.logger.debug('[MQTTConversationsHandler] aggiorno key:' + k);
@@ -357,61 +358,61 @@ export class MQTTConversationsHandler extends ConversationsHandlerService {
         this.chat21HttpService.chatClient.archiveConversation(conversationId);
     }
 
-    private completeConversation(conv): ConversationModel {
-        // conv.selected = false;
-        if (!conv.sender_fullname || conv.sender_fullname === 'undefined' || conv.sender_fullname.trim() === '') {
-            conv.sender_fullname = conv.sender;
-        }
-        if (!conv.recipient_fullname || conv.recipient_fullname === 'undefined' || conv.recipient_fullname.trim() === '') {
-            conv.recipient_fullname = conv.recipient;
-        }
-        let conversation_with_fullname = conv.sender_fullname;
-        let conversation_with = conv.sender;
-        if (conv.sender === this.loggedUserId) {
-            conversation_with = conv.recipient;
-            conversation_with_fullname = conv.recipient_fullname;
-            conv.last_message_text = conv.last_message_text;
-        } else if (this.isGroup(conv)) {
-            conversation_with = conv.recipient;
-            conversation_with_fullname = conv.recipient_fullname;
-            conv.last_message_text = conv.last_message_text;
-        }
-        conv.conversation_with_fullname = conversation_with_fullname;
-        conv.conversation_with = conversation_with;
-        conv.status = this.setStatusConversation(conv.sender, conv.uid);
-        conv.time_last_message = this.getTimeLastMessage(conv.timestamp);
-        conv.avatar = avatarPlaceholder(conversation_with_fullname);
-        conv.color = getColorBck(conversation_with_fullname);
-        if (!conv.last_message_text) {
-            conv.last_message_text = conv.text; // building conv with a message
-        }
-        conv.uid = conv.conversation_with;
-        if (conv.uid === this.uidConvSelected) {
-            conv.is_new = false;
-        }
-        if (conv.sender === this.loggedUserId) {
-            conv.is_new = false;
-        }
-        return conv;
-    }
+    // private completeConversation(conv): ConversationModel {
+    //     // conv.selected = false;
+    //     if (!conv.sender_fullname || conv.sender_fullname === 'undefined' || conv.sender_fullname.trim() === '') {
+    //         conv.sender_fullname = conv.sender;
+    //     }
+    //     if (!conv.recipient_fullname || conv.recipient_fullname === 'undefined' || conv.recipient_fullname.trim() === '') {
+    //         conv.recipient_fullname = conv.recipient;
+    //     }
+    //     let conversation_with_fullname = conv.sender_fullname;
+    //     let conversation_with = conv.sender;
+    //     if (conv.sender === this.loggedUserId) {
+    //         conversation_with = conv.recipient;
+    //         conversation_with_fullname = conv.recipient_fullname;
+    //         conv.last_message_text = conv.last_message_text;
+    //     } else if (this.isGroup(conv)) {
+    //         conversation_with = conv.recipient;
+    //         conversation_with_fullname = conv.recipient_fullname;
+    //         conv.last_message_text = conv.last_message_text;
+    //     }
+    //     conv.conversation_with_fullname = conversation_with_fullname;
+    //     conv.conversation_with = conversation_with;
+    //     conv.status = this.setStatusConversation(conv.sender, conv.uid);
+    //     conv.time_last_message = this.getTimeLastMessage(conv.timestamp);
+    //     conv.avatar = avatarPlaceholder(conversation_with_fullname);
+    //     conv.color = getColorBck(conversation_with_fullname);
+    //     if (!conv.last_message_text) {
+    //         conv.last_message_text = conv.text; // building conv with a message
+    //     }
+    //     conv.uid = conv.conversation_with;
+    //     if (conv.uid === this.uidConvSelected) {
+    //         conv.is_new = false;
+    //     }
+    //     if (conv.sender === this.loggedUserId) {
+    //         conv.is_new = false;
+    //     }
+    //     return conv;
+    // }
 
-    private isGroup(conv: ConversationModel) {
-        if (conv.recipient.startsWith('group-') || conv.recipient.startsWith('support-group')) {
-            return true;
-        };
-        return false;
-    }
+    // private isGroup(conv: ConversationModel) {
+    //     if (conv.recipient.startsWith('group-') || conv.recipient.startsWith('support-group')) {
+    //         return true;
+    //     };
+    //     return false;
+    // }
 
     /** */
-    private setStatusConversation(sender, uid): string {
-        let status = '0'; // letto
-        if (sender === this.loggedUserId || uid === this.uidConvSelected) {
-            status = '0';
-        } else {
-            status = '1'; // non letto
-        }
-        return status;
-    }
+    // private setStatusConversation(sender, uid): string {
+    //     let status = '0'; // letto
+    //     if (sender === this.loggedUserId || uid === this.uidConvSelected) {
+    //         status = '0';
+    //     } else {
+    //         status = '1'; // non letto
+    //     }
+    //     return status;
+    // }
 
     /**
      * calcolo il tempo trascorso da ora al timestamp passato
@@ -517,60 +518,60 @@ export class MQTTConversationsHandler extends ConversationsHandlerService {
     /**
      *  check if the conversations is valid or not
     */
-    private isValidConversation(convToCheck: ConversationModel) : boolean {
-        //this.logger.log("[BEGIN] ChatConversationsHandler:: convToCheck with uid: ", convToCheckId);
-        this.logger.debug('[MQTTConversationsHandler] checking uid of', convToCheck)
-        this.logger.debug('[MQTTConversationsHandler] conversation.uid', convToCheck.uid)
-        this.logger.debug('[MQTTConversationsHandler] channel_type is:', convToCheck.channel_type)
+    // private isValidConversation(convToCheck: ConversationModel) : boolean {
+    //     //this.logger.log("[BEGIN] ChatConversationsHandler:: convToCheck with uid: ", convToCheckId);
+    //     this.logger.debug('[MQTTConversationsHandler] checking uid of', convToCheck)
+    //     this.logger.debug('[MQTTConversationsHandler] conversation.uid', convToCheck.uid)
+    //     this.logger.debug('[MQTTConversationsHandler] channel_type is:', convToCheck.channel_type)
         
-        if (!this.isValidField(convToCheck.uid)) {
-            this.logger.error('[MQTTConversationsHandler] ChatConversationsHandler::isValidConversation:: "uid is not valid" ');
-            return false;
-        }
-        // if (!this.isValidField(convToCheck.is_new)) {
-        //     this.logger.error("ChatConversationsHandler::isValidConversation:: 'is_new is not valid' ");
-        //     return false;
-        // }
-        if (!this.isValidField(convToCheck.last_message_text)) {
-            this.logger.error('[MQTTConversationsHandler] ChatConversationsHandler::isValidConversation:: "last_message_text is not valid" ');
-            return false;
-        }
-        if (!this.isValidField(convToCheck.recipient)) {
-            this.logger.error('[MQTTConversationsHandler] ChatConversationsHandler::isValidConversation:: "recipient is not valid" ');
-            return false;
-        }
-        if (!this.isValidField(convToCheck.recipient_fullname)) {
-            this.logger.error('[MQTTConversationsHandler] ChatConversationsHandler::isValidConversation:: "recipient_fullname is not valid" ');
-            return false;
-        }
-        if (!this.isValidField(convToCheck.sender)) {
-            this.logger.error('[MQTTConversationsHandler] ChatConversationsHandler::isValidConversation:: "sender is not valid" ');
-            return false;
-        }
-        if (!this.isValidField(convToCheck.sender_fullname)) {
-            this.logger.error('[MQTTConversationsHandler] ChatConversationsHandler::isValidConversation:: "sender_fullname is not valid" ');
-            return false;
-        }
-        if (!this.isValidField(convToCheck.status)) {
-            this.logger.error('[MQTTConversationsHandler] ChatConversationsHandler::isValidConversation:: "status is not valid" ');
-            return false;
-        }
-        if (!this.isValidField(convToCheck.timestamp)) {
-            this.logger.error('[MQTTConversationsHandler] ChatConversationsHandler::isValidConversation:: "timestamp is not valid" ');
-            return false;
-        }
-        if (!this.isValidField(convToCheck.channel_type)) {
-            this.logger.error('[MQTTConversationsHandler] ChatConversationsHandler::isValidConversation:: "channel_type is not valid" ');
-            return false;
-        }
-        //this.logger.log("[END] ChatConversationsHandler:: convToCheck with uid: ", convToCheckId);
-        // any other case
-        return true;
-    }
+    //     if (!this.isValidField(convToCheck.uid)) {
+    //         this.logger.error('[MQTTConversationsHandler] ChatConversationsHandler::isValidConversation:: "uid is not valid" ');
+    //         return false;
+    //     }
+    //     // if (!this.isValidField(convToCheck.is_new)) {
+    //     //     this.logger.error("ChatConversationsHandler::isValidConversation:: 'is_new is not valid' ");
+    //     //     return false;
+    //     // }
+    //     if (!this.isValidField(convToCheck.last_message_text)) {
+    //         this.logger.error('[MQTTConversationsHandler] ChatConversationsHandler::isValidConversation:: "last_message_text is not valid" ');
+    //         return false;
+    //     }
+    //     if (!this.isValidField(convToCheck.recipient)) {
+    //         this.logger.error('[MQTTConversationsHandler] ChatConversationsHandler::isValidConversation:: "recipient is not valid" ');
+    //         return false;
+    //     }
+    //     if (!this.isValidField(convToCheck.recipient_fullname)) {
+    //         this.logger.error('[MQTTConversationsHandler] ChatConversationsHandler::isValidConversation:: "recipient_fullname is not valid" ');
+    //         return false;
+    //     }
+    //     if (!this.isValidField(convToCheck.sender)) {
+    //         this.logger.error('[MQTTConversationsHandler] ChatConversationsHandler::isValidConversation:: "sender is not valid" ');
+    //         return false;
+    //     }
+    //     if (!this.isValidField(convToCheck.sender_fullname)) {
+    //         this.logger.error('[MQTTConversationsHandler] ChatConversationsHandler::isValidConversation:: "sender_fullname is not valid" ');
+    //         return false;
+    //     }
+    //     if (!this.isValidField(convToCheck.status)) {
+    //         this.logger.error('[MQTTConversationsHandler] ChatConversationsHandler::isValidConversation:: "status is not valid" ');
+    //         return false;
+    //     }
+    //     if (!this.isValidField(convToCheck.timestamp)) {
+    //         this.logger.error('[MQTTConversationsHandler] ChatConversationsHandler::isValidConversation:: "timestamp is not valid" ');
+    //         return false;
+    //     }
+    //     if (!this.isValidField(convToCheck.channel_type)) {
+    //         this.logger.error('[MQTTConversationsHandler] ChatConversationsHandler::isValidConversation:: "channel_type is not valid" ');
+    //         return false;
+    //     }
+    //     //this.logger.log("[END] ChatConversationsHandler:: convToCheck with uid: ", convToCheckId);
+    //     // any other case
+    //     return true;
+    // }
 
     // checks if a conversation's field is valid or not
-    private isValidField(field) : boolean{
-        return (field === null || field === undefined) ? false : true;
-    }
+    // private isValidField(field) : boolean{
+    //     return (field === null || field === undefined) ? false : true;
+    // }
 
 }

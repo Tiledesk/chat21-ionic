@@ -1,18 +1,14 @@
 import { TiledeskAuthService } from './../../../../chat21-core/providers/tiledesk/tiledesk-auth.service';
 import { TiledeskService } from '../../../services/tiledesk/tiledesk.service';
-import { Component, OnInit, Input, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 // models
 import { UserModel } from 'src/chat21-core/models/user';
 import { ConversationModel } from 'src/chat21-core/models/conversation';
 
-import { ArchivedConversationsHandlerService } from 'src/chat21-core/providers/abstract/archivedconversations-handler.service';
-import { ConversationsHandlerService } from 'src/chat21-core/providers/abstract/conversations-handler.service';
 
-import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { ContactsService } from 'src/app/services/contacts/contacts.service';
 import { AppConfigProvider } from '../../../services/app-config';
-import { setChannelType } from '../../../../chat21-core/utils/utils';
-import { TYPE_SUPPORT_GROUP, TYPE_DIRECT, TYPE_GROUP } from '../../../../chat21-core/utils/constants';
 import { DomSanitizer } from '@angular/platform-browser';
 
 import { LoggerService } from 'src/chat21-core/providers/abstract/logger.service';
@@ -37,12 +33,9 @@ export class InfoContentComponent implements OnInit {
 
   public member: UserModel;
   public urlConversation: any;
-  // public loggedUser: UserModel;
-  // private tenant: string;
   public conversationWith: string;
   public conversationWithFullname: string;
   public conv_type: string;
-  private channelType: string;
   public urlConversationSupportGroup: any;
   public conversations: Array<ConversationModel> = [];
   public conversationSelected: any;
@@ -52,8 +45,6 @@ export class InfoContentComponent implements OnInit {
   public IS_GROUP_PANEL: boolean = false
 
   constructor(
-    public archivedConversationsHandlerService: ArchivedConversationsHandlerService,
-    public conversationsHandlerService: ConversationsHandlerService,
     public tiledeskAuthService: TiledeskAuthService,
     private route: ActivatedRoute,
     public contactsService: ContactsService,

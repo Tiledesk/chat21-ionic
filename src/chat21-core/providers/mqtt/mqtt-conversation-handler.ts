@@ -159,7 +159,7 @@ export class MQTTConversationHandler extends ConversationHandlerService {
             channelType = TYPE_DIRECT;
         }
 
-        this.logger.log('[MQTTConversationHandler] Senderfullname', senderFullname);
+        this.logger.log('[MQTTConversationHandler] Senderfullname & channelType', senderFullname, channelType);
         const language = document.documentElement.lang;
         const recipientFullname = conversationWithFullname;
         const recipientId = conversationWith;

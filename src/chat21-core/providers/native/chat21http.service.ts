@@ -17,8 +17,10 @@ export class Chat21HttpService {
 
   public chatClient: any;
   private loggedUserId: string;
+  private showInfoMessage: string[];
   private translationMap: Map<string, string>;
   private logger: LoggerService = LoggerInstance.getInstance()
+  public uidConvSelected: string;
   public conversations: ConversationModel[] = [];
   public archivedConversations: ConversationModel[] = [];
   public messages: MessageModel[] = [];
@@ -63,11 +65,10 @@ export class Chat21HttpService {
     this.loggedUserId = userId;
     return  new Promise((resolve, reject)=> {
       this.chatClient.lastConversations(true, (err, conversations) => {
-        this.logger.debug('[Chat21HttpService] Last conversations', conversations, 'err', err);
+        this.logger.debug('[Chat21HttpService] Last archived conversations', conversations, 'err', err);
         if (!err) {
           this.archivedConversations = conversations
           this.archivedConversations.forEach((conversation, index, arrayConvs) => {
-            conversation.archived = true
             conversation = this.completeConversation(conversation) 
             if(!this.isValidConversation(conversation)){
               this.archivedConversations.splice(index, 1)
@@ -99,10 +100,11 @@ export class Chat21HttpService {
     })
   }
 
-
-  private completeConversation(conv): ConversationModel {
+  // ********* ********* ********* ********* ********* //
+  // ********* MANAGE CONVERSATIONS: start ********* //
+  public completeConversation(conv): ConversationModel {
     // conv.selected = false;
-    conv.uid = conv.key;
+    (conv.key && !conv.uid)? conv.uid = conv.key : conv.uid = conv.conversation_with;
     if (!conv.sender_fullname || conv.sender_fullname === 'undefined' || conv.sender_fullname.trim() === '') {
         conv.sender_fullname = conv.sender;
     }
@@ -120,7 +122,7 @@ export class Chat21HttpService {
     }
     conv.conversation_with_fullname = conversation_with_fullname;
     conv.conversation_with = conversation_with;
-    conv.is_new = this.setStatusConversation(conv.sender);
+    conv.is_new = this.setStatusConversation(conv.sender, conv.uid);
     conv.avatar = avatarPlaceholder(conversation_with_fullname);
     conv.color = getColorBck(conversation_with_fullname);
     if (!conv.last_message_text) {
@@ -131,14 +133,23 @@ export class Chat21HttpService {
   }
 
   /** set conversation status: is_new: true/false */
-  private setStatusConversation(sender): boolean {
+  private setStatusConversation(sender, uid): boolean {
     let is_new = true; // letto
-    if (sender === this.loggedUserId) {
+    if (sender === this.loggedUserId || uid === this.uidConvSelected) {
       is_new = false;
-    } else {
-      is_new = false; // non letto
     }
     return is_new;
+  }
+
+  /** get the number of unread conversations*/
+  countIsNew(): number {
+    let num = 0;
+    this.conversations.forEach((element) => {
+        if (element.is_new === true) {
+            num++;
+        }
+    });
+    return num;
   }
 
 
@@ -147,7 +158,6 @@ export class Chat21HttpService {
     if(this.appStorageService.getItem('conversations')){
         conversationsStored = JSON.parse(this.appStorageService.getItem('conversations'))
         if(conversationsStored && conversationsStored.length > 0) {
-            // this.conversationsHandlerService.conversations = conversationsStored
             this.logger.log('[Chat21HttpService] retrive conversations from storage --> ', conversationsStored.length)
            return conversationsStored
         }
@@ -159,9 +169,64 @@ export class Chat21HttpService {
     this.appStorageService.setItem('conversations', JSON.stringify(this.conversations))
   }
 
+  public isValidConversation(convToCheck: ConversationModel) : boolean {
+    // this.logger.debug('[Chat21HttpService] checking uid of', convToCheck)
+    
+    if (!this.isValidField(convToCheck.uid)) {
+        this.logger.error('[Chat21HttpService] ChatConversationsHandler::isValidConversation:: "uid is not valid" ');
+        return false;
+    }
+    if (!this.isValidField(convToCheck.is_new)) {
+        this.logger.error("ChatConversationsHandler::isValidConversation:: 'is_new is not valid' ");
+        return false;
+    }
+    if (!this.isValidField(convToCheck.last_message_text)) {
+        this.logger.error('[Chat21HttpService] ChatConversationsHandler::isValidConversation:: "last_message_text is not valid" ');
+        return false;
+    }
+    if (!this.isValidField(convToCheck.recipient)) {
+        this.logger.error('[Chat21HttpService] ChatConversationsHandler::isValidConversation:: "recipient is not valid" ');
+        return false;
+    }
+    if (!this.isValidField(convToCheck.recipient_fullname)) {
+        this.logger.error('[Chat21HttpService] ChatConversationsHandler::isValidConversation:: "recipient_fullname is not valid" ');
+        return false;
+    }
+    if (!this.isValidField(convToCheck.sender)) {
+        this.logger.error('[Chat21HttpService] ChatConversationsHandler::isValidConversation:: "sender is not valid" ');
+        return false;
+    }
+    if (!this.isValidField(convToCheck.sender_fullname)) {
+        this.logger.error('[Chat21HttpService] ChatConversationsHandler::isValidConversation:: "sender_fullname is not valid" ');
+        return false;
+    }
+    if (!this.isValidField(convToCheck.status)) {
+        this.logger.error('[Chat21HttpService] ChatConversationsHandler::isValidConversation:: "status is not valid" ');
+        return false;
+    }
+    if (!this.isValidField(convToCheck.timestamp)) {
+        this.logger.error('[Chat21HttpService] ChatConversationsHandler::isValidConversation:: "timestamp is not valid" ');
+        return false;
+    }
+    if (!this.isValidField(convToCheck.channel_type)) {
+        this.logger.error('[Chat21HttpService] ChatConversationsHandler::isValidConversation:: "channel_type is not valid" ');
+        return false;
+    }
+    //console.log("[END] ChatConversationsHandler:: convToCheck with uid: ", convToCheckId);
+    // any other case
+    return true;
+  }
+
+  // checks if a conversation's field is valid or not
+  private isValidField(field) : boolean{
+      return (field === null || field === undefined) ? false : true;
+  }
+  // ********* MANAGE CONVERSATIONS: end ********* //
+  // ********* ********* ********* ********* ********* //
 
 
-  /** */
+  // ********* ********* ********* *********  //
+  // ********* MANAGE MESSAGES: start ********* //
   private messageGenerate(childSnapshot: any) {
     // const msg: MessageModel = childSnapshot.val();
     this.logger.log("[Chat21HttpService] childSnapshot >" + JSON.stringify(childSnapshot));
@@ -241,64 +306,20 @@ export class Chat21HttpService {
     } else if ((message.attributes.messagelabel && message.attributes.messagelabel.key === CHAT_CLOSED)) {
         message.text = INFO_SUPPORT_CHAT_CLOSED;
     }
-}
+  }
+  // ********* MANAGE MESSAGES: end ********* //
+  // ********* ********* ********* *********  //
 
 
+  disposeConversations(){
+    this.conversations = [];
+   
+  }
+
+  disposeArchivedConversations(){
+    this.archivedConversations = [];
+  }
   
-  private isValidConversation(convToCheck: ConversationModel) : boolean {
-    //console.log("[BEGIN] ChatConversationsHandler:: convToCheck with uid: ", convToCheckId);
-    this.logger.debug('[Chat21HttpService] checking uid of', convToCheck)
-    this.logger.debug('[Chat21HttpService] conversation.uid', convToCheck.uid)
-    this.logger.debug('[Chat21HttpService] channel_type is:', convToCheck.channel_type)
-    
-    if (!this.isValidField(convToCheck.uid)) {
-        this.logger.error('[Chat21HttpService] ChatConversationsHandler::isValidConversation:: "uid is not valid" ');
-        return false;
-    }
-    // if (!this.isValidField(convToCheck.is_new)) {
-    //     this.logger.error("ChatConversationsHandler::isValidConversation:: 'is_new is not valid' ");
-    //     return false;
-    // }
-    if (!this.isValidField(convToCheck.last_message_text)) {
-        this.logger.error('[Chat21HttpService] ChatConversationsHandler::isValidConversation:: "last_message_text is not valid" ');
-        return false;
-    }
-    if (!this.isValidField(convToCheck.recipient)) {
-        this.logger.error('[Chat21HttpService] ChatConversationsHandler::isValidConversation:: "recipient is not valid" ');
-        return false;
-    }
-    if (!this.isValidField(convToCheck.recipient_fullname)) {
-        this.logger.error('[Chat21HttpService] ChatConversationsHandler::isValidConversation:: "recipient_fullname is not valid" ');
-        return false;
-    }
-    if (!this.isValidField(convToCheck.sender)) {
-        this.logger.error('[Chat21HttpService] ChatConversationsHandler::isValidConversation:: "sender is not valid" ');
-        return false;
-    }
-    if (!this.isValidField(convToCheck.sender_fullname)) {
-        this.logger.error('[Chat21HttpService] ChatConversationsHandler::isValidConversation:: "sender_fullname is not valid" ');
-        return false;
-    }
-    if (!this.isValidField(convToCheck.status)) {
-        this.logger.error('[Chat21HttpService] ChatConversationsHandler::isValidConversation:: "status is not valid" ');
-        return false;
-    }
-    if (!this.isValidField(convToCheck.timestamp)) {
-        this.logger.error('[Chat21HttpService] ChatConversationsHandler::isValidConversation:: "timestamp is not valid" ');
-        return false;
-    }
-    if (!this.isValidField(convToCheck.channel_type)) {
-        this.logger.error('[Chat21HttpService] ChatConversationsHandler::isValidConversation:: "channel_type is not valid" ');
-        return false;
-    }
-    //console.log("[END] ChatConversationsHandler:: convToCheck with uid: ", convToCheckId);
-    // any other case
-    return true;
-  }
-
-  // checks if a conversation's field is valid or not
-  private isValidField(field) : boolean{
-      return (field === null || field === undefined) ? false : true;
-  }
+  
 
 }

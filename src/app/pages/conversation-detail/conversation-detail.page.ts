@@ -1,3 +1,4 @@
+import { Chat21HttpService } from 'src/chat21-core/providers/native/chat21http.service';
 import { URL_SOUND_LIST_CONVERSATION } from './../../../chat21-core/utils/constants'
 import {
   Component,
@@ -85,8 +86,7 @@ import { ScrollbarThemeDirective } from 'src/app/utils/scrollbar-theme.directive
   styleUrls: ['./conversation-detail.page.scss'],
 })
 export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit {
-  @ViewChild('ionContentChatArea', { static: false })
-  ionContentChatArea: IonContent
+  @ViewChild('ionContentChatArea', { static: false }) ionContentChatArea: IonContent
   @ViewChild('rowMessageTextArea', { static: false }) rowTextArea: ElementRef
   @ViewChild('noCannedTitle', { static: false }) noCannedTitle: ElementRef
 
@@ -125,7 +125,6 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
   public member: UserModel
   public urlConversationSupportGroup: any
   public isFileSelected: boolean
-  public showIonContent = false
   public conv_type: string
 
   public tagsCanned: any = []
@@ -164,7 +163,6 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
 
   public isOnline: boolean = true;
   public checkInternet: boolean;
-  public msgCount: number;
   public disableTextarea: boolean;
   appsidebarIsWide: boolean;
 
@@ -202,6 +200,7 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
     public modalController: ModalController,
     public typingService: TypingService,
     public tiledeskAuthService: TiledeskAuthService,
+    public chat21HttpService: Chat21HttpService,
     public conversationsHandlerService: ConversationsHandlerService,
     public archivedConversationsHandlerService: ArchivedConversationsHandlerService,
     public conversationHandlerService: ConversationHandlerService,
@@ -317,9 +316,7 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
 
     this.conversationsHandlerService.conversationChanged.subscribe((conv) => {
       // console.log('[CONVS-DETAIL]  - conv  ', conv)
-      const conversations = this.conversationsHandlerService.conversations
-      // console.log('[CONVS-DETAIL] conversations', conversations);
-      this.conversation_count = conversations.length
+      this.conversation_count = this.chat21HttpService.conversations.length
       if (conv && this.loggedUser && conv.sender !== this.loggedUser.uid) {
         this.logger.log('[CONVS-DETAIL] subscribe to BSConversationsChange data sender ', conv.sender)
         this.logger.log('[CONVS-DETAIL] subscribe to BSConversationsChange this.loggedUser.uid ', this.loggedUser.uid)
@@ -340,9 +337,7 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
 
     this.conversationsHandlerService.conversationRemoved.subscribe((conv) => {
       // console.log('[CONVS-DETAIL]  - conv  ', conv)
-      const conversations = this.conversationsHandlerService.conversations
-      // console.log('[CONVS-DETAIL] conversations', conversations);
-      this.conversation_count = conversations.length
+      this.conversation_count = this.chat21HttpService.conversations.length
       this.logger.log('[CONVS-DETAIL] conversation_count', this.conversation_count)
     })
 
@@ -666,30 +661,45 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
       )
       this.conversationHandlerService.connect()
       this.logger.log('[CONVS-DETAIL] - initConversationHandler - NEW handler - conversationHandlerService', this.conversationHandlerService)
-      this.messages = this.conversationHandlerService.messages
-      this.logger.log('[CONVS-DETAIL] - initConversationHandler - messages: ', this.messages)
-      this.chatManager.addConversationHandler(this.conversationHandlerService)
+      this.chat21HttpService.getLastMessages(this.conversationWith, this.loggedUser.uid, translationMap).then((messages)=> {
+        this.conversationHandlerService.messages = messages
+      }).then(()=> {
+        this.messages = this.conversationHandlerService.messages
+        this.logger.log('[CONVS-DETAIL] - initConversationHandler - messages: ', this.messages)
+        this.logger.log('[CONVS-DETAIL] - initConversationHandler this.messages.length  ', this.messages.length)
+        // display the message "Still no message" if there are no messages
+        if (!this.messages || this.messages.length === 0) {
+          // this.showIonContent = true
+          this.showMessageWelcome = true
+          this.logger.log('[CONVS-DETAIL] - initConversationHandler - showMessageWelcome: ', this.showMessageWelcome)
+        }
+        this.scrollBottom(0)
+        this.chatManager.addConversationHandler(this.conversationHandlerService)
+      })
+      
+      // this.messages = this.conversationHandlerService.messages
+      // this.logger.log('[CONVS-DETAIL] - initConversationHandler - messages: ', this.messages)
+      // this.chatManager.addConversationHandler(this.conversationHandlerService)
 
       // // wait 8 second and then display the message if there are no messages
-      const that = this
-      this.logger.log('[CONVS-DETAIL] - initConversationHandler that.messages  ', that.messages)
-      this.logger.log('[CONVS-DETAIL] - initConversationHandler that.messages.length  ', that.messages.length)
-      this.msgCount = that.messages.length
-      setTimeout(() => {
-        if (!that.messages || that.messages.length === 0) {
-          this.showIonContent = true
-          that.showMessageWelcome = true
-          this.logger.log('[CONVS-DETAIL] - initConversationHandler - showMessageWelcome: ', that.showMessageWelcome)
-        }
-      }, 8000)
+      // const that = this
+      // this.logger.log('[CONVS-DETAIL] - initConversationHandler that.messages  ', that.messages)
+      // this.logger.log('[CONVS-DETAIL] - initConversationHandler that.messages.length  ', that.messages.length)
+      // setTimeout(() => {
+      //   if (!that.messages || that.messages.length === 0) {
+      //     this.showIonContent = true
+      //     that.showMessageWelcome = true
+      //     this.logger.log('[CONVS-DETAIL] - initConversationHandler - showMessageWelcome: ', that.showMessageWelcome)
+      //   }
+      // }, 8000)
     } else {
       this.logger.log('[CONVS-DETAIL] - initConversationHandler (else) - conversationHandlerService ', this.conversationHandlerService, ' handler', handler)
       this.conversationHandlerService = handler
       this.messages = this.conversationHandlerService.messages
+      this.scrollBottom(0)
       this.logger.log('[CONVS-DETAIL] - initConversationHandler (else) - this.messages: ', this.messages)
       this.logger.log('[CONVS-DETAIL] - initConversationHandler (else) - this.showMessageWelcome: ', this.showMessageWelcome)
     }
-    this.logger.log('[CONVS-DETAIL] - initConversationHandler (else) - message ', this.messages, ' showIonContent', this.showIonContent)
   }
 
   initGroupsHandler() {
@@ -1642,9 +1652,10 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
 
   onImageRenderedFN(event) {
     const imageRendered = event
-    if (this.showButtonToBottom) {
-      this.scrollBottom(0)
-    }
+    this.scrollBottom(0)
+    // if (this.showButtonToBottom) {
+    //   this.scrollBottom(0)
+    // }
   }
 
   private openLink(event: any) {
@@ -1719,7 +1730,7 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
    * @param time
    */
   private scrollBottom(time: number) {
-    this.showIonContent = true
+    // this.showIonContent = true
     if (this.ionContentChatArea) {
       setTimeout(() => {
         this.ionContentChatArea.scrollToBottom(time)
@@ -1758,7 +1769,6 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
     this.NUM_BADGES = 0
     setTimeout(() => {
       this.ionContentChatArea.scrollToBottom(0)
-      // this.conversationsHandlerService.readAllMessages.next(this.conversationWith);
     }, 0)
   }
 

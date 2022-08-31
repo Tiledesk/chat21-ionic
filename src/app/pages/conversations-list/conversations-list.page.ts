@@ -1,3 +1,4 @@
+import { ConversationHandlerService } from 'src/chat21-core/providers/abstract/conversation-handler.service';
 import { Chat21HttpService } from 'src/chat21-core/providers/native/chat21http.service';
 import { AppStorageService } from 'src/chat21-core/providers/abstract/app-storage.service';
 import { ArchivedConversationsHandlerService } from 'src/chat21-core/providers/abstract/archivedconversations-handler.service'
@@ -67,7 +68,6 @@ export class ConversationListPage implements OnInit {
   public uidConvSelected: string
   public conversationSelected: ConversationModel
   public uidReciverFromUrl: string
-  public showPlaceholder = true
   public numberOpenConv = 0
   public loadingIsActive = true
   public supportMode: boolean
@@ -351,53 +351,39 @@ export class ConversationListPage implements OnInit {
   initConversationsHandler() {
     // this.conversations = this.manageStoredConversations()
     // this.manageStoredConversations()
-    this.chat21HttpService.getLastConversations(this.loggedUserUid).then(convs => {
-      if(convs){
-        this.conversationsHandlerService.conversations = convs
-        this.conversations = this.conversationsHandlerService.conversations
-      } 
+    this.chat21HttpService.getLastConversations(this.loggedUserUid).then(conversations => {
+      this.logger.info('initialize FROM [APP-COMP] - [APP-COMP]-CONVS - INIT CONV CONVS', conversations)
+      this.conversations = this.chat21HttpService.conversations
+      if (!conversations || conversations.length === 0) {
+        this.logger.debug('[APP-COMP]-CONVS - INIT CONV CONVS 2', conversations)
+        this.events.publish('appcompSubscribeToConvs:loadingIsActive', false);
+      }
+    }).then(()=> {
+      //subscribe to add/change/delete events
+      this.conversationsHandlerService.subscribeToConversations(null, ()=>{})
+      //update local Conversations Array in storage
+      this.chat21HttpService.setConversationsLocalStorage()
+      // save conversationHandler in chatManager
+      this.chatManager.setConversationsHandler(this.conversationsHandlerService)
     })
-    // this.conversations = this.conversationsHandlerService.conversations
-    this.logger.log('[CONVS-LIST-PAGE] - CONVERSATIONS ', this.conversations.length, this.conversations)
-    // save conversationHandler in chatManager
-    this.chatManager.setConversationsHandler(this.conversationsHandlerService)
-    this.showPlaceholder = false
   }
-
-  // private manageStoredConversations() {
-  //   let conversationsStored = []
-  //   if(this.appStorageService.getItem('conversations')){
-  //     conversationsStored = JSON.parse(this.appStorageService.getItem('conversations'))
-  //     if(conversationsStored && conversationsStored.length > 0) {
-  //       // this.conversationsHandlerService.conversations = conversationsStored
-  //       this.logger.log('[CONVS-LIST-PAGE] retrive conversations from storage --> ', conversationsStored.length)
-  //       this.events.publish('appcompSubscribeToConvs:loadingIsActive', false);
-  //       this.conversations.push(...conversationsStored)
-  //     }
-  //   }
-  //   // this.conversations = this.conversationsHandlerService.conversations
-  // }
 
   initArchivedConversationsHandler() {
     const keysConversation = ['CLOSED', 'Resolve']
     this.translationMapConversation = this.translateService.translateLanguage( keysConversation )
 
-    this.archivedConversationsHandlerService.subscribeToConversations(() => {
-      this.logger.log('[CONVS-LIST-PAGE]-CONVS - conversations archived length ',this.archivedConversations.length)
+    this.chat21HttpService.getLastArchivedConversations(this.loggedUserUid).then((conversations)=> {
+      this.logger.log('[CONVS-LIST-PAGE]-CONVS SubscribeToConversations - conversations archived length ', this.archivedConversations.length )
+      this.archivedConversations = this.chat21HttpService.archivedConversations
+      if (!conversations || conversations.length === 0 ) {
+        this.loadingIsActive = false
+      }
+    }).then(()=> {
+      //subscrive to add/change/delete events
+      this.archivedConversationsHandlerService.subscribeToConversations(() => {});
+      // save archivedConversationsHandlerService in chatManager
+      this.chatManager.setArchivedConversationsHandler(this.archivedConversationsHandlerService)
     })
-
-    this.archivedConversations = this.archivedConversationsHandlerService.archivedConversations
-    this.logger.log('[CONVS-LIST-PAGE] archived conversation',this.archivedConversations )
-
-    // save archivedConversationsHandlerService in chatManager
-    this.chatManager.setArchivedConversationsHandler(
-      this.archivedConversationsHandlerService,
-    )
-
-    this.logger.log('[CONVS-LIST-PAGE]-CONVS SubscribeToConversations - conversations archived length ', this.archivedConversations.length )
-    if (!this.archivedConversations || this.archivedConversations.length === 0 ) {
-      this.loadingIsActive = false
-    }
   }
 
   // ----------------------------------------------------------------------------------------------------
@@ -441,7 +427,7 @@ export class ConversationListPage implements OnInit {
         this.logger.info('[CONVS-LIST-PAGE] - listenToLogoutEvent - hasclickedlogout',hasclickedlogout)
 
         this.conversations = []
-        this.conversationsHandlerService.conversations = []
+        this.chat21HttpService.conversations = []
         this.uidConvSelected = null
 
         this.logger.log('[CONVS-LIST-PAGE] - listenToLogoutEvent - CONVERSATIONS ', this.conversations )
@@ -487,7 +473,7 @@ export class ConversationListPage implements OnInit {
     // });
 
     this.conversationsHandlerService.conversationAdded.subscribe((conversation: ConversationModel) => {
-        // this.logger.log('[CONVS-LIST-PAGE] ***** conversationsAdded *****', conversation);
+        this.logger.log('[CONVS-LIST-PAGE] ***** conversationsAdded *****', conversation);
         // that.conversationsChanged(conversations);
         if (conversation) {
           this.onImageLoaded(conversation)
@@ -518,9 +504,6 @@ export class ConversationListPage implements OnInit {
     })
   }
 
-  // ------------------------------------------------------------------------------------
-  // @ SUBSCRIBE TO LOGGED USER LOGOUT ??????????? SEEMS NOT USED ?????????????????
-  // ------------------------------------------------------------------------------------
   subscribeLoggedUserLogout = () => {
     this.conversations = []
     this.uidConvSelected = null
@@ -532,7 +515,7 @@ export class ConversationListPage implements OnInit {
   // @ SUBSCRIBE TO CONVERSATION CHANGED  ??????????? SEEMS NOT USED ?????????????????
   // ------------------------------------------------------------------------------------
   conversationsChanged = (conversations: ConversationModel[]) => {
-    this.numberOpenConv = this.conversationsHandlerService.countIsNew()
+    this.numberOpenConv = this.chat21HttpService.countIsNew()
     this.logger.log('[CONVS-LIST-PAGE] - conversationsChanged - NUMB OF CONVERSATIONS: ',this.numberOpenConv)
     // console.log('conversationsChanged »»»»»»»»» uidConvSelected', that.conversations[0], that.uidConvSelected);
     if (this.uidConvSelected && !this.conversationSelected) {
@@ -542,27 +525,6 @@ export class ConversationListPage implements OnInit {
         this.setUidConvSelected(this.uidConvSelected)
       }
     }
-  }
-
-  /**
-   * ::: subscribeChangedConversationSelected :::
-   * evento richiamato quando si seleziona un utente nell'elenco degli user
-   * apro dettaglio conversazione
-   */
-  // --------------------------------
-  // !!!!!! IS USED? ?????
-  // ------------------------------
-  subscribeChangedConversationSelected = (user: UserModel, type: string) => {
-    this.logger.log('[CONVS-LIST-PAGE]  ************** subscribeUidConvSelectedChanged navigateByUrl',user, type)
-    this.uidConvSelected = user.uid
-    this.logger.log('[CONVS-LIST-PAGE]  ************** uidConvSelected ', this.uidConvSelected)
-    // this.conversationsHandlerService.uidConvSelected = user.uid;
-    const conversationSelected = this.conversations.find( (item) => item.uid === this.uidConvSelected)
-    if (conversationSelected) {
-      this.logger.log('[CONVS-LIST-PAGE] --> uidConvSelected: ',this.conversationSelected, this.uidConvSelected)
-      this.conversationSelected = conversationSelected
-    }
-    // this.router.navigateByUrl('conversation-detail/' + user.uid + '?conversationWithFullname=' + user.fullname);
   }
 
   /**
@@ -590,38 +552,11 @@ export class ConversationListPage implements OnInit {
 
   onBackButtonFN(event) {
     this.conversationType = 'active'
-
-    // let storedActiveConv = localStorage.getItem('activeConversationSelected');
-    // // console.log('ConversationListPage - storedActiveConv: ', storedActiveConv);
-    // if (storedActiveConv) {
-    //   let storedActiveConvObjct = JSON.parse(storedActiveConv)
-    //   console.log('ConversationListPage - storedActiveConv Objct: ', storedActiveConvObjct);
-    //   this.navigateByUrl('active', storedActiveConvObjct.uid)
-    // } else {
-    //   // da implementare se nn c'è stata nessuna conv attive selezionata
-    // }
   }
 
   // ------------------------------------------------------------------//
   // END SUBSCRIPTIONS
   // ------------------------------------------------------------------//
-
-  // :: handler degli eventi in output per i componenti delle modali
-  // ::::: vedi ARCHIVED-CONVERSATION-LIST --> MODALE
-  // initHandlerEventEmitter() {
-  //   this.onConversationSelectedHandler.subscribe(conversation => {
-  //     console.log('ConversationListPage - onversaation selectedddd', conversation)
-  //     this.onConversationSelected(conversation)
-  //   })
-
-  //   this.onImageLoadedHandler.subscribe(conversation => {
-  //     this.onImageLoaded(conversation)
-  //   })
-
-  //   this.onConversationLoadedHandler.subscribe(conversation => {
-  //     this.onConversationLoaded(conversation)
-  //   })
-  // }
 
   // ------------------------------------------------------------------//
   // BEGIN FUNCTIONS
@@ -669,6 +604,7 @@ export class ConversationListPage implements OnInit {
         this.logger.log('[CONVS-LIST-PAGE] conversationWith 2: ', IDConv)
         if (IDConv) {
           this.setUidConvSelected(IDConv, convType)
+          this.uidConvSelected = IDConv
         } else {
           this.logger.log('[CONVS-LIST-PAGE] conversationWith 2 (else): ',IDConv)
         }
@@ -680,9 +616,9 @@ export class ConversationListPage implements OnInit {
    * ::: setUidConvSelected :::
    */
   setUidConvSelected(uidConvSelected: string, conversationType?: string) {
-    this.logger.log('[CONVS-LIST-PAGE] setuidCOnvSelected', uidConvSelected)
+    this.logger.log('[CONVS-LIST-PAGE] setuidCOnvSelected', uidConvSelected, this.conversations)
     this.uidConvSelected = uidConvSelected
-    // this.conversationsHandlerService.uidConvSelected = uidConvSelected;
+    this.chat21HttpService.uidConvSelected = uidConvSelected
     if (uidConvSelected) {
       let conversationSelected
       if (conversationType === 'active') {
@@ -695,21 +631,21 @@ export class ConversationListPage implements OnInit {
         this.logger.log('[CONVS-LIST-PAGE] the conversation ', this.conversationSelected, ' has already been loaded')
         this.conversationSelected = conversationSelected
         this.logger.log('[CONVS-LIST-PAGE] setUidConvSelected: ', this.conversationSelected)
-        conversationType === 'active'? this.conversationsHandlerService.uidConvSelected = conversationSelected.uid : this.archivedConversationsHandlerService.uidConvSelected = conversationSelected.uid
       }
     }
   }
 
   onConversationSelected(conversation: ConversationModel) {
     this.logger.log('onConversationSelected conversation', conversation)
+    this.chat21HttpService.uidConvSelected = conversation.uid
     if (conversation.archived) {
       this.navigateByUrl('archived', conversation.uid)
-      this.archivedConversationsHandlerService.uidConvSelected = conversation.uid
+      // this.archivedConversationsHandlerService.uidConvSelected = conversation.uid
       this.logger.log('[CONVS-LIST-PAGE] onConversationSelected archived conversation.uid ', conversation.uid,
       )
     } else {
       this.navigateByUrl('active', conversation.uid)
-      this.conversationsHandlerService.uidConvSelected = conversation.uid
+      // this.conversationsHandlerService.uidConvSelected = conversation.uid
       this.logger.log('[CONVS-LIST-PAGE] onConversationSelected active conversation.uid ', conversation.uid)
     }
   }

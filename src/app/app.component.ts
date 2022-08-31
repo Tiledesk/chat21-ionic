@@ -58,6 +58,7 @@ import * as PACKAGE from 'package.json';
 import { filter } from 'rxjs/operators'
 import { WebSocketJs } from './services/websocket/websocket-js';
 import { Location } from '@angular/common'
+import { Chat21HttpService } from 'src/chat21-core/providers/native/chat21http.service';
 // import { filter } from 'rxjs/operators';
 
 @Component({
@@ -137,6 +138,7 @@ export class AppComponent implements OnInit {
     public appStorageService: AppStorageService,
 
     // public chatConversationsHandler: ChatConversationsHandler,
+    public chat21HttpService: Chat21HttpService,
     public conversationsHandlerService: ConversationsHandlerService,
     public archivedConversationsHandlerService: ArchivedConversationsHandlerService,
     private translateService: CustomTranslateService,
@@ -468,6 +470,7 @@ export class AppComponent implements OnInit {
       this.navService.init(this.sidebarNav, this.detailNav);
       // this.persistence = appconfig.authPersistence;
       // this.appStorageService.initialize(environment.storage_prefix, this.persistence, '')
+      this.chat21HttpService.initChat(this.appConfigProvider.getConfig().chat21Config)
       this.tiledeskAuthService.initialize(this.appConfigProvider.getConfig().apiUrl);
       this.messagingAuthService.initialize();
 
@@ -843,7 +846,7 @@ export class AppComponent implements OnInit {
   private manageTabNotification(badgeNotificationCount?: number) {
     if (!this.isTabVisible) {
       // TAB IS HIDDEN --> manage title and SOUND
-      let badgeNewConverstionNumber = badgeNotificationCount? badgeNotificationCount : this.conversationsHandlerService.countIsNew()
+      let badgeNewConverstionNumber = badgeNotificationCount? badgeNotificationCount : this.chat21HttpService.countIsNew()
       badgeNewConverstionNumber > 0 ? badgeNewConverstionNumber : badgeNewConverstionNumber = 1
       document.title = "(" + badgeNewConverstionNumber + ") " + this.tabTitle
 
@@ -945,12 +948,12 @@ export class AppComponent implements OnInit {
       if (conversation && conversation.is_new === true) {
         this.manageTabNotification()
       }
-      if(conversation) this.updateConversationsOnStorage()
+      if(conversation) this.chat21HttpService.setConversationsLocalStorage()
     });
 
     this.conversationsHandlerService.conversationChanged.subscribe((conversation: ConversationModel) => {
       // console.log('[APP-COMP] ***** subscribeConversationChanged conversation: ', conversation);
-      if(conversation)  this.updateConversationsOnStorage();
+      if(conversation)  this.chat21HttpService.setConversationsLocalStorage();
       const currentUser = this.tiledeskAuthService.getCurrentUser()
     });
 
@@ -969,7 +972,7 @@ export class AppComponent implements OnInit {
 
     this.conversationsHandlerService.conversationRemoved.subscribe((conversation: ConversationModel) => {
       this.logger.log('[APP-COMP] ***** conversationRemoved *****', conversation);
-      if(conversation)  this.updateConversationsOnStorage();
+      if(conversation)  this.chat21HttpService.setConversationsLocalStorage();
     });
   }
 
@@ -1218,30 +1221,6 @@ export class AppComponent implements OnInit {
     this.logger.log('[APP-COMP] initConversationsHandler ------------->', userId, this.tenant);
     // 1 - init chatConversationsHandler and  archviedConversationsHandler
     this.conversationsHandlerService.initialize(this.tenant, userId, translationMap);
-    // this.subscribeToConvs()
-    this.conversationsHandlerService.subscribeToConversations(null, () => {
-      // this.logger.log('[APP-COMP] - CONVS - INIT CONV')
-      const conversations = this.conversationsHandlerService.conversations;
-      this.logger.info('initialize FROM [APP-COMP] - [APP-COMP]-CONVS - INIT CONV CONVS', conversations)
-      // this.logger.printDebug('SubscribeToConversations (convs-list-page) - conversations')
-      if (!conversations || conversations.length === 0) {
-        // that.showPlaceholder = true;
-        this.logger.debug('[APP-COMP]-CONVS - INIT CONV CONVS 2', conversations)
-        this.events.publish('appcompSubscribeToConvs:loadingIsActive', false);
-      }
-    });
-
-  }
-
-  private updateConversationsOnStorage(){
-    const that = this
-    // reset timer and save conversation on storage after 2s
-    clearTimeout(this.setTimeoutConversationsEvent);
-    this.setTimeoutConversationsEvent = setTimeout(() => {
-      that.logger.debug('[APP-COMP] updateConversationsOnStorage: reset timer and save conversations -> ', this.conversationsHandlerService.conversations.length)
-      that.appStorageService.setItem('conversations', JSON.stringify(that.conversationsHandlerService.conversations))
-      that.isInitialized = true;
-    }, 10000);
   }
 
   private initArchivedConversationsHandler(userId: string) {
