@@ -470,7 +470,7 @@ export class AppComponent implements OnInit {
       this.navService.init(this.sidebarNav, this.detailNav);
       // this.persistence = appconfig.authPersistence;
       // this.appStorageService.initialize(environment.storage_prefix, this.persistence, '')
-      this.chat21HttpService.initChat(this.appConfigProvider.getConfig().chat21Config)
+      this.chat21HttpService.initChat(this.appConfigProvider.getConfig().chat21Config, this.appConfigProvider.getConfig().showInfoMessage )
       this.tiledeskAuthService.initialize(this.appConfigProvider.getConfig().apiUrl);
       this.messagingAuthService.initialize();
 

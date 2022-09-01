@@ -6,9 +6,9 @@ import { Chat21Client } from 'src/assets/js/chat21client';
 import { ConversationModel } from 'src/chat21-core/models/conversation';
 import { LoggerService } from '../abstract/logger.service';
 import { LoggerInstance } from '../logger/loggerInstance';
-import { compareValues, isGroup } from 'src/chat21-core/utils/utils';
+import { compareValues, isGroup, searchIndexInArrayForUid } from 'src/chat21-core/utils/utils';
 import { avatarPlaceholder, getColorBck } from 'src/chat21-core/utils/utils-user';
-import { messageType } from 'src/chat21-core/utils/utils-message';
+import { hideInfoMessage, messageType } from 'src/chat21-core/utils/utils-message';
 import { CHAT_CLOSED, CHAT_REOPENED, MEMBER_JOINED_GROUP, MESSAGE_TYPE_INFO } from 'src/chat21-core/utils/constants';
 
 // @Injectable({ providedIn: 'root' })
@@ -17,25 +17,26 @@ export class Chat21HttpService {
 
   public chatClient: any;
   private loggedUserId: string;
-  private showInfoMessage: string[];
   private translationMap: Map<string, string>;
   private logger: LoggerService = LoggerInstance.getInstance()
   public uidConvSelected: string;
   public conversations: ConversationModel[] = [];
   public archivedConversations: ConversationModel[] = [];
   public messages: MessageModel[] = [];
+  public showInfoMessage: string[];
 
   constructor(
     private appStorageService: AppStorageService
   ) { }
 
-   public initChat(config: any) {
+   public initChat(config: any, showInfoMessage: string) {
     this.logger.info("INIT Chat21HttpService")
     if(!this.chatClient){
       if (!config || config.appId === 'CHANGEIT') {
         throw new Error('chat21Config is not defined. Please setup your environment');
       }
       this.chatClient = new Chat21Client(config);
+      this.showInfoMessage = showInfoMessage.replace(' ', '').split(',')
       this.conversations = this.getConversationsLocalStorage();
     }
   }
@@ -91,13 +92,30 @@ export class Chat21HttpService {
         if (!err) {
           this.messages = messages as MessageModel[]
           this.messages.forEach((message, index)=> {
-            message = this.messageGenerate(message);
+            this.manageMessage(message, index)
           })
           this.messages.sort(compareValues('timestamp', 'asc'));
           resolve(this.messages)
         }
       });
     })
+  }
+
+  private manageMessage(message, index){
+    const msg:MessageModel = this.messageGenerate(message);
+    msg.uid = message.message_id;
+    if(this.isValidMessage(msg)){
+      // msg.attributes && msg.attributes['subtype'] === 'info'
+      let isInfoMessage = messageType(MESSAGE_TYPE_INFO, msg)
+      if(isInfoMessage && hideInfoMessage(msg, this.showInfoMessage)){
+        //if showInfoMessage array keys not includes msg.attributes.messagelabel['key'] exclude CURRENT INFO MESSAGE
+        return;
+      } else if(isInfoMessage && !hideInfoMessage(msg, this.showInfoMessage)){
+        return;
+      }
+    } else {
+      this.logger.error('[Chat21HttpService] manageMessage::message with uid: ', msg.uid, 'is not valid')
+    }
   }
 
   // ********* ********* ********* ********* ********* //
@@ -227,11 +245,10 @@ export class Chat21HttpService {
 
   // ********* ********* ********* *********  //
   // ********* MANAGE MESSAGES: start ********* //
-  private messageGenerate(childSnapshot: any) {
-    // const msg: MessageModel = childSnapshot.val();
-    this.logger.log("[Chat21HttpService] childSnapshot >" + JSON.stringify(childSnapshot));
-    const msg = childSnapshot;
-    msg.uid = childSnapshot.key;
+  public messageGenerate(message) {
+    const msg: MessageModel = message;
+    this.logger.log("[Chat21HttpService] message >", message);
+    // msg.uid = message.key;
     msg.text = msg.text.trim() //remove black msg with only spaces
     // controllo fatto per i gruppi da rifattorizzare
     if (!msg.sender_fullname || msg.sender_fullname === 'undefined') {
@@ -242,8 +259,8 @@ export class Chat21HttpService {
     //     msg.text = htmlEntities(msg.text);
     // }
     // verifico che il sender è il logged user
-    this.logger.log("[Chat21HttpService] ****>msg.sender:" + msg.sender);
     msg.isSender = this.isSender(msg.sender, this.loggedUserId);
+
     // traduco messaggi se sono del server
     if (messageType(MESSAGE_TYPE_INFO, msg)) {
         this.translateInfoSupportMessages(msg);
@@ -306,6 +323,37 @@ export class Chat21HttpService {
     } else if ((message.attributes.messagelabel && message.attributes.messagelabel.key === CHAT_CLOSED)) {
         message.text = INFO_SUPPORT_CHAT_CLOSED;
     }
+  }
+
+  private isValidMessage(msgToCkeck:MessageModel): boolean{
+    // console.log('message to check-->', msgToCkeck)
+    // if(!this.isValidField(msgToCkeck.uid)){
+    //     return false;
+    // }
+    // if(!this.isValidField(msgToCkeck.sender)){
+    //     return false;
+    // }
+    // if(!this.isValidField(msgToCkeck.recipient)){
+    //     return false;
+    // }
+    // if(!this.isValidField(msgToCkeck.type)){
+    //     return false;
+    // }else if (msgToCkeck.type === "text" && !this.isValidField(msgToCkeck.text)){
+    //     return false;
+    // } else if ((msgToCkeck.type === "image" || msgToCkeck.type === "file") && !this.isValidField(msgToCkeck.metadata) && !this.isValidField(msgToCkeck.metadata.src)){
+    //     return false
+    // }
+
+
+    return true
+  }
+
+  /**
+   *
+   * @param field
+   */
+  private isValidMessageField(field: any): boolean {
+      return (field === null || field === undefined) ? false : true;
   }
   // ********* MANAGE MESSAGES: end ********* //
   // ********* ********* ********* *********  //
