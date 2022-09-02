@@ -7,28 +7,21 @@ import {
   AfterViewInit,
   ViewChild,
   ElementRef,
-  Directive,
   HostListener,
-  ChangeDetectorRef,
   Renderer2,
 } from '@angular/core'
-import { ActivatedRoute, NavigationEnd, Router } from '@angular/router'
+import { ActivatedRoute } from '@angular/router'
 import {
   ModalController,
   ToastController,
-  PopoverController,
   Platform,
   ActionSheetController,
-  NavController,
   IonContent,
-  IonTextarea,
-  IonButton,
 } from '@ionic/angular'
 
 // models
 import { UserModel } from 'src/chat21-core/models/user'
 import { MessageModel } from 'src/chat21-core/models/message'
-import { ConversationModel } from 'src/chat21-core/models/conversation'
 import { GroupModel } from 'src/chat21-core/models/group'
 
 // services
@@ -78,7 +71,6 @@ import { takeUntil } from 'rxjs/operators'
 import { TiledeskService } from '../../services/tiledesk/tiledesk.service'
 import { NetworkService } from '../../services/network-service/network.service'
 import { EventsService } from '../../services/events-service'
-import { ScrollbarThemeDirective } from 'src/app/utils/scrollbar-theme.directive'
 
 @Component({
   selector: 'app-conversation-detail',
@@ -213,9 +205,7 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
     public toastController: ToastController,
     public tiledeskService: TiledeskService,
     private networkService: NetworkService,
-    private events: EventsService,
-    private renderer: Renderer2,
-    private el: ElementRef
+    private events: EventsService
   ) {
     // Change list on date change
     this.route.paramMap.subscribe((params) => {

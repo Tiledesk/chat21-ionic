@@ -262,7 +262,6 @@ export class MQTTConversationsHandler extends ConversationsHandlerService {
     private updateConversationWithSnapshot(conv: ConversationModel, snap: any) {
         this.logger.debug('[MQTTConversationsHandler] updating conv', conv, 'with snap', snap)
         Object.keys(snap).forEach(k => {
-            this.logger.debug('[MQTTConversationsHandler] key:' + k);
             if (k === 'is_new') {
                 this.logger.debug('[MQTTConversationsHandler] aggiorno key:' + k);
                 conv.is_new = snap[k];
@@ -299,10 +298,6 @@ export class MQTTConversationsHandler extends ConversationsHandlerService {
             if (k === 'status') {
                 this.logger.debug('[MQTTConversationsHandler] aggiorno key:' + k);
                 conv.status = snap[k];
-            }
-            if (k === 'is_new') {
-                this.logger.debug('[MQTTConversationsHandler] aggiorno key:' + k);
-                conv.is_new = snap[k];
             }
             if (k === 'type') {
                 this.logger.debug('[MQTTConversationsHandler] aggiorno key:' + k);

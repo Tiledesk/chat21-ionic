@@ -130,7 +130,7 @@ export class Chat21HttpService {
     }
     conv.conversation_with_fullname = conversation_with_fullname;
     conv.conversation_with = conversation_with;
-    // conv.is_new = this.setStatusConversation(conv.sender, conv.uid);
+    conv.is_new = this.setStatusConversation(conv.sender, conv.uid);
     conv.avatar = avatarPlaceholder(conversation_with_fullname);
     conv.color = getColorBck(conversation_with_fullname);
     if (!conv.last_message_text) {

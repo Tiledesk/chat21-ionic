@@ -1,16 +1,13 @@
-import { ConversationHandlerService } from 'src/chat21-core/providers/abstract/conversation-handler.service';
 import { Chat21HttpService } from 'src/chat21-core/providers/native/chat21http.service';
 import { AppStorageService } from 'src/chat21-core/providers/abstract/app-storage.service';
 import { ArchivedConversationsHandlerService } from 'src/chat21-core/providers/abstract/archivedconversations-handler.service'
 import { Component, OnInit, ViewChild } from '@angular/core'
 import { IonContent, ModalController } from '@ionic/angular'
-import { ActivatedRoute, Router, NavigationExtras } from '@angular/router'
+import { ActivatedRoute, Router } from '@angular/router'
 // config
-import { environment } from '../../../environments/environment'
 
 // models
 import { ConversationModel } from 'src/chat21-core/models/conversation'
-import { UserModel } from 'src/chat21-core/models/user'
 
 // utils
 import {
@@ -20,19 +17,15 @@ import {
   closeModal,
   convertMessage,
   isGroup,
-  searchIndexInArrayForUid,
-  compareValues,
 } from '../../../chat21-core/utils/utils'
 
 import { EventsService } from '../../services/events-service'
-import PerfectScrollbar from 'perfect-scrollbar' // https://github.com/mdbootstrap/perfect-scrollbar
 
 // services
 import { ConversationsHandlerService } from 'src/chat21-core/providers/abstract/conversations-handler.service'
 import { ChatManager } from 'src/chat21-core/providers/chat-manager'
 import { NavProxyService } from '../../services/nav-proxy.service'
 import { TiledeskService } from '../../services/tiledesk/tiledesk.service'
-import { ConversationDetailPage } from '../conversation-detail/conversation-detail.page'
 import { ContactsDirectoryPage } from '../contacts-directory/contacts-directory.page'
 import { UnassignedConversationsPage } from '../unassigned-conversations/unassigned-conversations.page'
 import { ProfileInfoPage } from '../profile-info/profile-info.page'
@@ -75,7 +68,6 @@ export class ConversationListPage implements OnInit {
   public archived_btn: boolean
   public sound_btn: string
   public convertMessage = convertMessage
-  private isShowMenuPage = false
   private logger: LoggerService = LoggerInstance.getInstance()
   translationMapConversation: Map<string, string>
   stylesMap: Map<string, string>
@@ -123,9 +115,7 @@ export class ConversationListPage implements OnInit {
     public tiledeskAuthService: TiledeskAuthService,
     public appConfigProvider: AppConfigProvider,
     public platform: Platform,
-    private networkService: NetworkService,
-    private appStorageService: AppStorageService
-  ) {
+    private networkService: NetworkService  ) {
     this.listenToAppCompConvsLengthOnInitConvs()
     this.listenToLogoutEvent()
     this.listenGoOnline()
