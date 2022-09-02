@@ -337,8 +337,10 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
 
     this.conversationsHandlerService.conversationRemoved.subscribe((conv) => {
       // console.log('[CONVS-DETAIL]  - conv  ', conv)
-      this.conversation_count = this.chat21HttpService.conversations.length
-      this.logger.log('[CONVS-DETAIL] conversation_count', this.conversation_count)
+      if(conv){
+        this.conversation_count = this.chat21HttpService.conversations.length
+        this.logger.log('[CONVS-DETAIL] conversation_count', this.conversation_count)
+      }
     })
 
     setTimeout(() => {
@@ -611,10 +613,7 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
     ]
 
     this.translationMap = this.customTranslateService.translateLanguage(keys)
-    this.logger.log(
-      '[CONVS-DETAIL] x this.translationMap ',
-      this.translationMap,
-    )
+    this.logger.log('[CONVS-DETAIL] x this.translationMap ',this.translationMap)
   }
 
   // --------------------------------------------------------
@@ -662,7 +661,7 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
       this.conversationHandlerService.connect()
       this.logger.log('[CONVS-DETAIL] - initConversationHandler - NEW handler - conversationHandlerService', this.conversationHandlerService)
       this.chat21HttpService.getLastMessages(this.conversationWith, this.loggedUser.uid, translationMap).then((messages)=> {
-        this.messages = this.chat21HttpService.messages
+        this.messages = this.chat21HttpService.messages[this.conversationWith]
       }).then(()=> {
         this.logger.log('[CONVS-DETAIL] - initConversationHandler - messages: ', this.messages)
         this.logger.log('[CONVS-DETAIL] - initConversationHandler this.messages.length  ', this.messages.length)
@@ -673,6 +672,7 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
           this.logger.log('[CONVS-DETAIL] - initConversationHandler - showMessageWelcome: ', this.showMessageWelcome)
         }
         this.scrollBottom(0)
+        this.conversationHandlerService.messages = this.chat21HttpService.messages[this.conversationWith]
         this.chatManager.addConversationHandler(this.conversationHandlerService)
       })
       
@@ -694,7 +694,8 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
     } else {
       this.logger.log('[CONVS-DETAIL] - initConversationHandler (else) - conversationHandlerService ', this.conversationHandlerService, ' handler', handler)
       this.conversationHandlerService = handler
-      this.messages = this.conversationHandlerService.messages
+      this.messages = this.chat21HttpService.messages[this.conversationWith]
+      this.conversationHandlerService.messages = this.chat21HttpService.messages[this.conversationWith]
       this.scrollBottom(0)
       this.logger.log('[CONVS-DETAIL] - initConversationHandler (else) - this.messages: ', this.messages)
       this.logger.log('[CONVS-DETAIL] - initConversationHandler (else) - this.showMessageWelcome: ', this.showMessageWelcome)

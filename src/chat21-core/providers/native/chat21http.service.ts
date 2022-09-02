@@ -11,6 +11,11 @@ import { avatarPlaceholder, getColorBck } from 'src/chat21-core/utils/utils-user
 import { hideInfoMessage, messageType } from 'src/chat21-core/utils/utils-message';
 import { CHAT_CLOSED, CHAT_REOPENED, MEMBER_JOINED_GROUP, MESSAGE_TYPE_INFO } from 'src/chat21-core/utils/constants';
 
+
+interface Dictionary<T> {
+  [Key: string]: T;
+}
+
 // @Injectable({ providedIn: 'root' })
 @Injectable()
 export class Chat21HttpService {
@@ -22,7 +27,7 @@ export class Chat21HttpService {
   public uidConvSelected: string;
   public conversations: ConversationModel[] = [];
   public archivedConversations: ConversationModel[] = [];
-  public messages: MessageModel[] = [];
+  public messages: Dictionary<MessageModel[]> = {}
   public showInfoMessage: string[];
 
   constructor(
@@ -85,38 +90,23 @@ export class Chat21HttpService {
   getLastMessages(conversationWith: string, userId: string, translationMap: Map<string, string>): Promise<MessageModel[]> {
     this.loggedUserId = userId;
     this.translationMap = translationMap
+
     console.log('[Chat21HttpService] getLastMessages for user -> ', this.loggedUserId, conversationWith)
     return new Promise((resolve, reject)=> {
       this.chatClient.lastMessages(conversationWith, (err, messages) => {
         this.logger.log('[Chat21HttpService] getLastMessages ', messages, 'err', err);
-        if (!err) {
-          this.messages = messages as MessageModel[]
-          this.messages.forEach((message, index)=> {
+        if (!err) {          
+          this.messages[conversationWith] = messages as MessageModel[]
+          this.messages[conversationWith].forEach((message, index)=> {
             this.manageMessage(message, index)
           })
-          this.messages.sort(compareValues('timestamp', 'asc'));
-          resolve(this.messages)
+          this.messages[conversationWith].sort(compareValues('timestamp', 'asc'));
+          resolve(this.messages[conversationWith])
         }
       });
     })
   }
 
-  private manageMessage(message, index){
-    const msg:MessageModel = this.messageGenerate(message);
-    msg.uid = message.message_id;
-    if(this.isValidMessage(msg)){
-      // msg.attributes && msg.attributes['subtype'] === 'info'
-      let isInfoMessage = messageType(MESSAGE_TYPE_INFO, msg)
-      if(isInfoMessage && hideInfoMessage(msg, this.showInfoMessage)){
-        //if showInfoMessage array keys not includes msg.attributes.messagelabel['key'] exclude CURRENT INFO MESSAGE
-        return;
-      } else if(isInfoMessage && !hideInfoMessage(msg, this.showInfoMessage)){
-        return;
-      }
-    } else {
-      this.logger.error('[Chat21HttpService] manageMessage::message with uid: ', msg.uid, 'is not valid')
-    }
-  }
 
   // ********* ********* ********* ********* ********* //
   // ********* MANAGE CONVERSATIONS: start ********* //
@@ -140,7 +130,7 @@ export class Chat21HttpService {
     }
     conv.conversation_with_fullname = conversation_with_fullname;
     conv.conversation_with = conversation_with;
-    conv.is_new = this.setStatusConversation(conv.sender, conv.uid);
+    // conv.is_new = this.setStatusConversation(conv.sender, conv.uid);
     conv.avatar = avatarPlaceholder(conversation_with_fullname);
     conv.color = getColorBck(conversation_with_fullname);
     if (!conv.last_message_text) {
@@ -281,6 +271,23 @@ export class Chat21HttpService {
         }
     } else {
         return false;
+    }
+  }
+
+  private manageMessage(message, index){
+    const msg:MessageModel = this.messageGenerate(message);
+    msg.uid = message.message_id;
+    if(this.isValidMessage(msg)){
+      // msg.attributes && msg.attributes['subtype'] === 'info'
+      let isInfoMessage = messageType(MESSAGE_TYPE_INFO, msg)
+      if(isInfoMessage && hideInfoMessage(msg, this.showInfoMessage)){
+        //if showInfoMessage array keys not includes msg.attributes.messagelabel['key'] exclude CURRENT INFO MESSAGE
+        return;
+      } else if(isInfoMessage && !hideInfoMessage(msg, this.showInfoMessage)){
+        return;
+      }
+    } else {
+      this.logger.error('[Chat21HttpService] manageMessage::message with uid: ', msg.uid, 'is not valid')
     }
   }
 

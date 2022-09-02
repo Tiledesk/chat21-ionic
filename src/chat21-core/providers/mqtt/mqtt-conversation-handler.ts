@@ -42,7 +42,6 @@ export class MQTTConversationHandler extends ConversationHandlerService {
     public attributes: any;
     public messages: MessageModel[];
     public conversationWith: string;
-    public ref: any;
 
     // private variables
     private translationMap: Map<string, string>; // LABEL_TODAY, LABEL_TOMORROW
@@ -77,11 +76,11 @@ export class MQTTConversationHandler extends ConversationHandlerService {
         if (loggedUser) {
             this.senderId = loggedUser.uid;
         }
-        this.tenant = tenant;
-        this.translationMap = translationMap;
+        // this.tenant = tenant;
+        // this.translationMap = translationMap;
 
         this.listSubsriptions = [];
-        this.CLIENT_BROWSER = navigator.userAgent;
+        // this.CLIENT_BROWSER = navigator.userAgent;
         this.conversationWith = recipientId;
         this.messages = [];
         // this.attributes = this.setAttributes();
@@ -116,7 +115,7 @@ export class MQTTConversationHandler extends ConversationHandlerService {
                     this.addCommandMessage(msg)
                 } else {
                     this.logger.debug('[MQTTConversationHandler] NOT splitted message::::', msg)
-                    this.addedMessage(msg)
+                    this.added(msg)
                 }
         });
         const handler_message_updated = this.chat21HttpService.chatClient.onMessageUpdatedInConversation(
@@ -239,7 +238,7 @@ export class MQTTConversationHandler extends ConversationHandlerService {
     // }
 
     /** */
-    private addedMessage(message: MessageModel) {
+    private added(message: MessageModel) {
         const msg = this.chat21HttpService.messageGenerate(message);
         let isInfoMessage = messageType(MESSAGE_TYPE_INFO, msg)
         if(isInfoMessage && hideInfoMessage(msg, this.chat21HttpService.showInfoMessage)){
@@ -280,9 +279,9 @@ export class MQTTConversationHandler extends ConversationHandlerService {
             return;
         }
         this.logger.log('[MQTTConversationHandler] updating message with patch', patch);
-        const index = searchIndexInArrayForUid(this.chat21HttpService.messages, patch.message_id);
+        const index = searchIndexInArrayForUid(this.messages, patch.message_id);
         if (index > -1) {
-            const message = this.chat21HttpService.messages[index];
+            const message = this.messages[index];
             if (message) {
                 message.status = patch.status;
                 this.logger.log('[MQTTConversationHandler] message found and patched (replacing)', message);
@@ -294,10 +293,10 @@ export class MQTTConversationHandler extends ConversationHandlerService {
 
     /** */
     private removed(childSnapshot: any) {
-        const index = searchIndexInArrayForUid(this.chat21HttpService.messages, childSnapshot.key);
+        const index = searchIndexInArrayForUid(this.messages, childSnapshot.key);
         // controllo superfluo sarà sempre maggiore
         if (index > -1) {
-            this.chat21HttpService.messages.splice(index, 1);
+            this.messages.splice(index, 1);
             this.messageRemoved.next(childSnapshot.key);
         }
     }
@@ -331,15 +330,15 @@ export class MQTTConversationHandler extends ConversationHandlerService {
 
     /** */
     private addReplaceMessageInArray(uid: string, msg: MessageModel) {
-        const index = searchIndexInArrayForUid(this.chat21HttpService.messages, uid);
+        const index = searchIndexInArrayForUid(this.chat21HttpService.messages[this.conversationWith], uid);
         if (index > -1) {
             // const headerDate = this.messages[index].headerDate;
             // msg.headerDate = headerDate;
-            this.chat21HttpService.messages.splice(index, 1, msg);
+            this.messages.splice(index, 1, msg);
         } else {
-            this.chat21HttpService.messages.splice(0, 0, msg);
+            this.messages.splice(0, 0, msg);
         }
-        this.chat21HttpService.messages.sort(compareValues('timestamp', 'asc'));
+        this.messages.sort(compareValues('timestamp', 'asc'));
         this.updateMessageStatusReceived(msg);
     }
 
@@ -513,7 +512,7 @@ export class MQTTConversationHandler extends ConversationHandlerService {
         command_message.isSender = message.isSender;
         command_message.attributes? command_message.attributes.commands = true : command_message.attributes = {commands : true}
         command_message.attributes.parentUid = parentUid //added to manage message STATUS UPDATES
-        this.addedMessage(command_message)
+        this.added(command_message)
         callback();
     }
 

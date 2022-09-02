@@ -163,7 +163,7 @@ export class MQTTConversationsHandler extends ConversationsHandlerService {
             }
         });
         const handlerConversationUpdated = this.chat21HttpService.chatClient.onConversationUpdated( (conv, topic) => {
-            this.logger.debug('[MQTTConversationsHandler] conversation updated:', JSON.stringify(conv));
+            this.logger.debug('[MQTTConversationsHandler] conversation updated:', conv);
             this.changed(conv);
         });
         const handlerConversationDeleted = this.chat21HttpService.chatClient.onConversationDeleted( (conv, topic) => {
