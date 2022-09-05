@@ -344,6 +344,7 @@ export class ConversationListPage implements OnInit {
     this.chat21HttpService.getLastConversations(this.loggedUserUid).then(conversations => {
       this.logger.info('initialize FROM [APP-COMP] - [APP-COMP]-CONVS - INIT CONV CONVS', conversations)
       this.conversations = this.chat21HttpService.conversations
+      this.conversationsHandlerService.conversations = this.chat21HttpService.conversations
       if (!conversations || conversations.length === 0) {
         this.logger.debug('[APP-COMP]-CONVS - INIT CONV CONVS 2', conversations)
         this.events.publish('appcompSubscribeToConvs:loadingIsActive', false);

@@ -62,7 +62,7 @@ export class MQTTConversationsHandler extends ConversationsHandlerService {
         // 2 cerco remoto
         // callback
 
-        const conversation = this.chat21HttpService.conversations.find(conv => conv.conversation_with === conversationWith);
+        const conversation = this.conversations.find(conv => conv.conversation_with === conversationWith);
         this.logger.log('[MQTTConversationsHandler] getConversationDetail found locally? *****: ', conversation);
         if (conversation) {
             
@@ -152,7 +152,7 @@ export class MQTTConversationsHandler extends ConversationsHandlerService {
         const handlerConversationAdded = this.chat21HttpService.chatClient.onConversationAdded( (conv) => {
             let conversation = this.chat21HttpService.completeConversation(conv); // needed to get the "conversation_with", and find the conv in the conv-history
             this.logger.log("onConversationAdded completed:",conversation);
-            const index = this.searchIndexInArrayForConversationWith(this.chat21HttpService.conversations, conversation.conversation_with);
+            const index = this.searchIndexInArrayForConversationWith(this.conversations, conversation.conversation_with);
             if (index > -1) {
                 this.logger.log('[MQTTConversationsHandler] Added conv -> Changed!')
                 this.changed(conversation);
@@ -202,19 +202,19 @@ export class MQTTConversationsHandler extends ConversationsHandlerService {
         this.logger.debug('[MQTTConversationsHandler] NEW CONV completeConversation ', conversation)
         if (this.chat21HttpService.isValidConversation(conversation)) {
             this.setClosingConversation(conversation.conversation_with, false);
-            this.logger.debug('[MQTTConversationsHandler] conversations:', conversation.uid, this.chat21HttpService.conversations);
-            const index = this.searchIndexInArrayForConversationWith(this.chat21HttpService.conversations, conversation.conversation_with);
+            this.logger.debug('[MQTTConversationsHandler] conversations:', conversation.uid, this.conversations);
+            const index = this.searchIndexInArrayForConversationWith(this.conversations, conversation.conversation_with);
             if (index > -1) {
                 this.logger.debug('[MQTTConversationsHandler] TROVATO')
-                this.chat21HttpService.conversations.splice(index, 1, conversation);
+                this.conversations.splice(index, 1, conversation);
             } else {
                 this.logger.debug('[MQTTConversationsHandler] NON TROVATO')
-                this.chat21HttpService.conversations.splice(0, 0, conversation);
+                this.conversations.splice(0, 0, conversation);
                 // this.databaseProvider.setConversation(conversation);
             }
             this.logger.debug('[MQTTConversationsHandler] NUOVA CONVER;.uid3' + conversation.uid)
-            this.chat21HttpService.conversations.sort(compareValues('timestamp', 'desc'));
-            this.logger.debug('[MQTTConversationsHandler] TUTTE:', this.chat21HttpService.conversations)
+            this.conversations.sort(compareValues('timestamp', 'desc'));
+            this.logger.debug('[MQTTConversationsHandler] TUTTE:', this.conversations)
             this.conversationAdded.next(conversation);
         } else {
             this.logger.error('[MQTTConversationsHandler] ChatConversationsHandler::added::conversations with conversationId: ', conversation.conversation_with, 'is not valid');
@@ -244,16 +244,16 @@ export class MQTTConversationsHandler extends ConversationsHandlerService {
         if (!conversation.conversation_with) {
             conversation.conversation_with = conversation.conversWith // conversWith comes from remote
         }
-        const index = searchIndexInArrayForUid(this.chat21HttpService.conversations, conversation.conversation_with);
+        const index = searchIndexInArrayForUid(this.conversations, conversation.conversation_with);
         if (index > -1) {
-            const oldConversation = this.chat21HttpService.conversations[index]
+            const oldConversation = this.conversations[index]
             // const conv = this.conversations[index];
             // this.logger.log("Conversation to update found", conv);
-            this.updateConversationWithSnapshot(this.chat21HttpService.conversations[index], conversation);
-            this.chat21HttpService.conversations[index] = this.chat21HttpService.completeConversation(this.chat21HttpService.conversations[index])
+            this.updateConversationWithSnapshot(this.conversations[index], conversation);
+            this.conversations[index] = this.chat21HttpService.completeConversation(this.conversations[index])
             this.logger.debug('[MQTTConversationsHandler] conversationchanged.isnew', JSON.stringify(conversation))
-            this.chat21HttpService.conversations.sort(compareValues('timestamp', 'desc'));
-            const conversationChanged = this.chat21HttpService.conversations[index]
+            this.conversations.sort(compareValues('timestamp', 'desc'));
+            const conversationChanged = this.conversations[index]
             this.conversationChanged.next(conversationChanged);
             this.conversationChangedDetailed.next({value: conversationChanged, previousValue: oldConversation});
         }
@@ -315,10 +315,10 @@ export class MQTTConversationsHandler extends ConversationsHandlerService {
      * 5 -  elimino conversazione dall'array delle conversazioni chiuse
      */
     private removed(childSnapshot) {
-        const index = searchIndexInArrayForUid(this.chat21HttpService.conversations, childSnapshot.uid);
+        const index = searchIndexInArrayForUid(this.conversations, childSnapshot.uid);
         if (index > -1) {
-            const conversationRemoved = this.chat21HttpService.conversations[index]
-            this.chat21HttpService.conversations.splice(index, 1);
+            const conversationRemoved = this.conversations[index]
+            this.conversations.splice(index, 1);
             // this.conversations.sort(compareValues('timestamp', 'desc'));
             // this.databaseProvider.removeConversation(childSnapshot.key);
             this.logger.debug('[MQTTConversationsHandler] conversationRemoved::', conversationRemoved)
@@ -334,6 +334,7 @@ export class MQTTConversationsHandler extends ConversationsHandlerService {
     dispose() {
         this.chat21HttpService.conversations.length = 0;
         this.chat21HttpService.conversations = [];
+        this.conversations = []
         this.uidConvSelected = '';
     }
 
@@ -424,7 +425,7 @@ export class MQTTConversationsHandler extends ConversationsHandlerService {
      */
     countIsNew(): number {
         let num = 0;
-        this.chat21HttpService.conversations.forEach((element) => {
+        this.conversations.forEach((element) => {
             if (element.is_new === true) {
                 num++;
             }

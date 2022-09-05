@@ -299,7 +299,7 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
   getConversations() {
     this.conversationsHandlerService.conversationAdded.subscribe((conv) => {
       // console.log('[CONVS-DETAIL]  - conv  ', conv)
-      const conversations = this.conversationsHandlerService.conversations
+      const conversations = this.chat21HttpService.conversations
       // console.log('[CONVS-DETAIL] conversations', conversations);
       this.conversation_count = conversations.length
     })
@@ -327,10 +327,8 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
 
     this.conversationsHandlerService.conversationRemoved.subscribe((conv) => {
       // console.log('[CONVS-DETAIL]  - conv  ', conv)
-      if(conv){
-        this.conversation_count = this.chat21HttpService.conversations.length
-        this.logger.log('[CONVS-DETAIL] conversation_count', this.conversation_count)
-      }
+      this.conversation_count = this.chat21HttpService.conversations.length
+      this.logger.log('[CONVS-DETAIL] conversation_count', this.conversation_count)
     })
 
     setTimeout(() => {
@@ -733,9 +731,7 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
   }
 
   setHeaderContent() {
-    //   this.logger.log('[CONVS-DETAIL] - setHeaderContent conversationWith', this.conversationWith)
-    //   this.logger.log('[CONVS-DETAIL] - setHeaderContent conversationsHandlerService', this.conversationsHandlerService)
-    //   this.logger.log('[CONVS-DETAIL] - setHeaderContent conv_type', this.conv_type)
+    // this.logger.log('[CONVS-DETAIL] - setHeaderContent conversationWith', this.conversationWith)
     if (this.conversationWith && this.conversationsHandlerService && this.conv_type === 'active') {
       this.logger.log('[CONVS-DETAIL] - setHeaderContent getConversationDetail CALLING')
       this.conversationsHandlerService.getConversationDetail(this.conversationWith, (conv) => {
