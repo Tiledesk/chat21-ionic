@@ -18,7 +18,7 @@ import { ConversationHandlerService } from '../abstract/conversation-handler.ser
 import { LoggerService } from '../abstract/logger.service';
 import { LoggerInstance } from '../logger/loggerInstance';
 // utils
-import { MSG_STATUS_RECEIVED, CHAT_REOPENED, CHAT_CLOSED, MEMBER_JOINED_GROUP, TYPE_DIRECT, MESSAGE_TYPE_INFO, TOUCHING_OPERATOR, LEAD_UPDATED, MEMBER_LEFT_GROUP } from '../../utils/constants';
+import { MSG_STATUS_RECEIVED, CHAT_REOPENED, CHAT_CLOSED, MEMBER_JOINED_GROUP, TYPE_DIRECT, MESSAGE_TYPE_INFO, TOUCHING_OPERATOR, LEAD_UPDATED, MEMBER_LEFT_GROUP, MEMBER_ABANDONED_GROUP } from '../../utils/constants';
 import { compareValues, searchIndexInArrayForUid, conversationMessagesRef } from '../../utils/utils';
 
 
@@ -335,6 +335,7 @@ export class FirebaseConversationHandler extends ConversationHandlerService {
         const INFO_SUPPORT_CHAT_CLOSED = this.translationMap.get('INFO_SUPPORT_CHAT_CLOSED');
         const INFO_SUPPORT_LEAD_UPDATED = this.translationMap.get('INFO_SUPPORT_LEAD_UPDATED');
         const INFO_SUPPORT_MEMBER_LEFT_GROUP = this.translationMap.get('INFO_SUPPORT_MEMBER_LEFT_GROUP');
+        const INFO_SUPPORT_MEMBER_ABANDONED_GROUP = this.translationMap.get('INFO_SUPPORT_MEMBER_ABANDONED_GROUP');
         const INFO_A_NEW_SUPPORT_REQUEST_HAS_BEEN_ASSIGNED_TO_YOU = this.translationMap.get('INFO_A_NEW_SUPPORT_REQUEST_HAS_BEEN_ASSIGNED_TO_YOU');
 
         if (message.attributes.messagelabel
@@ -384,6 +385,14 @@ export class FirebaseConversationHandler extends ConversationHandlerService {
                subject = message.attributes.messagelabel.parameters.member_id;
            }
            message.text = subject + ' ' +  INFO_SUPPORT_MEMBER_LEFT_GROUP ;
+        } else if ((message.attributes.messagelabel && message.attributes.messagelabel.key === MEMBER_ABANDONED_GROUP)) {
+            let subject: string;
+            if (message.attributes.messagelabel.parameters.fullname) {
+                subject = message.attributes.messagelabel.parameters.fullname;
+            } else{
+                subject = message.attributes.messagelabel.parameters.member_id;
+            }
+            message.text = subject + ' ' +  INFO_SUPPORT_MEMBER_ABANDONED_GROUP ;
         }
     }
 

@@ -45,7 +45,7 @@ export class BubbleMessageComponent implements OnInit, OnChanges {
  
   constructor(
     public sanitizer: DomSanitizer,
-    private translate: TranslateService,
+    public translate: TranslateService,
     public tiledeskAuthService: TiledeskAuthService,
     public modalController: ModalController,
     ) {

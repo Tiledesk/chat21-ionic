@@ -1,4 +1,4 @@
-import { TOUCHING_OPERATOR, LEAD_UPDATED, MEMBER_LEFT_GROUP } from './../../utils/constants';
+import { TOUCHING_OPERATOR, LEAD_UPDATED, MEMBER_LEFT_GROUP, MEMBER_ABANDONED_GROUP } from './../../utils/constants';
 import { Inject, Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
@@ -333,6 +333,7 @@ export class MQTTConversationHandler extends ConversationHandlerService {
         const INFO_SUPPORT_CHAT_CLOSED = this.translationMap.get('INFO_SUPPORT_CHAT_CLOSED');
         const INFO_SUPPORT_LEAD_UPDATED = this.translationMap.get('INFO_SUPPORT_LEAD_UPDATED');
         const INFO_SUPPORT_MEMBER_LEFT_GROUP = this.translationMap.get('INFO_SUPPORT_MEMBER_LEFT_GROUP');
+        const INFO_SUPPORT_MEMBER_ABANDONED_GROUP = this.translationMap.get('INFO_SUPPORT_MEMBER_ABANDONED_GROUP');
         const INFO_A_NEW_SUPPORT_REQUEST_HAS_BEEN_ASSIGNED_TO_YOU = this.translationMap.get('INFO_A_NEW_SUPPORT_REQUEST_HAS_BEEN_ASSIGNED_TO_YOU');
 
         if (message.attributes.messagelabel
@@ -381,6 +382,14 @@ export class MQTTConversationHandler extends ConversationHandlerService {
                subject = message.attributes.messagelabel.parameters.member_id;
            }
            message.text = subject + ' ' +  INFO_SUPPORT_MEMBER_LEFT_GROUP ;
+        } else if ((message.attributes.messagelabel && message.attributes.messagelabel.key === MEMBER_ABANDONED_GROUP)) {
+            let subject: string;
+            if (message.attributes.messagelabel.parameters.fullname) {
+                subject = message.attributes.messagelabel.parameters.fullname;
+            } else{
+                subject = message.attributes.messagelabel.parameters.member_id;
+            }
+            message.text = subject + ' ' +  INFO_SUPPORT_MEMBER_ABANDONED_GROUP ;
         }
     }
 
