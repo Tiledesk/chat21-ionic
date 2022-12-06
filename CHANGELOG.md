@@ -1,5 +1,7 @@
 # chat21-ionic ver 3.0
 
+## 3.0.87 in PROD
+
 ## 3.0.85 in PROD
 - bug-fixed: remove focus from last edited canned
 - changed: do not cache right side-bar conversation-info component
