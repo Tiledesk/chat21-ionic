@@ -269,6 +269,7 @@ export class CreateCannedResponsePage implements OnInit {
       myField.value += myValue;
       // this.cannedResponseMessage = myField.value;
     }
+    this.cannedFormGroup.patchValue({message: myField.value})
   }
 
 

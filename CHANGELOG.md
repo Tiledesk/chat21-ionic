@@ -1,5 +1,7 @@
 # chat21-ionic ver 3.0
 
+### 3.0.102 in PROD
+
 ### 3.0.101 in PROD
 - changed: message-textarea tooltip translations
 - bug-fixed: offline message warning appear also if user has not an email in leadInfo

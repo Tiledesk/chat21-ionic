@@ -10,24 +10,26 @@ const routes: Routes = [
   { path: '', redirectTo: 'conversation-detail', pathMatch: 'full' },
   {
     path: 'conversations-list',
-    loadChildren: './pages/conversations-list/conversations-list.module#ConversationListPageModule'
-    // loadChildren: () => import('./pages/conversations-list/conversations-list.module').then( m => m.ConversationListPageModule)
+    // loadChildren: './pages/conversations-list/conversations-list.module#ConversationListPageModule'
+    loadChildren: () => import('./pages/conversations-list/conversations-list.module').then( m => m.ConversationListPageModule)
   },
   { path: 'conversation-detail/:IDConv/:Convtype',
-    loadChildren: './pages/conversation-detail/conversation-detail.module#ConversationDetailPageModule'
+    // loadChildren: './pages/conversation-detail/conversation-detail.module#ConversationDetailPageModule'
+    loadChildren: () => import('./pages/conversation-detail/conversation-detail.module').then( m => m.ConversationDetailPageModule)
   },
   { path: 'conversation-detail/:IDConv/:FullNameConv/:Convtype',
-    loadChildren: './pages/conversation-detail/conversation-detail.module#ConversationDetailPageModule'
+    // loadChildren: './pages/conversation-detail/conversation-detail.module#ConversationDetailPageModule'
+    loadChildren: () => import('./pages/conversation-detail/conversation-detail.module').then( m => m.ConversationDetailPageModule)
   },
   {
     path: 'conversation-detail',
-    loadChildren: './pages/conversation-detail/conversation-detail.module#ConversationDetailPageModule'
-    // loadChildren: () => import('./pages/conversation-detail/conversation-detail.module').then( m => m.ConversationDetailPageModule)
+    // loadChildren: './pages/conversation-detail/conversation-detail.module#ConversationDetailPageModule'
+    loadChildren: () => import('./pages/conversation-detail/conversation-detail.module').then( m => m.ConversationDetailPageModule)
   },
   {
     path: 'conversation-detail/:IDConv',
-    loadChildren: './pages/conversation-detail/conversation-detail.module#ConversationDetailPageModule'
-   
+    // loadChildren: './pages/conversation-detail/conversation-detail.module#ConversationDetailPageModule'
+    loadChildren: () => import('./pages/conversation-detail/conversation-detail.module').then( m => m.ConversationDetailPageModule)
   },
   {
     path: 'contacts-directory',
