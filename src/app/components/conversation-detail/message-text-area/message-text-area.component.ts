@@ -594,7 +594,7 @@ export class MessageTextAreaComponent implements OnInit, AfterViewInit, OnChange
     this.messageString = '';
     // text = text.replace(/(\r\n|\n|\r)/gm, '');
     if (text && text.trim() !== '') {
-      this.eventSendMessage.emit({ msg: text, type: TYPE_MSG_TEXT });
+      this.eventSendMessage.emit({ msg: text, type: TYPE_MSG_TEXT, metadata: null, attributes: null });
     }
   }
 

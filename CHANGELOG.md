@@ -1,5 +1,8 @@
 # chat21-ionic ver 3.0
 
+### 3.0.102.1 in PROD
+- bug-fixed: cannot send new message in direct conversation for the first time
+
 ### 3.0.102 in PROD
 
 ### 3.0.101 in PROD

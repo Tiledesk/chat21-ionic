@@ -1089,9 +1089,9 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
         msg = `[${metadata.name}](${metadata.src})`
       }
     }
-    this.conversation.attributes && this.conversation.attributes['request_channel'] ? attributes.request_channel = this.conversation.attributes['request_channel'] : null;
+    this.conversation && this.conversation.attributes && this.conversation.attributes['request_channel'] ? attributes.request_channel = this.conversation.attributes['request_channel'] : null;
     metadata ? (metadata = metadata) : (metadata = '')
-    this.logger.log('[CONVS-DETAIL] attributes--->>>> 1111', this.conversation.attributes, attributes)
+    // this.logger.log('[CONVS-DETAIL] attributes--->>>> 1111', this.conversation.attributes, attributes)
     this.logger.log('[CONVS-DETAIL] - SEND MESSAGE msg: ', msg, ' - messages: ', this.messages, ' - loggedUser: ', this.loggedUser)
 
 
