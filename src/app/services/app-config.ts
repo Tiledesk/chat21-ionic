@@ -64,16 +64,19 @@ export class AppConfigProvider {
             // console.log('AppConfigService loadAppConfig allconfig !!!! exist - SERVER_BASE_URL !!! IS RELATIVE - window.location ', window.location);
 
             // console.log(window.location)
-
+            var urlPort = "";
+            if(window.location.port!=''){
+                urlPort = ':' + window.location.port;
+            }
             if (window.location.protocol === 'http:') {
-              allconfig.wsUrl = 'ws://' + window.location.hostname + ':' + window.location.port + allconfig.wsUrlRel
+              allconfig.wsUrl = 'ws://' + window.location.hostname + urlPort + allconfig.wsUrlRel
 
             } else if (window.location.protocol === 'https:') {
 
-              allconfig.wsUrl = 'wss://' + window.location.hostname + ':' + window.location.port + allconfig.wsUrlRel
+              allconfig.wsUrl = 'wss://' + window.location.hostname + urlPort + allconfig.wsUrlRel
             } else {
 
-              allconfig.wsUrl = 'ws://' + window.location.hostname + ':' + window.location.port + allconfig.wsUrlRel
+              allconfig.wsUrl = 'ws://' + window.location.hostname + urlPort + allconfig.wsUrlRel
             }
             // }
 
