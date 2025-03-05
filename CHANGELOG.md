@@ -1,5 +1,8 @@
 # chat21-ionic ver 3.0
 
+### 3.4.13-rc.1
+- added: copilot suggestions for agent responses
+
 ### 3.4.12 in PROD
 
 ### 3.4.12-rc.2
