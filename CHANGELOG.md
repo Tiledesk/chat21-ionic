@@ -1,5 +1,9 @@
 # chat21-ionic ver 3.0
 
+### 3.4.13-rc.2
+- added: no-suggestions in copilot component
+- changed: HIDE_CANNED_RESPONSES with SHOW CANNED_RESPONSES
+
 ### 3.4.13-rc.1
 - added: copilot suggestions for agent responses
 
