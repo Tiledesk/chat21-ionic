@@ -1,5 +1,4 @@
 import { JsonMessagePage } from './../../../modals/json-message/json-message.page';
-import { BubbleInfoPopoverComponent } from '../../../components/bubbleMessageInfo-popover/bubbleinfo-popover.component';
 import { MessageModel } from 'src/chat21-core/models/message';
 import { ConversationContentComponent } from '../conversation-content/conversation-content.component';
 import { ChangeDetectorRef, Component, Input, OnInit, Output, EventEmitter, SimpleChange, SimpleChanges } from '@angular/core';
@@ -18,6 +17,7 @@ import * as moment from 'moment';
 import { AppConfigProvider } from 'src/app/services/app-config';
 import { ModalController, PopoverController, ToastController } from '@ionic/angular';
 import { CreateCannedResponsePage } from 'src/app/modals/create-canned-response/create-canned-response.page';
+import { EventsService } from 'src/app/services/events-service';
 
 @Component({
   selector: 'ion-conversation-detail',
@@ -73,7 +73,8 @@ export class IonConversationDetailComponent extends ConversationContentComponent
     public appConfigProvider: AppConfigProvider,
     public modalController: ModalController,
     public popoverController: PopoverController,
-    public toastController: ToastController
+    public toastController: ToastController,
+    private eventService: EventsService
   ) {
     super(cdref, uploadService)
 
@@ -154,16 +155,20 @@ export class IonConversationDetailComponent extends ConversationContentComponent
     this.onAddUploadingBubble.emit(value);
   }
 
-  onClickOptionsMessage(event:{option: string, message: MessageModel}){
-    this.logger.log('[CONVS-DETAIL][ION-CONVS-DETAIL] - onClickBubbleMenu', event);
+  onClickBubbleOptions(event:{option: string, data: any}){
+    this.logger.log('[CONVS-DETAIL][ION-CONVS-DETAIL] - onClickBubbleOptions', event);
     if(event.option==='copy'){
-      this.onClickCopyMessage(event.message)
+      this.onClickCopyMessage(event.data.message)
     }else if(event.option === 'addCanned'){
       if(this.areVisibleCAR && this.supportMode){
-        this.presentCreateCannedResponseModal(event.message)
+        this.presentCreateCannedResponseModal(event.data.message)
       }
     }else if(event.option === 'jsonInfo'){
-      this.presentJsonMessageModal(event.message)
+      this.presentJsonMessageModal(event.data.message)
+    } else if(event.option === 'copilot_question'){
+      console.log('hereeeeeee', event)
+      this.eventService.publish('copilot:new_question', {text: event.data.text})
+
     }
   }
 

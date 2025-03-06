@@ -12,7 +12,7 @@
   <chat-options
     [message]="message"
     [logLevel]="logger.getLoggerConfig().logLevel"
-    (onOptionsMessage)="onOptionsMessageFN($event)">
+    (onOptionsDataReturned)="onOptionsDataReturnedFN($event)">
   </chat-options>
 
   <div>

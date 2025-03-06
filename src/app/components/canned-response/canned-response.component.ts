@@ -32,6 +32,7 @@ export class CannedResponseComponent implements OnInit {
   
   public tagsCanned: any = []
   public tagsCannedFilter: any = []
+  public showLoading: boolean = false
 
   public arrowkeyLocation = -1
 
@@ -123,17 +124,21 @@ export class CannedResponseComponent implements OnInit {
     this.logger.log('[CANNED] - loadTagsCanned tagsCanned.length', this.tagsCanned.length)
     //if(this.tagsCanned.length <= 0 ){
     this.tagsCanned = []
+    this.showLoading = true;
     this.cannedResponsesService.getAll(tiledeskToken, projectId).subscribe((res) => {
       this.logger.log('[CANNED] - loadTagsCanned  getCannedResponses RES', res)
 
       this.tagsCanned = res
       // if (this.HIDE_CANNED_RESPONSES === false) {
-        this.showTagsCanned(strSearch)
+      this.showTagsCanned(strSearch)
       // }
     }, (error) => {
       this.logger.error('[CANNED] - loadTagsCanned  getCannedResponses - ERROR  ', error)
     }, () => {
       this.logger.log('[CANNED] - loadTagsCanned  getCannedResponses * COMPLETE *')
+      setTimeout(() => {
+        this.showLoading = false
+      }, 1000);
     })
   }
 
@@ -163,33 +168,9 @@ export class CannedResponseComponent implements OnInit {
       canned.text = this.replacePlaceholderInCanned(canned.text);
       canned.disabled = true
     });
-    if (this.tagsCannedFilter && this.tagsCannedFilter.length === 0) {
-      // const button = this.renderer.createElement('button');
-      // const buttonText = this.renderer.createText('Click me');
-      // this.renderer.appendChild(button, buttonText);
-      // console.log('[CANNED] - this.el.nativeElement ', this.el.nativeElement)
-      // this.renderer.listen(button, 'click', () => { alert('hi'); });
-      // let nocanned = {}
-      // if (this.USER_ROLE !== 'agent') {
-      const nocanned = {
-        // "<div class='cannedContent'><div class='cannedTitle nocannedTitle #noCannedTitle'>" + this.translationMap.get('THERE_ARE_NO_CANNED_RESPONSES_AVAILABLE') + ".</div><div class='cannedText'>" + this.translationMap.get('TO_CREATE_THEM_GO_TO_THE_PROJECT') + '</div></div>'
-        // <div class='cannedText no-canned-available-text'>" + this.translationMap.get('AddNewCannedResponse') + '</div>
-        title: this.translationMap.get('THERE_ARE_NO_CANNED_RESPONSES_AVAILABLE') ,
-        text: '',
-        disabled: true
-      }
-      // } else if (this.USER_ROLE === 'agent') {
-      //   nocanned = {
-      //     // "<div class='cannedContent'><div class='cannedTitle nocannedTitle #noCannedTitle'>" + this.translationMap.get('THERE_ARE_NO_CANNED_RESPONSES_AVAILABLE') + ".</div><div class='cannedText'>" + this.translationMap.get('TO_CREATE_THEM_GO_TO_THE_PROJECT') + '</div></div>'
-      //     title:
-      //       "<div class='cannedContent'><div class='cannedTitle nocannedTitle #noCannedTitle'>" + this.translationMap.get('THERE_ARE_NO_CANNED_RESPONSES_AVAILABLE') + ".</div></div>",
-      //     text: 'There are no canned responses available',
-      //   }
-      // }
-      this.tagsCannedFilter.push(nocanned)
-    }
     this.appStorageService.setItem(this.projectID+'_canned', JSON.stringify(this.tagsCannedFilter))
     this.onLoadedCannedResponses.emit(this.tagsCannedFilter)
+    
   }
 
   filterItems(items, searchTerm) {

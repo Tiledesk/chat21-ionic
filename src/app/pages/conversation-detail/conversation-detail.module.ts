@@ -44,6 +44,7 @@ import { OptionsComponent } from 'src/app/chatlib/conversation-detail/message/op
 import { UserTypingComponent } from 'src/chat21-core/utils/user-typing/user-typing.component';
 import { AvatarProfileComponent } from 'src/app/components/utils/avatar-profile/avatar-profile.component';
 import { CopilotSuggestionsComponent } from 'src/app/components/copilot-suggestions/copilot-suggestions.component';
+import { CopilotPopoverComponent } from 'src/app/components/copilot-popover/copilot-popover.component';
 
 
 @NgModule({
@@ -66,7 +67,7 @@ import { CopilotSuggestionsComponent } from 'src/app/components/copilot-suggesti
     MomentModule
   ],
   // entryComponents: [MessageTextAreaComponent],
-  entryComponents: [ BubbleInfoPopoverComponent],
+  entryComponents: [ BubbleInfoPopoverComponent, CopilotPopoverComponent],
   declarations: [
     ConversationDetailPage,
     //******** COMPONENTS - init ********//
@@ -90,6 +91,7 @@ import { CopilotSuggestionsComponent } from 'src/app/components/copilot-suggesti
     ReturnReceiptComponent,
     OptionsComponent,
     BubbleInfoPopoverComponent,
+    CopilotPopoverComponent,
     UserTypingComponent,
     // --------- footer --------- //
     MessageTextAreaComponent,

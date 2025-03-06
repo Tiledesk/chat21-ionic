@@ -162,6 +162,10 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
   conversation: ConversationModel;
   USER_ROLE: string;
 
+  /**COPILOT : start */
+  copilotQuestion: string = '';
+  /**COPILOT : end */
+
   isMine = isMine
   isInfo = isInfo
   isFirstMessage = isFirstMessage
@@ -258,7 +262,7 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
     this.getConversations();
     this.watchToConnectionStatus();
     this.getOSCODE();
-    this.getStoredProjectAndUserRole();
+    this.listenToEventServiceEvents();
     this.listenToDsbrdPostMsgs();
   }
 
@@ -297,7 +301,7 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
   }
 
 
-  getStoredProjectAndUserRole() {
+  listenToEventServiceEvents() {
     this.events.subscribe('storage:last_project', project => {
       this.logger.log('[CONVS-DETAIL] stored_project ', project)
       if (project && project !== 'undefined') {
@@ -305,6 +309,14 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
         this.logger.log('[CONVS-DETAIL]  USER_ROLE ', this.USER_ROLE)
       }
     });
+
+    this.events.subscribe('copilot:new_question', data => {
+      this.logger.log('[CONVS-DETAIL] copilot:new_question ', data)
+      if(data?.text){
+        this.copilotQuestion = data.text
+        this.SHOW_COPILOT_SUGGESTIONS = !this.SHOW_COPILOT_SUGGESTIONS
+      }
+    })
   }
 
   getConversations() {
@@ -1641,6 +1653,7 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
   onClickOpenCannedResponses($event) {
     this.logger.log('[CONVS-DETAIL] - onClickOpenCannedResponses ', $event)
     this.SHOW_CANNED_RESPONSES = !this.SHOW_CANNED_RESPONSES
+    this.SHOW_COPILOT_SUGGESTIONS = false;
 
     //HIDE_CANNED_RESPONSES: true --> not show CANNED component
     //HIDE_CANNED_RESPONSES: false --> show CANNED component and place '/' char in textarea
@@ -1886,6 +1899,8 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
     }
     if(event === 'copilot'){
       this.SHOW_COPILOT_SUGGESTIONS = !this.SHOW_COPILOT_SUGGESTIONS
+      this.SHOW_CANNED_RESPONSES = false
+      this.copilotQuestion = ''
     }
   }
 

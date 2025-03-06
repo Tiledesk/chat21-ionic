@@ -61,7 +61,7 @@
               here is ignored
             </span>
 
-            <div class="overlay" *ngIf="SHOW_CANNED_RESPONSES || SHOW_COPILOT_SUGGESTIONS" (click)="this.SHOW_COPILOT_SUGGESTIONS=!this.SHOW_COPILOT_SUGGESTIONS; this.SHOW_CANNED_RESPONSES = !this.SHOW_CANNED_RESPONSES"></div>
+            <div class="overlay" *ngIf="SHOW_CANNED_RESPONSES || SHOW_COPILOT_SUGGESTIONS" (click)="this.SHOW_COPILOT_SUGGESTIONS=false; this.SHOW_CANNED_RESPONSES=false"></div>
 
             <ng-template #content_welcome>
               <!-- <div class="messageFirst">
@@ -183,6 +183,7 @@
 
             <copilot-suggestions *ngIf="SHOW_COPILOT_SUGGESTIONS"
               id="copilot"
+              [question]="copilotQuestion"
               [conversationWith]="conversationWith"
               [conversationWithFullname]="conversationWithFullname"
               [currentString]="messageStr"

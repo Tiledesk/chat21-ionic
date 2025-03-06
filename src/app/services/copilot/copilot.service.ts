@@ -24,8 +24,8 @@ export class CopilotService {
   }
 
   public getAll(token: string, projectid: string, conversWith: string) {
-      const cannedResponsesURL = this.apiUrl + projectid + "/copilot?request_id=" + conversWith;
-      this.logger.log('[COPILOT-SERVICE] getAllSuggestions - URL ', cannedResponsesURL);
+      const url = this.apiUrl + projectid + "/copilot?request_id=" + conversWith;
+      this.logger.log('[COPILOT-SERVICE] getAllSuggestions - URL ', url);
   
       const httpOptions = {
         headers: new HttpHeaders({
@@ -34,11 +34,34 @@ export class CopilotService {
         })
       };
       
-      return this.http.get(cannedResponsesURL, httpOptions).pipe(map((res: [any]) => {
+      return this.http.get(url, httpOptions).pipe(map((res: [any]) => {
           let suggestions = res.filter(el => el !== null).map(el => ({ ...el, _id:  uuid.v4()} ));
           this.logger.log('[COPILOT-SERVICE] getCannedResponses - RES ', suggestions);
           return suggestions
       }))
-    }
+  }
+
+  public getAllFromQuestion(question: string, token: string, projectid: string, conversWith: string) {
+    const url = this.apiUrl + projectid + "/copilot?request_id=" + conversWith;
+    this.logger.log('[COPILOT-SERVICE] getAllSuggestions - URL ', url);
+
+    const httpOptions = {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        Authorization: token
+      })
+    };
+
+    console.log('questionnnn', question)
+    const body = {
+      text: question
+    };
+    
+    return this.http.post(url, body, httpOptions).pipe(map((res: [any]) => {
+        let suggestions = res.filter(el => el !== null).map(el => ({ ...el, _id:  uuid.v4()} ));
+        this.logger.log('[COPILOT-SERVICE] getCannedResponses - RES ', suggestions);
+        return suggestions
+    }))
+}
     
 }

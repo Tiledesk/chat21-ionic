@@ -16,6 +16,7 @@ import { getProjectIdSelectedConversation } from 'src/chat21-core/utils/utils';
 export class CopilotSuggestionsComponent implements OnInit {
 
    // @Input() tagsCannedFilter: any = []
+  @Input() question: string;
   @Input() conversationWith: string;
   @Input() conversationWithFullname: string;
   @Input() currentString: string;
@@ -94,17 +95,31 @@ export class CopilotSuggestionsComponent implements OnInit {
     //if(this.tagsCanned.length <= 0 ){
     this.suggestions = []
     this.showLoading = true;
-    this.copilotService.getAll(tiledeskToken, projectId, this.conversationWith).subscribe((res) => {
-      this.logger.log('[COPILOT] - loadTagsCanned  getCannedResponses RES', res)
-      this.suggestions = res.map(el => ({ ...el, disabled : true }))
-      this.logger.log('[COPILOT] - loadTagsCanned  getCannedResponses tagsCannedCount', this.suggestions)
-    }, (error) => {
-      this.logger.error('[COPILOT] - loadTagsCanned  getCannedResponses - ERROR  ', error)
-    }, () => {
-      this.logger.log('[COPILOT] - loadTagsCanned  getCannedResponses * COMPLETE *')
-      this.showLoading = false
-      this.onLoadedSuggestions.emit(this.suggestions)
-    })
+    if(this.question && this.question !== ''){
+      this.copilotService.getAllFromQuestion(this.question, tiledeskToken, projectId, this.conversationWith).subscribe((res) => {
+        this.logger.log('[COPILOT] - loadTagsCanned  getCannedResponses RES', res)
+        this.suggestions = res.map(el => ({ ...el, disabled : true }))
+        this.logger.log('[COPILOT] - loadTagsCanned  getCannedResponses tagsCannedCount', this.suggestions)
+      }, (error) => {
+        this.logger.error('[COPILOT] - loadTagsCanned  getCannedResponses - ERROR  ', error)
+      }, () => {
+        this.logger.log('[COPILOT] - loadTagsCanned  getCannedResponses * COMPLETE *')
+        this.showLoading = false
+        this.onLoadedSuggestions.emit(this.suggestions)
+      })
+    } else {
+      this.copilotService.getAll(tiledeskToken, projectId, this.conversationWith).subscribe((res) => {
+        this.logger.log('[COPILOT] - loadTagsCanned  getCannedResponses RES', res)
+        this.suggestions = res.map(el => ({ ...el, disabled : true }))
+        this.logger.log('[COPILOT] - loadTagsCanned  getCannedResponses tagsCannedCount', this.suggestions)
+      }, (error) => {
+        this.logger.error('[COPILOT] - loadTagsCanned  getCannedResponses - ERROR  ', error)
+      }, () => {
+        this.logger.log('[COPILOT] - loadTagsCanned  getCannedResponses * COMPLETE *')
+        this.showLoading = false
+        this.onLoadedSuggestions.emit(this.suggestions)
+      })
+    }
   }
 
 
