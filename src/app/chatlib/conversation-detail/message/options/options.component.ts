@@ -4,6 +4,7 @@ import { BubbleInfoPopoverComponent } from 'src/app/components/bubbleMessageInfo
 import { MessageModel } from 'src/chat21-core/models/message';
 import { LoggerService } from 'src/chat21-core/providers/abstract/logger.service';
 import { LoggerInstance } from 'src/chat21-core/providers/logger/loggerInstance';
+import { CopilotPopoverComponent } from 'src/app/components/copilot-popover/copilot-popover.component';
 
 @Component({
   selector: 'chat-options',
@@ -14,7 +15,7 @@ export class OptionsComponent implements OnInit {
 
   @Input() message: MessageModel;
   @Input() logLevel: number;
-  @Output() onOptionsMessage = new EventEmitter<{option: string, message: MessageModel}>();
+  @Output() onOptionsDataReturned = new EventEmitter<{option: string, data: any}>();
 
   private logger: LoggerService = LoggerInstance.getInstance()
   
@@ -22,17 +23,23 @@ export class OptionsComponent implements OnInit {
 
   ngOnInit() {}
 
-  onClickOptionsMessage(event, message){
-      this.logger.log('[BUBBLE-MESSAGE] - onClickOptionsMessage', message);
-      this.presentPopover(event, message)
+  onClickOptionsMessage(event){
+      this.logger.log('[BUBBLE-MESSAGE] - onClickOptionsMessage', this.message);
+      this.presentPopover(event)
   }
+
+  onClickOptionsCopilot(event){
+    this.logger.log('[BUBBLE-MESSAGE] - onClickOptionsCopilot', this.message);
+    this.presentCopilotPopover(event)
+  }
+
   
   
-  async presentPopover(ev: any, message: MessageModel) {
+  async presentPopover(ev: any) {
     const attributes = {
-      message: message,
+      message: this.message,
       logLevel: this.logLevel,
-      conversationWith: message.recipient
+      conversationWith: this.message.recipient
     }
     const popover = await this.popoverController.create({
       component: BubbleInfoPopoverComponent,
@@ -46,7 +53,32 @@ export class OptionsComponent implements OnInit {
     popover.onDidDismiss().then((dataReturned: any) => {
       this.logger.log('[BUBBLE-MESSAGE] presentPopover dismissed. Returned value::', dataReturned.data)
       if(dataReturned.data){
-        this.onOptionsMessage.emit({option: dataReturned.data.option, message: message})
+        this.onOptionsDataReturned.emit({option: dataReturned.data.option, data: {message: this.message}})
+      }
+    })
+
+    return await popover.present();
+  }
+
+  async presentCopilotPopover(ev: any) {
+    const attributes = {
+      message: this.message,
+      logLevel: this.logLevel,
+      conversationWith: this.message.recipient
+    }
+    const popover = await this.popoverController.create({
+      component: CopilotPopoverComponent,
+      cssClass: 'copilot-popover',
+      componentProps: attributes,
+      event: ev,
+      translucent: true,
+      keyboardClose: true,
+      showBackdrop: false,
+    });
+    popover.onDidDismiss().then((dataReturned: any) => {
+      this.logger.log('[BUBBLE-MESSAGE] presentCopilotPopover dismissed. Returned value::', dataReturned.data)
+      if(dataReturned.data){
+        this.onOptionsDataReturned.emit({option: 'copilot_question', data: {text: dataReturned.data.text}})
       }
     })
 

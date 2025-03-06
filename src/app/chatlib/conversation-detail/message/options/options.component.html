@@ -1,5 +1,8 @@
 <div class="options-container" >
-  <div class="options-logo" (click)="onClickOptionsMessage($event, message)" >
+  <div class="options-logo" (click)="onClickOptionsMessage($event)" >
     <ion-icon name="chevron-down"></ion-icon>
+  </div>
+  <div class="options-logo" (click)="onClickOptionsCopilot($event)">
+    <ion-icon id="copilot" src="assets/images/icons/copilot.svg"></ion-icon>
   </div>
 </div>

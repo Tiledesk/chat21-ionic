@@ -305,8 +305,11 @@
         "SUBJECT_OFFLINE_MESSAGE":"Messaggio offline di Tiledesk 💬",
         "SEND_EMAIL_SUCCESS_OFFLINE_MESSAGE":"Messaggio inviato anche via mail 📩"
     },
+    "HELLO":"Ciao",
     "COPILOT": {
         "ASK_AI":"Chiedi all'AI",
-        "NO_SUGGESTIONS_PRESENT":"Nessun suggerimento trovato"
+        "NO_SUGGESTIONS_PRESENT":"Nessun suggerimento trovato",
+        "INSERT_PROMPT_HERE":"Inserisci un prompt qui",
+        "HOW_CAN_I_HELP_YOU":"Come posso aiutarti?"
   }
 }

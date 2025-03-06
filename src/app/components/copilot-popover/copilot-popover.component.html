@@ -1,0 +1,25 @@
+<div id="copilot-container">
+  <ion-header class="ion-no-border">
+    <ion-label class="main-title">{{translationsMap.get('HELLO')}}<span *ngIf="loggedUser?.firstname">, {{loggedUser?.firstname}}</span></ion-label>
+    <ion-label class="title">{{translationsMap.get('COPILOT.HOW_CAN_I_HELP_YOU')}}</ion-label>
+  </ion-header>
+  <ion-content>
+    <div class="content-container">
+      <div class="text-message">
+        <ion-textarea 
+          [placeholder]="translationsMap.get('COPILOT.ASK_ME_SOMETHING')"
+          [(ngModel)]="text" 
+          (ionChange)="ionChange($event);" 
+          (ionFocus)="ionFocus()"
+          (keydown.enter)="onKeydown($event, messageString)">
+        </ion-textarea>
+      </div>
+    </div>
+  </ion-content>
+  <ion-footer class="ion-no-border">
+    <ion-button fill="clear" (click)="onClickCopilot()">
+      <ion-icon src="assets/images/icons/copilot.svg"></ion-icon>
+      {{translationsMap.get('COPILOT.ASK_AI') }}
+    </ion-button>
+  </ion-footer>
+</div>

@@ -1,0 +1,101 @@
+#copilot-container{
+    margin: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+
+
+    ion-header{
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+
+        .main-title{
+            background: linear-gradient(135deg, #217bfe 0, #078efb 33%, #ac87eb 100%);
+            background-clip: text;
+            inline-size: fit-content;
+            color: transparent;
+            font-weight: 500;
+        }
+
+        .title{
+            font-weight: 500;
+        }
+    }
+
+    ion-content{
+
+
+        .content-container{
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+
+        .text-message {
+            position: relative;
+            // margin: 0 35px;
+            // width: calc(100% - 70px);
+            // ----- new after adding canned open /close canned responses
+            // margin: 0 70px;
+            // width: calc(100% - 100px);
+            // ----- new after adding emoji picker
+            // margin: 0 108px;
+            width: 100%; //calc(100% - 140px);
+            ion-textarea {
+                // border-radius: 4px;
+                border-radius: 20px; // NK edited
+                padding: 0;
+                margin: 0;
+                height: auto;
+                overflow: auto;
+                // min-height: 30px;
+                min-height: 74px; // NK edited
+                max-height: 184px;
+                background-color: var(--textarea-background);
+                color: var(--textarea-color);
+                --placeholder-color: var(--textarea-placeholder-color);
+                // --padding-top: 5px; // NK edited
+                --padding-top: 8px;
+                --padding-bottom: 5px;
+                --padding-end: 5px;
+                // --padding-start: 5px; // NK edited
+                --padding-start: 10px;
+                line-height: 1.34;
+                font-size: 13px;
+            }
+        }
+    }
+
+
+    ion-footer{
+        display: flex;
+        justify-content: center;
+
+        ion-button{
+            background-color: var(--icon-color);
+            color: var(--bacis-white);
+            font-size: 11px;
+            margin: 2px;
+            padding-bottom: 0px;
+            --padding-start: 0px;
+            --ripple-color: transparent;
+            text-transform: unset;
+            height: 25px;
+            border-radius: 4px;
+            &.active{
+                color: var(--basic-blue);
+                fill: var(--basic-blue);
+            }
+            ion-icon{
+                margin-right: 4px;
+                margin-left: 4px;
+            }
+        }
+    }
+
+
+}

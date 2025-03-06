@@ -21,7 +21,7 @@
     </ion-item>
   </div>
   <!-- LOADER -->
-  <div class="loader" *ngIf="tagsCannedFilter.length === 0">
+  <div class="loader" *ngIf="showLoading">
     <div class="box">
       <!-- <div class="container">
         <span class="circle" [ngStyle]="{'background-color': stylesMap?.get('themeColor')}"></span>
@@ -33,7 +33,12 @@
       <div class="label">{{translationMap.get('LABEL_LOADING')}}</div>
     </div>
   </div>
-  <div *ngIf="!canShowCanned">
-    
+  <div class="no-data" *ngIf="tagsCannedFilter.length === 0 && !showLoading">
+    <div class="container">
+      <ion-item button="false" lines="none" class="canned-item no-ripple border">
+        <ion-icon name="cloud-offline" slot="start"></ion-icon>
+        <ion-label>{{translationMap.get('THERE_ARE_NO_CANNED_RESPONSES_AVAILABLE')}}</ion-label>
+      </ion-item>
+    </div>
   </div>
 </div>

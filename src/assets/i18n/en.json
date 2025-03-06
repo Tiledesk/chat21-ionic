@@ -305,8 +305,11 @@
     "SUBJECT_OFFLINE_MESSAGE":"Tiledesk Offline message  💬",
     "SEND_EMAIL_SUCCESS_OFFLINE_MESSAGE":"Message also sent by email 📩"
   },
+  "HELLO":"Hello",
   "COPILOT": {
     "ASK_AI":"Ask to AI",
-    "NO_SUGGESTIONS_PRESENT":"No suggestions found"
+    "NO_SUGGESTIONS_PRESENT":"No suggestions found",
+    "INSERT_PROMPT_HERE":"Inster a prompt here",
+    "HOW_CAN_I_HELP_YOU":"How can i help you?"
   }
 }
