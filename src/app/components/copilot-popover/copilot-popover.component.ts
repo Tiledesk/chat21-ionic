@@ -72,9 +72,8 @@ export class CopilotPopoverComponent implements OnInit {
     this.logger.log("[CONVS-DETAIL][MSG-TEXT-AREA] ionFocus event ");
   }
 
-  onKeydown(e: any, text: string) {
+  onKeydown(e: any) {
     this.logger.log("[COPILOT-POPOVER] - returnChangeTextArea - onKeydown in MSG-TEXT-AREA event", e)
-    this.logger.log("[COPILOT-POPOVER] - returnChangeTextArea - onKeydown in MSG-TEXT-AREA text", text)
   }
 
 
