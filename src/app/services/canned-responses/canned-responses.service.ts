@@ -75,7 +75,7 @@ export class CannedResponsesService {
       
   }
 
-  public edit(token: string, projectid: string, canned: any){
+  public edit(projectid: string, canned: any){
     const cannedResponsesURL = this.SERVER_BASE_URL + projectid + "/canned/"+ canned._id;
     this.logger.log('[CANNED-RESPONSES-SERVICE] editCannedResponses - URL ', cannedResponsesURL);
     
@@ -97,14 +97,14 @@ export class CannedResponsesService {
     }))
   }
 
-  public delete(token: string, projectid: string, cannedID: string){
+  public delete(projectid: string, cannedID: string){
     const cannedResponsesURL = this.SERVER_BASE_URL + projectid + "/canned/"+cannedID;
     this.logger.log('[CANNED-RESPONSES-SERVICE] deleteCannedResponses - URL ', cannedResponsesURL);
 
     const httpOptions = {
       headers: new HttpHeaders({
         'Content-Type': 'application/json',
-        Authorization: token
+        Authorization: this.tiledeskToken
       })
     };
 

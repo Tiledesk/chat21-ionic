@@ -42,6 +42,8 @@ import { Globals } from './utils/globals';
 import { GlobalSettingsService } from './services/global-settings/global-settings.service';
 import { conversationToMessage } from 'src/chat21-core/utils/utils-message';
 import { ProjectService } from './services/projects/project.service';
+import { ContactsService } from './services/contacts/contacts.service';
+import { TiledeskService } from './services/tiledesk/tiledesk.service';
 
 @Component({
   selector: 'app-root',
@@ -136,7 +138,11 @@ export class AppComponent implements OnInit {
     public el: ElementRef,
     public g: Globals,
     public globalSettingsService: GlobalSettingsService,
-    public projectService: ProjectService
+
+    /**TILEDESK SERVICES */
+    private tiledeskService: TiledeskService,
+    private projectService: ProjectService,
+    private contactsService: ContactsService
   ) {
 
     this.saveInStorageNumberOfOpenedChatTab();
@@ -1166,7 +1172,9 @@ export class AppComponent implements OnInit {
     this.chatManager.setTiledeskToken(tiledeskToken);
     this.chatManager.setCurrentUser(currentUser);
 
+    this.tiledeskService.initialize(serverBaseURL)
     this.projectService.initialize(serverBaseURL)
+    this.contactsService.initialize(serverBaseURL)
     // this.chatManager.startApp();
 
     // ----------------------------------------------

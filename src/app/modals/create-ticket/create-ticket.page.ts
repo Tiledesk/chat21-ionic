@@ -23,7 +23,6 @@ export class CreateTicketPage implements OnInit {
   loadingAssignee: boolean = true;
   loadingRequesters: boolean = true;
   prjctID: string;
-  tiledeskToken: string;
   selectedRequester: any;
   storageBucket: string;
   baseUrl: string;
@@ -66,7 +65,6 @@ export class CreateTicketPage implements OnInit {
   constructor(
     public modalController: ModalController,
     public tiledeskService: TiledeskService,
-    public tiledeskAuthService: TiledeskAuthService,
     public appConfigProvider: AppConfigProvider,
     public events: EventsService
   ) {}
@@ -85,11 +83,8 @@ export class CreateTicketPage implements OnInit {
       this.prjctID = storedPrjctObjct.id_project.id
       this.logger.log('[CREATE-TICKET] this.prjctID ', this.prjctID)
     }
-    this.tiledeskToken = this.tiledeskAuthService.getTiledeskToken()
-    this.logger.log('[CREATE-TICKET] tiledeskToken ', this.tiledeskToken)
-
-    this.getProjectUsersAndContacts(this.prjctID, this.tiledeskToken)
-    this.getProjectUserBotsAndDepts(this.prjctID, this.tiledeskToken)
+    this.getProjectUsersAndContacts(this.prjctID)
+    this.getProjectUserBotsAndDepts(this.prjctID)
   }
 
   getUploadEngine() {
@@ -108,16 +103,9 @@ export class CreateTicketPage implements OnInit {
   // -------------------------------------------------------------------------------------------
   // Create the array of the project-users and contacts displayed in the combo box  "Requester"
   // -------------------------------------------------------------------------------------------
-  getProjectUsersAndContacts(projctid: string, tiledesktoken: string) {
-    const projectUsers = this.tiledeskService.getProjectUsersByProjectId(
-      projctid,
-      tiledesktoken,
-    )
-    const leads = this.tiledeskService.getAllLeadsActiveWithLimit(
-      projctid,
-      tiledesktoken,
-      10000,
-    )
+  getProjectUsersAndContacts(projctid: string) {
+    const projectUsers = this.tiledeskService.getProjectUsersByProjectId(projctid)
+    const leads = this.tiledeskService.getAllLeadsActiveWithLimit(projctid,10000)
 
     zip(projectUsers, leads).subscribe(
       ([_prjctUsers, _leads]) => {
@@ -253,11 +241,11 @@ export class CreateTicketPage implements OnInit {
   // -------------------------------------------------------------------------------------------------------------------
   // Create the array of the project-users, the bots and of the departments displayed in the combo box "Select Assignee"
   // -------------------------------------------------------------------------------------------------------------------
-  getProjectUserBotsAndDepts(projctid: string, tiledesktoken: string) {
+  getProjectUserBotsAndDepts(projctid: string) {
     // this.loadingAssignee = true;
-    const projectUsers = this.tiledeskService.getProjectUsersByProjectId( projctid, tiledesktoken)
-    const bots = this.tiledeskService.getAllBotByProjectId(projctid, tiledesktoken)
-    const depts = this.tiledeskService.getDeptsByProjectId(projctid, tiledesktoken)
+    const projectUsers = this.tiledeskService.getProjectUsersByProjectId( projctid)
+    const bots = this.tiledeskService.getAllBotByProjectId(projctid)
+    const depts = this.tiledeskService.getDeptsByProjectId(projctid)
 
     zip(projectUsers, bots, depts).subscribe(
       ([_prjctUsers, _bots, _depts]) => {
@@ -361,8 +349,7 @@ export class CreateTicketPage implements OnInit {
         this.assignee_dept_id,
         this.assignee_participants_id,
         this.selectedPriority,
-        this.prjctID,
-        this.tiledeskToken
+        this.prjctID
       ).subscribe((newticket: any) => {
         this.logger.log('[WS-REQUESTS-LIST] create internalRequest - RES ', newticket);
 

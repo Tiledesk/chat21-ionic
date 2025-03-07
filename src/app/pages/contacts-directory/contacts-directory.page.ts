@@ -31,11 +31,8 @@ export class ContactsDirectoryPage implements OnInit {
     private navService: NavProxyService,
     // private contactsDirectoryService: ContactsDirectoryService,
     private contactsService: ContactsService,
-    private appConfigProvider: AppConfigProvider,
     public events: EventsService
-  ) {
-    const serverBaseUrl = this.appConfigProvider.getConfig().apiUrl
-    this.contactsService.initialize(serverBaseUrl)
+  ) {    
   }
 
   ngOnInit() {

@@ -101,9 +101,7 @@ export class CannedResponseComponent implements OnInit {
   }
 
   getProjectIdByConversationWith(strSearch, conversationWith: string) {
-    const tiledeskToken = this.tiledeskAuthService.getTiledeskToken()
-
-    this.tiledeskService.getProjectIdByConvRecipient(tiledeskToken, conversationWith).subscribe((res) => {
+    this.tiledeskService.getProjectIdByConvRecipient(conversationWith).subscribe((res) => {
       this.logger.log('[CANNED] - loadTagsCanned - GET PROJECTID BY CONV RECIPIENT RES', res)
       if (res) {
         const projectId = res.id_project
@@ -204,9 +202,8 @@ export class CannedResponseComponent implements OnInit {
   onConfirmEditCanned(canned, ev){
     ev.preventDefault()
     ev.stopPropagation()
-    const tiledeskToken = this.tiledeskAuthService.getTiledeskToken()
     this.logger.log('[CANNED] onConfirmEditCanned ', canned, ev)
-    this.cannedResponsesService.edit(tiledeskToken, canned.id_project, canned).subscribe(cannedRes=> {
+    this.cannedResponsesService.edit(canned.id_project, canned).subscribe(cannedRes=> {
       canned.disabled = true
     }, (error) => {
       this.logger.error('[CANNED] - onConfirmEditCanned - ERROR  ', error)
@@ -218,9 +215,8 @@ export class CannedResponseComponent implements OnInit {
   onDeleteCanned(canned, ev){
     ev.preventDefault()
     ev.stopPropagation()
-    const tiledeskToken = this.tiledeskAuthService.getTiledeskToken()
     this.logger.log('[CANNED] onDeleteCanned ', canned)
-    this.cannedResponsesService.delete(tiledeskToken, canned.id_project, canned._id).subscribe(cannedRes=> {
+    this.cannedResponsesService.delete(canned.id_project, canned._id).subscribe(cannedRes=> {
       if(cannedRes.status === 1000){
         this.tagsCannedFilter.splice(this.tagsCannedFilter.findIndex(el => el._id === canned._id), 1)
       }

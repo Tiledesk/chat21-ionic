@@ -903,15 +903,11 @@ export class ConversationListPage implements OnInit {
   // Opens the list of contacts for direct convs
   // ---------------------------------------------------------
   openContactsDirectory(event: any) {
-    const TOKEN = this.tiledeskAuthService.getTiledeskToken()
-    this.logger.log('[CONVS-LIST-PAGE] openContactsDirectory', TOKEN)
+    this.logger.log('[CONVS-LIST-PAGE] openContactsDirectory')
     if (checkPlatformIsMobile()) {
-      presentModal(this.modalController, ContactsDirectoryPage, {
-        token: TOKEN,
-        isMobile: this.isMobile
-      })
+      presentModal(this.modalController, ContactsDirectoryPage, { isMobile: this.isMobile })
     } else {
-      this.navService.push(ContactsDirectoryPage, {})
+      this.navService.push(ContactsDirectoryPage, { isMobile: this.isMobile })
     }
   }
 
@@ -1003,9 +999,7 @@ export class ConversationListPage implements OnInit {
         let project_id = ''
         if (conversationWith_segments.length === 4) {
           project_id = conversationWith_segments[2]
-
-          const tiledeskToken = this.tiledeskAuthService.getTiledeskToken()
-          this.archiveSupportGroupConv(tiledeskToken,project_id,conversationId,)
+          this.archiveSupportGroupConv(project_id,conversationId)
         } else {
           this.getProjectIdByConversationWith(conversationId)
         }
@@ -1016,15 +1010,13 @@ export class ConversationListPage implements OnInit {
   }
 
   getProjectIdByConversationWith(conversationId: string) {
-    const tiledeskToken = this.tiledeskAuthService.getTiledeskToken()
-
-    this.tiledeskService.getProjectIdByConvRecipient(tiledeskToken, conversationId).subscribe((res) => {
+    this.tiledeskService.getProjectIdByConvRecipient(conversationId).subscribe((res) => {
       this.logger.log('[CONVS-LIST-PAGE] - GET PROJECTID BY CONV RECIPIENT RES',res)
 
       if (res) {
         const project_id = res.id_project
         this.logger.log('[INFO-CONTENT-COMP] - GET PROJECTID BY CONV RECIPIENT  project_id',project_id)
-        this.archiveSupportGroupConv(tiledeskToken,project_id,conversationId)
+        this.archiveSupportGroupConv(project_id,conversationId)
       }
     },(error) => {
       this.logger.error('[CONVS-LIST-PAGE] - GET PROJECTID BY CONV RECIPIENT - ERROR  ',error)
@@ -1033,9 +1025,9 @@ export class ConversationListPage implements OnInit {
     })
   }
 
-  archiveSupportGroupConv(tiledeskToken, project_id, conversationId) {
+  archiveSupportGroupConv(project_id, conversationId) {
     this.logger.log('[CONVS-LIST-PAGE] - onCloseConversation projectId: ',project_id)
-    this.tiledeskService.closeSupportGroup(tiledeskToken, project_id, conversationId).subscribe((res) => {
+    this.tiledeskService.closeSupportGroup(project_id, conversationId).subscribe((res) => {
       this.archiveActionNotAllowed = false
       this.logger.log('[CONVS-LIST-PAGE] - onCloseConversation closeSupportGroup RES',res)
       if(res.status === REQUEST_ARCHIVED)

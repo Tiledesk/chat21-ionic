@@ -34,7 +34,6 @@ export class SendEmailModal implements OnInit {
     public viewCtrl: ModalController,
     private formBuilder: FormBuilder,
     private tiledeskService: TiledeskService,
-    private tiledeskAuthService: TiledeskAuthService,
     private toastController: ToastController
   ) { }
 
@@ -81,8 +80,7 @@ export class SendEmailModal implements OnInit {
 
   onSubmit(){
     this.logger.log('[SEND-EMAIL-MODAL] onSubmit -->',this.emailFormGroup)
-    const tiledeskToken = this.tiledeskAuthService.getTiledeskToken()
-    this.tiledeskService.sendEmail(tiledeskToken, this.projectId, this.conversationWith, this.emailFormGroup.value).subscribe((res)=> {
+    this.tiledeskService.sendEmail(this.projectId, this.conversationWith, this.emailFormGroup.value).subscribe((res)=> {
       this.logger.debug('[SEND-EMAIL-MODAL] subscribe to sendEmail API response -->', res)
       if(res && res.queued){
         this.viewCtrl.dismiss({form: this.emailFormGroup.value})
