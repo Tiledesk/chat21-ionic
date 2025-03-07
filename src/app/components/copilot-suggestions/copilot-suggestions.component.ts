@@ -1,3 +1,4 @@
+import { AppConfigProvider } from 'src/app/services/app-config';
 import { filter } from 'rxjs/operators';
 import { Component, ElementRef, EventEmitter, HostListener, Input, OnInit, Output, SimpleChange } from '@angular/core';
 import { CopilotService } from 'src/app/services/copilot/copilot.service';
@@ -39,19 +40,23 @@ export class CopilotSuggestionsComponent implements OnInit {
     public tiledeskAuthService: TiledeskAuthService,
     public tiledeskService: TiledeskService,
     public copilotService: CopilotService,
+    public appConfigProvider: AppConfigProvider,
     public el: ElementRef
-  ) { }
+  ) { 
+    const serverBaseUrl = this.appConfigProvider.getConfig().apiUrl
+    this.copilotService.initialize(serverBaseUrl)
+  }
 
   ngOnInit() {
     this.loggedUser = this.tiledeskAuthService.getCurrentUser()
   }
 
   ngOnChanges(changes: SimpleChange){
-      this.logger.debug('[COPILOT] - loadTagsCanned strSearch ', this.currentString)
-      if(changes && changes['conversationWith'] && (changes['conversationWith'].previousValue !== changes['conversationWith'].currentValue)){
-        this.projectID = getProjectIdSelectedConversation(this.conversationWith)
-      }
-      this.loadSuggestions(this.conversationWith)
+    this.logger.debug('[COPILOT] - loadTagsCanned strSearch ', this.currentString)
+    if(changes && changes['conversationWith'] && (changes['conversationWith'].previousValue !== changes['conversationWith'].currentValue)){
+      this.projectID = getProjectIdSelectedConversation(this.conversationWith)
+    }
+    this.loadSuggestions(this.conversationWith)
   }
 
 
@@ -90,13 +95,12 @@ export class CopilotSuggestionsComponent implements OnInit {
 
 
   getAndShowSuggestions(projectId) {
-    const tiledeskToken = this.tiledeskAuthService.getTiledeskToken()
     this.logger.log('[COPILOT] - loadTagsCanned tagsCanned.length', this.suggestions.length)
     //if(this.tagsCanned.length <= 0 ){
     this.suggestions = []
     this.showLoading = true;
     if(this.question && this.question !== ''){
-      this.copilotService.getAllFromQuestion(this.question, tiledeskToken, projectId, this.conversationWith).subscribe((res) => {
+      this.copilotService.getAllFromQuestion(this.question, projectId, this.conversationWith).subscribe((res) => {
         this.logger.log('[COPILOT] - loadTagsCanned  getCannedResponses RES', res)
         this.suggestions = res.map(el => ({ ...el, disabled : true }))
         this.logger.log('[COPILOT] - loadTagsCanned  getCannedResponses tagsCannedCount', this.suggestions)
@@ -108,7 +112,7 @@ export class CopilotSuggestionsComponent implements OnInit {
         this.onLoadedSuggestions.emit(this.suggestions)
       })
     } else {
-      this.copilotService.getAll(tiledeskToken, projectId, this.conversationWith).subscribe((res) => {
+      this.copilotService.getAll(projectId, this.conversationWith).subscribe((res) => {
         this.logger.log('[COPILOT] - loadTagsCanned  getCannedResponses RES', res)
         this.suggestions = res.map(el => ({ ...el, disabled : true }))
         this.logger.log('[COPILOT] - loadTagsCanned  getCannedResponses tagsCannedCount', this.suggestions)

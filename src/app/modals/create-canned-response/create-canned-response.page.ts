@@ -177,7 +177,7 @@ export class CreateCannedResponsePage implements OnInit {
     this.logger.log('[CREATE-CANNED-RES] - CREATE CANNED RESP - MSG ', message);
     this.logger.log('[CREATE-CANNED-RES] - CREATE CANNED RESP - TITLE ', title);
 
-    this.cannedResponsesService.add(this.tiledeskToken, this.prjctID, title.trim(), message.trim()).subscribe((responses: any) => {
+    this.cannedResponsesService.add(this.prjctID, title.trim(), message.trim()).subscribe((responses: any) => {
       this.logger.log('[CREATE-CANNED-RES] - CREATE CANNED RESP - RES ', responses);
     }, (error) => {
       this.logger.error('[CREATE-CANNED-RES]- CREATE CANNED RESP - ERROR  ', error);

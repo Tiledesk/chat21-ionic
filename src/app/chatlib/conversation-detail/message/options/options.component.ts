@@ -14,6 +14,7 @@ import { CopilotPopoverComponent } from 'src/app/components/copilot-popover/copi
 export class OptionsComponent implements OnInit {
 
   @Input() message: MessageModel;
+  @Input() isCopilotEnabled: boolean = false;
   @Input() logLevel: number;
   @Output() onOptionsDataReturned = new EventEmitter<{option: string, data: any}>();
 

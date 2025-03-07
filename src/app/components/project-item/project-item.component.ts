@@ -14,6 +14,7 @@ import { WebSocketJs } from 'src/app/services/websocket/websocket-js';
 import { AppConfigProvider } from 'src/app/services/app-config';
 import { ConvertRequestToConversation } from 'src/chat21-core/utils/convertRequestToConversation';
 import { compareValues } from 'src/chat21-core/utils/utils';
+import { ProjectService } from 'src/app/services/projects/project.service';
 
 @Component({
   selector: 'app-project-item',
@@ -46,7 +47,7 @@ export class ProjectItemComponent implements OnInit {
     public appStorageService: AppStorageService,
     private translateService: CustomTranslateService,
     public tiledeskAuthService: TiledeskAuthService,
-    public tiledeskService: TiledeskService,
+    public projectService: ProjectService,
     public webSocketJs: WebSocketJs,
     private appConfigProvider: AppConfigProvider,
     public events: EventsService,
@@ -174,9 +175,7 @@ export class ProjectItemComponent implements OnInit {
 
     if (!stored_project || stored_project === 'undefined') {
       this.logger.log('PROJECT-ITEM - THERE IS NOT STORED LAST PROJECT OR IS UNDEFINED ', stored_project)
-      const tiledeskToken = this.appStorageService.getItem('tiledeskToken');
-      this.logger.log('[PROJECT-ITEM] - GET PROJECTS - tiledeskToken', tiledeskToken);
-      this.tiledeskService.getProjects(tiledeskToken).subscribe(projects => {
+      this.projectService.getProjects().subscribe(projects => {
         this.logger.log('[PROJECT-ITEM - GET PROJECTS - RES', projects);
 
         this.logger.log('[INFO-CONTENT-COMP] - GET PROJECTS - RES this.project', this.project);

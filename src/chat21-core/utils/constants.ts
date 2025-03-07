@@ -141,6 +141,9 @@ export enum PLAN_NAME {
     A = 'Growth',
     B = 'Scale',
     C = 'Plus',
+    D = 'Basic',
+    E = 'Premium',
+    F = 'Custom'
 }
 
 export const tranlatedLanguage = ['it', 'en', 'de', 'es', 'pt', 'fr', 'ru', 'tr', 'sr', 'ar', 'uk', 'sv', 'az', 'kk', 'uz']

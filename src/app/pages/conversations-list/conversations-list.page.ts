@@ -911,7 +911,7 @@ export class ConversationListPage implements OnInit {
         isMobile: this.isMobile
       })
     } else {
-      this.navService.push(ContactsDirectoryPage, { token: TOKEN })
+      this.navService.push(ContactsDirectoryPage, {})
     }
   }
 

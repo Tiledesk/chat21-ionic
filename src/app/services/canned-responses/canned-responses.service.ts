@@ -6,38 +6,44 @@ import { map } from 'rxjs/operators';
 // Logger
 import { LoggerService } from 'src/chat21-core/providers/abstract/logger.service';
 import { LoggerInstance } from 'src/chat21-core/providers/logger/loggerInstance';
+import { AppStorageService } from 'src/chat21-core/providers/abstract/app-storage.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CannedResponsesService {
 
-  private apiUrl: string;
+  private SERVER_BASE_URL: string;
+  private tiledeskToken: string;
+
   private logger: LoggerService = LoggerInstance.getInstance();
 
   constructor(
     public http: HttpClient,
-    public appConfigProvider: AppConfigProvider
+    public appStorageService: AppStorageService
   ) {
-   
     this.logger.log('[CANNED-RESPONSES-SERVICE] HELLO !');
-    this.apiUrl = appConfigProvider.getConfig().apiUrl;
-    this.logger.log('[CANNED-RESPONSES-SERVICE] apiUrl ', this.apiUrl);
+  }
+
+  initialize(serverBaseUrl: string) {
+    this.logger.log('[CANNED-RESPONSES-SERVICE] - initialize serverBaseUrl', serverBaseUrl);
+    this.SERVER_BASE_URL = serverBaseUrl;
+    this.tiledeskToken = this.appStorageService.getItem('tiledeskToken')
   }
 
 
-  public getAll(token: string, projectid: string) {
-    const cannedResponsesURL = this.apiUrl + projectid + "/canned/";
-    this.logger.log('[CANNED-RESPONSES-SERVICE] getCannedResponses - URL ', cannedResponsesURL);
+  public getAll(projectid: string) {
+    const url = this.SERVER_BASE_URL + projectid + "/canned/";
+    this.logger.log('[CANNED-RESPONSES-SERVICE] getCannedResponses - URL ', url);
 
     const httpOptions = {
       headers: new HttpHeaders({
         'Content-Type': 'application/json',
-        Authorization: token
+        Authorization: this.tiledeskToken
       })
     };
     
-    return this.http.get(cannedResponsesURL, httpOptions).pipe(map((res: any) => {
+    return this.http.get(url, httpOptions).pipe(map((res: any) => {
         this.logger.log('[CANNED-RESPONSES-SERVICE] getCannedResponses - RES ', res);
         return res
     }))
@@ -46,14 +52,14 @@ export class CannedResponsesService {
   // -------------------------------------------------------------------------------------
   // @ Create - Save (POST) new canned response
   // -------------------------------------------------------------------------------------
-  public add(token: string, projectid: string, title: string, message: string) {
-    const url =  this.apiUrl  + projectid + '/canned/'
+  public add(projectid: string, title: string, message: string) {
+    const url =  this.SERVER_BASE_URL  + projectid + '/canned/'
     this.logger.log('[TILEDESK-SERVICE] - CREATE CANNED-RES - URL', url); 
     
     const httpOptions = {
       headers: new HttpHeaders({
         'Content-Type': 'application/json',
-        Authorization: token
+        Authorization: this.tiledeskToken
       })
     };
 
@@ -70,13 +76,13 @@ export class CannedResponsesService {
   }
 
   public edit(token: string, projectid: string, canned: any){
-    const cannedResponsesURL = this.apiUrl + projectid + "/canned/"+ canned._id;
+    const cannedResponsesURL = this.SERVER_BASE_URL + projectid + "/canned/"+ canned._id;
     this.logger.log('[CANNED-RESPONSES-SERVICE] editCannedResponses - URL ', cannedResponsesURL);
     
     const httpOptions = {
       headers: new HttpHeaders({
         'Content-Type': 'application/json',
-        Authorization: token
+        Authorization: this.tiledeskToken
       })
     };
 
@@ -92,7 +98,7 @@ export class CannedResponsesService {
   }
 
   public delete(token: string, projectid: string, cannedID: string){
-    const cannedResponsesURL = this.apiUrl + projectid + "/canned/"+cannedID;
+    const cannedResponsesURL = this.SERVER_BASE_URL + projectid + "/canned/"+cannedID;
     this.logger.log('[CANNED-RESPONSES-SERVICE] deleteCannedResponses - URL ', cannedResponsesURL);
 
     const httpOptions = {

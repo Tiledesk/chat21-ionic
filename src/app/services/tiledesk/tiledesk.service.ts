@@ -89,41 +89,6 @@ export class TiledeskService {
     }))
   }
 
-  public getProjects(token: string) {
-    const url = this.apiUrl + 'projects/';
-    this.logger.log('[TILEDESK-SERVICE] - GET PROJECTS URL', url);
-
-    const httpOptions = {
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Authorization: token
-      })
-    };
-
-    return this.http.get(url, httpOptions).pipe(map((res: any) => {
-      this.logger.log('[TILEDESK-SERVICE] GET PROJECTS - RES ', res);
-      return res
-    }))
-  }
-
-
-  public getProjectById( token: string , id: string) {
-    const url = this.apiUrl + 'projects/' + id;
-    this.logger.log('[TILEDESK-SERVICE] - GET PROJECT BY ID URL', url);
-
-    const httpOptions = {
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Authorization: token
-      })
-    };
-    return this.http.get(url, httpOptions).pipe(map((res: any) => {
-      this.logger.log('[TILEDESK-SERVICE] GET PROJECT BY ID URL - RES ', res);
-      return res
-    }))
-  }
-
-
   public getProjectUsersByProjectId(project_id: string, token: string) {
     const url = this.apiUrl + project_id + '/project_users/';
     this.logger.log('[TILEDESK-SERVICE] - GET PROJECT-USER URL', url);

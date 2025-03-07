@@ -97,16 +97,6 @@
     <div role="messaggio" *ngIf="messageType(MESSAGE_TYPE_MINE, message)" class="msg_container base_sent">
 
       <div class="message-date-hover"> {{message.timestamp | date:'HH:mm' }} </div>
-
-      <!-- <ng-container *ngIf="areVisibleCAR && supportMode">
-        <ion-button shape="round" size="small" class="btn-add-msg canned" ion-button fill="clear"
-          (click)="presentCreateCannedResponseModal(message)" [tooltip]="addAsCannedResponseTooltipText"
-          [options]="tooltipOptions" placement="bottom">
-          <ion-icon slot="icon-only" name="flash-outline" style="font-size: 1em;"> </ion-icon>
-          <span class="add-canned-response-add-icon">+</span>
-        </ion-button>
-      </ng-container> -->
-
       
       <div class="bubble-container">
 
@@ -174,6 +164,7 @@
           [fontSize]="stylesMap?.get('fontSize')"
           [fontFamily]="stylesMap?.get('fontFamily')"
           [stylesMap]="stylesMap"
+          [isCopilotEnabled]="isCopilotEnabled"
           (onBeforeMessageRender)="onBeforeMessageRenderFN($event)"
           (onAfterMessageRender)="onAfterMessageRenderFN($event)" 
           (onElementRendered)="onElementRenderedFN($event)"
@@ -188,22 +179,6 @@
           <ion-icon slot="icon-only" name="information-circle-outline"></ion-icon>
         </ion-button>
       </ng-container>
-
-      <!-- <ng-container *ngIf="areVisibleCAR && supportMode">
-        <ion-button shape="round" size="small" class="btn-add-msg canned" ion-button fill="clear"
-          (click)="presentCreateCannedResponseModal(message)" [tooltip]="addAsCannedResponseTooltipText"
-          [options]="tooltipOptions" placement="bottom">
-          <ion-icon slot="icon-only" name="flash-outline" style="font-size: 1em;"> </ion-icon>
-          <span class="add-canned-response-add-icon">+</span>
-        </ion-button>
-      </ng-container> -->
-      <!-- <ng-container *ngIf="supportMode">
-        <ion-button shape="round" size="small" class="btn-add-msg emoji" ion-button fill="clear"
-          (click)="presentEmojiiModal()" tooltip="{{addAsCannedResponseTooltipText}}"
-          [options]="tooltipOptions" placement="bottom">
-          <ion-icon slot="icon-only" name="happy-outline" style="font-size: 1em;"> </ion-icon>
-        </ion-button>
-      </ng-container> -->
 
       <div class="message-date-hover" *ngIf="isChannelTypeGroup(channelType)"> {{message.timestamp | date:'HH:mm' }} </div>
     </div>

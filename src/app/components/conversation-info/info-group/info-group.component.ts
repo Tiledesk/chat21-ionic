@@ -38,7 +38,6 @@ export class InfoGroupComponent implements OnInit, AfterViewInit, OnChanges {
   constructor(
     public imageRepoService: ImageRepoService,
     public presenceService: PresenceService,
-    public tiledeskAuthService: TiledeskAuthService,
     public contactsService: ContactsService,
     public renderer: Renderer2,
     private router: Router,
@@ -56,10 +55,7 @@ export class InfoGroupComponent implements OnInit, AfterViewInit, OnChanges {
     // const currentUrl = this.router.url;
     // this.logger.log('InfoGroupComponent current_url ', currentUrl);
     // .pipe(takeUntil(this.unsubscribe$))
-    router.events
-      .pipe(filter(event => event instanceof NavigationEnd))
-
-      .subscribe((event: NavigationEnd) => {
+    router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe((event: NavigationEnd) => {
         // console.log('InfoGroupComponent -  router.events prev url :', event.url);
         this.previousUrl = event.url;
 
@@ -122,8 +118,6 @@ export class InfoGroupComponent implements OnInit, AfterViewInit, OnChanges {
 
     if (this.groupDetail) {
       if (this.groupDetail.uid.startsWith('group-')) {
-        const tiledeskToken = this.tiledeskAuthService.getTiledeskToken();
-
         this.member_array = []
         const members_isonline_array = []
 
@@ -156,9 +150,7 @@ export class InfoGroupComponent implements OnInit, AfterViewInit, OnChanges {
 
             });
 
-          this.contactsService.loadContactDetail(tiledeskToken, key)
-            .pipe(takeUntil(this.unsubscribe$))
-            .subscribe(user => {
+          this.contactsService.loadContactDetail(key).pipe(takeUntil(this.unsubscribe$)).subscribe(user => {
               this.logger.log('InfoGroupComponent group detail loadContactDetail RES', user);
               // this.logger.log('InfoGroupComponent group detail this.presenceService.BSIsOnline.value()', this.presenceService.BSIsOnline.getValue);
 

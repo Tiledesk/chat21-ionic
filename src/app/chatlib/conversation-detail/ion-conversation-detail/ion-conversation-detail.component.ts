@@ -29,6 +29,7 @@ export class IonConversationDetailComponent extends ConversationContentComponent
   @Input() senderId: string;
   @Input() channelType: string;
   @Input() areVisibleCAR: boolean;
+  @Input() isCopilotEnabled: boolean = false
   @Input() supportMode: boolean;
   @Input() isMobile: boolean;
   @Input() openInfoConversation: boolean;
@@ -166,7 +167,6 @@ export class IonConversationDetailComponent extends ConversationContentComponent
     }else if(event.option === 'jsonInfo'){
       this.presentJsonMessageModal(event.data.message)
     } else if(event.option === 'copilot_question'){
-      console.log('hereeeeeee', event)
       this.eventService.publish('copilot:new_question', {text: event.data.text})
 
     }
