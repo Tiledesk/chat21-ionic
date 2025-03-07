@@ -3,7 +3,6 @@ import { Validators, FormBuilder, FormGroup, FormControl} from '@angular/forms';
 import { ModalController } from '@ionic/angular'
 import { TranslateService } from '@ngx-translate/core';
 import { TiledeskService } from 'src/app/services/tiledesk/tiledesk.service';
-import { TiledeskAuthService } from 'src/chat21-core/providers/tiledesk/tiledesk-auth.service';
 import { LoggerService } from 'src/chat21-core/providers/abstract/logger.service';
 import { LoggerInstance } from 'src/chat21-core/providers/logger/loggerInstance';
 @Component({
@@ -19,7 +18,6 @@ export class CreateRequesterPage implements OnInit {
   @Input() projectUserAndLeadsArray: any
  
   prjctID: string;
-  tiledeskToken: string;
   showSpinnerCreateRequester: boolean = false; 
   requester_id: string;
   logger: LoggerService = LoggerInstance.getInstance();
@@ -28,7 +26,6 @@ export class CreateRequesterPage implements OnInit {
     public modalController: ModalController,
     private formBuilder: FormBuilder,
     public tiledeskService: TiledeskService,
-    public tiledeskAuthService: TiledeskAuthService,
     private translate: TranslateService,
   ) {   }
 
@@ -42,9 +39,7 @@ export class CreateRequesterPage implements OnInit {
       this.prjctID = storedPrjctObjct.id_project.id
       this.logger.log('[CREATE-REQUESTER] this.prjctID ', this.prjctID)
     }
-    this.tiledeskToken = this.tiledeskAuthService.getTiledeskToken()
-    this.logger.log('[CREATE-REQUESTER] tiledeskToken ', this.tiledeskToken)
-
+    
     this.buildForm()
 
   }
@@ -84,13 +79,13 @@ export class CreateRequesterPage implements OnInit {
     this.logger.log('[CREATE-REQUESTER] - CREATE-NEW-USER email ', new_user_email);
 
 
-    this.tiledeskService.createNewProjectUserToGetNewLeadID(this.prjctID, this.tiledeskToken).subscribe(res => {
+    this.tiledeskService.createNewProjectUserToGetNewLeadID(this.prjctID).subscribe(res => {
       this.logger.log('[CREATE-REQUESTER] - CREATE-NEW-USER - CREATE-PROJECT-USER ', res);
       this.logger.log('[CREATE-REQUESTER] - CREATE-NEW-USER - CREATE-PROJECT-USER UUID ', res.uuid_user);
       if (res) {
         if (res.uuid_user) {
           let new_lead_id = res.uuid_user
-          this.createNewContact(new_lead_id, new_user_name, new_user_email, this.prjctID, this.tiledeskToken)
+          this.createNewContact(new_lead_id, new_user_name, new_user_email, this.prjctID)
         }
       }
     }, error => {
@@ -103,8 +98,8 @@ export class CreateRequesterPage implements OnInit {
   }
 
 
-  createNewContact(lead_id: string, lead_name: string, lead_email: string, projecId: string, tiledeskToken: string) {
-    this.tiledeskService.createNewLead(lead_id, lead_name, lead_email, projecId, tiledeskToken ).subscribe(lead => {
+  createNewContact(lead_id: string, lead_name: string, lead_email: string, projecId: string) {
+    this.tiledeskService.createNewLead(lead_id, lead_name, lead_email, projecId ).subscribe(lead => {
       this.logger.log('[CREATE-REQUESTER] - CREATE-NEW-USER - CREATE-NEW-LEAD -  RES ', lead);
       this.projectUserAndLeadsArray.push({ id: lead.lead_id, name: lead.fullname, role: 'lead', email: lead_email, requestertype: 'lead', requester_id: lead._id});
       this.requester_id = lead._id

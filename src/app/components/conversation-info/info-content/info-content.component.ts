@@ -110,9 +110,7 @@ export class InfoContentComponent implements OnInit {
   }
 
   getProjectIdByConversationWith(conversationWith: string) {
-    const tiledeskToken = this.tiledeskAuthService.getTiledeskToken();
-
-    this.tiledeskService.getProjectIdByConvRecipient(tiledeskToken, conversationWith).subscribe(res => {
+    this.tiledeskService.getProjectIdByConvRecipient(conversationWith).subscribe(res => {
       this.logger.log('[INFO-CONTENT-COMP] - GET PROJECTID BY CONV RECIPIENT RES', res);
 
       if (res) {

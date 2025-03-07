@@ -544,9 +544,8 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
   }
 
   _getProjectIdByConversationWith(conversationWith: string) {
-    const tiledeskToken = this.tiledeskAuthService.getTiledeskToken()
     if (this.channelType !== TYPE_DIRECT && !this.conversationWith.startsWith('group-')) {
-      this.tiledeskService.getProjectIdByConvRecipient(tiledeskToken, conversationWith).subscribe((res) => {
+      this.tiledeskService.getProjectIdByConvRecipient(conversationWith).subscribe((res) => {
         this.logger.log('[CONVS-DETAIL] - GET PROJECTID BY CONV RECIPIENT RES + projectId', res, res.id_project)
         if (res) {
           const projectId = res.id_project
@@ -968,10 +967,9 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
   getLeadDetail() {
     const that = this;
     if (this.channelType !== TYPE_DIRECT && !this.conversationWith.startsWith('group-')) {
-      const tiledeskToken = this.tiledeskAuthService.getTiledeskToken();
       const projectId = getProjectIdSelectedConversation(this.conversationWith)
       this.logger.debug('[CONVS-DETAIL] getLeadDetail - section ', projectId)
-      this.tiledeskService.getRequest(this.conversationWith, projectId, tiledeskToken).subscribe((request: any) => {
+      this.tiledeskService.getRequest(this.conversationWith, projectId).subscribe((request: any) => {
         that.logger.debug('[CONVS-DETAIL] getLeadDetail - selected REQUEST detail', request)
         if(request && request.channel){
           this.conversation.attributes['request_channel'] = request.channel.name
@@ -1037,13 +1035,12 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
   }
 
   sendEmail(message: string): Observable<boolean> {
-    const tiledeskToken = this.tiledeskAuthService.getTiledeskToken();
     const emailFormGroup = {
       subject: this.translationsMap.get('EMAIL.SUBJECT_OFFLINE_MESSAGE'),
       text: message
     }
     let status = new Subject<boolean>();
-    this.tiledeskService.sendEmail(tiledeskToken, this.leadInfo.projectId, this.conversationWith, emailFormGroup).subscribe((res) => {
+    this.tiledeskService.sendEmail(this.leadInfo.projectId, this.conversationWith, emailFormGroup).subscribe((res) => {
       this.logger.debug('[SEND-EMAIL-MODAL] subscribe to sendEmail API response -->', res)
       if (res && res.queued) {
         this.presentToast(this.translationsMap.get('EMAIL.SEND_EMAIL_SUCCESS_OFFLINE_MESSAGE'), 'success', '', 2000)

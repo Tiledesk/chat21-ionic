@@ -6,6 +6,7 @@ import { map } from 'rxjs/operators';
 // Logger
 import { LoggerService } from 'src/chat21-core/providers/abstract/logger.service';
 import { LoggerInstance } from 'src/chat21-core/providers/logger/loggerInstance';
+import { AppStorageService } from 'src/chat21-core/providers/abstract/app-storage.service';
 
 
 @Injectable({
@@ -13,38 +14,41 @@ import { LoggerInstance } from 'src/chat21-core/providers/logger/loggerInstance'
 })
 export class TiledeskService {
 
-  private apiUrl: string;
+  // private
+  private SERVER_BASE_URL: string;
+  private tiledeskToken: string;
+
   private logger: LoggerService = LoggerInstance.getInstance();
 
   constructor(
     public http: HttpClient,
-    public appConfigProvider: AppConfigProvider
-  ) {
-    this.apiUrl = appConfigProvider.getConfig().apiUrl;
-    // const projectUrl = this.apiUrl + 'projects/'
-    // console.log('[TILEDESK-SERVICE] projectUrl' ,projectUrl  )
+    public appStorageService: AppStorageService
+  ) {}
+
+  initialize(serverBaseUrl: string) {
+    this.logger.log('[TILEDESK-SERVICE] - initialize serverBaseUrl', serverBaseUrl);
+    this.SERVER_BASE_URL = serverBaseUrl;
+    this.tiledeskToken = this.appStorageService.getItem('tiledeskToken')
   }
 
 
   // CLOSE SUPPORT GROUP
-  public closeSupportGroup(token: string, projectid: string, supportgroupid: string) {
+  public closeSupportGroup(projectid: string, supportgroupid: string) {
+    const url = this.SERVER_BASE_URL + projectid + '/requests/' + supportgroupid + '/close';
+    this.logger.log('[TILEDESK-SERVICE] - closeSupportGroup URL ', url);
+    
     const httpOptions = {
       headers: new HttpHeaders({
         'Accept': 'application/json',
         'Content-Type': 'application/json',
-        Authorization: token
+        Authorization: this.tiledeskToken
       })
     };
 
     const body = {
       force: true
     };
-    // console.log('CLOUD FUNCT CLOSE SUPPORT GROUP REQUEST BODY ', body);
-    // https://tiledesk-server-pre.herokuapp.com/
-    // const url = 'https://tiledesk-server-pre.herokuapp.com/' + this.project_id + '/requests/' + group_id + '/close';
-    const url = this.apiUrl + projectid + '/requests/' + supportgroupid + '/close';
 
-    this.logger.log('[TILEDESK-SERVICE] - closeSupportGroup URL ', url);
     return this.http.put(url, body, httpOptions).pipe(map((res: any) => {
         this.logger.log('[TILEDESK-SERVICE] - closeSupportGroup - RES ', res);
         return res
@@ -54,14 +58,14 @@ export class TiledeskService {
   // ---------------------------------------------
   // @ GET request by id
   // ---------------------------------------------
-  public getRequest(request_id: string, project_id: string, token: string) {
-    const url = this.apiUrl + project_id + '/requests/'+request_id
+  public getRequest(request_id: string, project_id: string) {
+    const url = this.SERVER_BASE_URL + project_id + '/requests/'+request_id
     this.logger.log('[TILEDESK-SERVICE] - CREATE NEW LEAD url ', url);
    
     const httpOptions = {
       headers: new HttpHeaders({
         'Content-Type': 'application/json',
-        Authorization: token
+        Authorization: this.tiledeskToken
       })
     };
 
@@ -71,15 +75,15 @@ export class TiledeskService {
     }))
   }
 
-  public getProjectIdByConvRecipient(token: string ,conversationWith: string ) {
-    const lookupUrl = this.apiUrl + 'requests_util/lookup/id_project/' + conversationWith;
+  public getProjectIdByConvRecipient(conversationWith: string ) {
+    const lookupUrl = this.SERVER_BASE_URL + 'requests_util/lookup/id_project/' + conversationWith;
 
     this.logger.log('[TILEDESK-SERVICE] GET PROJECTID BY CONV RECIPIENT - URL ', lookupUrl);
 
     const httpOptions = {
       headers: new HttpHeaders({
         'Content-Type': 'application/json',
-        Authorization: token
+        Authorization: this.tiledeskToken
       })
     };
 
@@ -89,14 +93,14 @@ export class TiledeskService {
     }))
   }
 
-  public getProjectUsersByProjectId(project_id: string, token: string) {
-    const url = this.apiUrl + project_id + '/project_users/';
+  public getProjectUsersByProjectId(project_id: string) {
+    const url = this.SERVER_BASE_URL + project_id + '/project_users/';
     this.logger.log('[TILEDESK-SERVICE] - GET PROJECT-USER URL', url);
     
     const httpOptions = {
       headers: new HttpHeaders({
         'Content-Type': 'application/json',
-        Authorization: token
+        Authorization: this.tiledeskToken
       })
     };
     return this.http.get(url, httpOptions).pipe(map((res: any) => {
@@ -105,14 +109,14 @@ export class TiledeskService {
     }))
   }
 
-  public getAllLeadsActiveWithLimit(project_id: string, token: string, limit: number) {
-    const url = this.apiUrl + project_id + '/leads?limit=' + limit + '&with_fullname=true';
+  public getAllLeadsActiveWithLimit(project_id: string, limit: number) {
+    const url = this.SERVER_BASE_URL + project_id + '/leads?limit=' + limit + '&with_fullname=true';
     this.logger.log('[TILEDESK-SERVICE] - GET ALL ACTIVE LEADS (LIMIT 10000) -  URL', url);
     
     const httpOptions = {
       headers: new HttpHeaders({
         'Content-Type': 'application/json',
-        Authorization: token
+        Authorization: this.tiledeskToken
       })
     };
     return this.http.get(url, httpOptions).pipe(map((res: any) => {
@@ -125,13 +129,13 @@ export class TiledeskService {
   // ---------------------------------------------
   // @ Create new project user to get new lead ID
   // ---------------------------------------------
-  public createNewProjectUserToGetNewLeadID(project_id: string, token: string) {
-    const url = this.apiUrl + project_id + '/project_users/'
+  public createNewProjectUserToGetNewLeadID(project_id: string) {
+    const url = this.SERVER_BASE_URL + project_id + '/project_users/'
     this.logger.log('[TILEDESK-SERVICE] - CREATE NEW PROJECT USER TO GET NEW LEAD ID url ', url);
     const httpOptions = {
       headers: new HttpHeaders({
         'Content-Type': 'application/json',
-        Authorization: token
+        Authorization: this.tiledeskToken
       })
     };
     const body = {};
@@ -144,14 +148,14 @@ export class TiledeskService {
   // ---------------------------------------------
   // @ Create new lead 
   // ---------------------------------------------
-  public createNewLead(leadid: string, fullname: string, leademail: string, project_id: string, token: string) {
-    const url = this.apiUrl + project_id + '/leads/'
+  public createNewLead(leadid: string, fullname: string, leademail: string, project_id: string) {
+    const url = this.SERVER_BASE_URL + project_id + '/leads/'
     this.logger.log('[TILEDESK-SERVICE] - CREATE NEW LEAD url ', url);
    
     const httpOptions = {
       headers: new HttpHeaders({
         'Content-Type': 'application/json',
-        Authorization: token
+        Authorization: this.tiledeskToken
       })
     };
 
@@ -167,15 +171,14 @@ export class TiledeskService {
   // -------------------------------------------------------------------------------------
   // @ Get all bots of the project (with all=true the response return also the identity bot) 
   // -------------------------------------------------------------------------------------
-  public getAllBotByProjectId(project_id: string, token: string) {
-   
-    const url = this.apiUrl + project_id + '/faq_kb?all=true'
+  public getAllBotByProjectId(project_id: string) {
+    const url = this.SERVER_BASE_URL + project_id + '/faq_kb?all=true'
     this.logger.log('[TILEDESK-SERVICE] - GET ALL BOTS BY PROJECT ID - URL', url);
 
     const httpOptions = {
       headers: new HttpHeaders({
         'Content-Type': 'application/json',
-        Authorization: token
+        Authorization: this.tiledeskToken
       })
     };
 
@@ -188,15 +191,14 @@ export class TiledeskService {
   // -------------------------------------------------------------------------------------
   // @ Get all DEPTS of the project
   // -------------------------------------------------------------------------------------
-  public getDeptsByProjectId(project_id: string, token: string) {
-   
-    const url = this.apiUrl + project_id + '/departments/allstatus';
+  public getDeptsByProjectId(project_id: string) {
+    const url = this.SERVER_BASE_URL + project_id + '/departments/allstatus';
     this.logger.log('[TILEDESK-SERVICE] - GET DEPTS (ALL STATUS) - URL', url);
    
     const httpOptions = {
       headers: new HttpHeaders({
         'Content-Type': 'application/json',
-        Authorization: token
+        Authorization: this.tiledeskToken
       })
     };
 
@@ -209,15 +211,14 @@ export class TiledeskService {
   // -----------------------------------------------------------------------------------------
   // @ Create ticket
   // -----------------------------------------------------------------------------------------
-  public createInternalRequest(requester_id: string, request_id: string, subject: string, message: string, departmentid: string, participantid: string, ticketpriority: string, project_id: string, token: string) {
-    
-    const url = this.apiUrl + project_id + '/requests/' + request_id + '/messages'
+  public createInternalRequest(requester_id: string, request_id: string, subject: string, message: string, departmentid: string, participantid: string, ticketpriority: string, project_id: string) {
+    const url = this.SERVER_BASE_URL + project_id + '/requests/' + request_id + '/messages'
     this.logger.log('[WS-REQUESTS-SERV] - CREATE INTERNAL REQUEST URL ', url)
     
     const httpOptions = {
       headers: new HttpHeaders({
         'Content-Type': 'application/json',
-        Authorization: token
+        Authorization: this.tiledeskToken
       })
     };
     // this.logger.log('JOIN FUNCT OPTIONS  ', options);
@@ -240,20 +241,20 @@ export class TiledeskService {
   // -----------------------------------------------------------------------------------------
   // @ Send Email
   // -----------------------------------------------------------------------------------------
-  public sendEmail(token: string, projectid: string, request_id: string, form: { subject: string, text: string}) {
+  public sendEmail(projectid: string, request_id: string, form: { subject: string, text: string}) {
+    const url = this.SERVER_BASE_URL + projectid + '/requests/' + request_id + '/email/send';
+    this.logger.log('[TILEDESK-SERVICE] - sendEmail URL ', url);
     
     const httpOptions = {
       headers: new HttpHeaders({
         'Accept': 'application/json',
         'Content-Type': 'application/json',
-        Authorization: token
+        Authorization: this.tiledeskToken
       })
     };
 
     const body = form;
 
-    const url = this.apiUrl + projectid + '/requests/' + request_id + '/email/send';
-    this.logger.log('[TILEDESK-SERVICE] - sendEmail URL ', url);
     return this.http.post(url, body, httpOptions).pipe(map((res: any) => {
         this.logger.log('[TILEDESK-SERVICE] - sendEmail - RES ', res);
         return res

@@ -75,9 +75,7 @@ export class CopilotSuggestionsComponent implements OnInit {
   }
 
   getProjectIdByConversationWith(conversationWith: string) {
-    const tiledeskToken = this.tiledeskAuthService.getTiledeskToken()
-
-    this.tiledeskService.getProjectIdByConvRecipient(tiledeskToken, conversationWith).subscribe((res) => {
+    this.tiledeskService.getProjectIdByConvRecipient(conversationWith).subscribe((res) => {
       this.logger.log('[COPILOT] - loadTagsCanned - GET PROJECTID BY CONV RECIPIENT RES', res)
       if (res) {
         const projectId = res.id_project

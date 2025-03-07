@@ -5,7 +5,6 @@ import { Validators, FormBuilder, FormGroup, FormControl } from '@angular/forms'
 import { TranslateService } from '@ngx-translate/core';
 import { LoggerService } from 'src/chat21-core/providers/abstract/logger.service';
 import { LoggerInstance } from 'src/chat21-core/providers/logger/loggerInstance';
-import { TiledeskAuthService } from 'src/chat21-core/providers/tiledesk/tiledesk-auth.service';
 import { TiledeskService } from 'src/app/services/tiledesk/tiledesk.service';
 import { MenuController } from '@ionic/angular';
 import { EventsService } from 'src/app/services/events-service';
@@ -28,7 +27,6 @@ export class CreateCannedResponsePage implements OnInit {
   private logger: LoggerService = LoggerInstance.getInstance();
 
   prjctID: string;
-  tiledeskToken: string;
   showSpinnerCreateCannedResponse: boolean = false;
   addWhiteSpaceBefore: boolean;
   mouseOverBtnAddRecipientNamePlaceholder: boolean = false;
@@ -40,7 +38,6 @@ export class CreateCannedResponsePage implements OnInit {
     private formBuilder: FormBuilder,
     private translate: TranslateService,
     private translateService: CustomTranslateService,
-    public tiledeskAuthService: TiledeskAuthService,
     public tiledeskService: TiledeskService,
     public cannedResponsesService: CannedResponsesService,
     private menu: MenuController,
@@ -61,9 +58,7 @@ export class CreateCannedResponsePage implements OnInit {
     // this.getCurrentProjectId();
     // console.log('[CREATE-CANNED-RES] - conversationWith ', this.conversationWith)
      console.log('[CREATE-CANNED-RES] - message ', this.message, this.conversationWith)
-    this.tiledeskToken = this.tiledeskAuthService.getTiledeskToken()
-    this.logger.log('[CREATE-CANNED-RES] tiledeskToken ', this.tiledeskToken)
-    this.getCurrentProjectId(this.conversationWith, this.tiledeskToken);
+    this.getCurrentProjectId(this.conversationWith);
 
 
     let keys= [
@@ -108,7 +103,7 @@ export class CreateCannedResponsePage implements OnInit {
   }
 
 
-  getCurrentProjectId(conversation_id, tiledeskToken) {
+  getCurrentProjectId(conversation_id) {
     const conversationWith_segments = conversation_id.split('-')
     // Removes the last element of the array if is = to the separator
     if (
@@ -133,14 +128,13 @@ export class CreateCannedResponsePage implements OnInit {
       this.prjctID = conversationWith_segments[2]
       this.logger.log('[CREATE-CANNED-RES] - loadTagsCanned projectId ', this.prjctID)
     } else {
-      this.getProjectIdByConversationWith(conversation_id, tiledeskToken)
+      this.getProjectIdByConversationWith(conversation_id)
     }
   }
 
-  getProjectIdByConversationWith(conversationWith: string, tiledeskToken: string) {
-    // const tiledeskToken = this.tiledeskAuthService.getTiledeskToken()
+  getProjectIdByConversationWith(conversationWith: string) {
 
-    this.tiledeskService.getProjectIdByConvRecipient(tiledeskToken, conversationWith).subscribe((res) => {
+    this.tiledeskService.getProjectIdByConvRecipient(conversationWith).subscribe((res) => {
       this.logger.log('[CREATE-CANNED-RES] - GET PROJECTID BY CONV RECIPIENT RES', res)
       if (res) {
         this.prjctID = res.id_project
