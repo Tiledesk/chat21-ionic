@@ -1,5 +1,9 @@
 # chat21-ionic ver 3.0
 
+### 3.4.13-rc.4
+- added: management for copilot option in project.profile obj
+- removed: token in each tiledesk Service method calls and added initialize method for each services
+ 
 ### 3.4.13-rc.3
 - added: copilot-popover on each received message
 - changed: canned-responsed no data ui
