@@ -61,12 +61,12 @@
               <ion-icon slot="icon-only" name="flash-outline" style="font-size: 24px;"></ion-icon>
             </ion-button>
           </div>
-          <div *ngIf="conversationWith?.startsWith(CHANNEL_TYPE.SUPPORT_GROUP)  && tagsCannedCount === 0"
+          <div *ngIf="conversationWith?.startsWith(CHANNEL_TYPE.SUPPORT_GROUP)  && tagsCannedFilter.length === 0"
             tooltip="{{translationMap?.get('NO_CANNED_RESPONSES')}}" placement="top"
             class="no-canned-responses-btn-badge">
             <ion-icon name="alert-sharp" style="vertical-align: middle;"></ion-icon>
           </div>
-          <div *ngIf="conversationWith?.startsWith(CHANNEL_TYPE.SUPPORT_GROUP) && (tagsCannedCount > 0)"
+          <div *ngIf="conversationWith?.startsWith(CHANNEL_TYPE.SUPPORT_GROUP) && (tagsCannedFilter.length > 0)"
             tooltip="{{translationMap?.get('YES_CANNED_RESPONSES')}}" placement="top" class="canned-responses-btn-badge">
             <ion-icon name="information-sharp" style="vertical-align: middle;"></ion-icon>
           </div>
