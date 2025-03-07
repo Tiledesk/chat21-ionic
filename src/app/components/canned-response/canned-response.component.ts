@@ -120,12 +120,11 @@ export class CannedResponseComponent implements OnInit {
   }
 
   getAndShowCannedResponses(strSearch, projectId) {
-    const tiledeskToken = this.tiledeskAuthService.getTiledeskToken()
     this.logger.log('[CANNED] - loadTagsCanned tagsCanned.length', this.tagsCanned.length)
     //if(this.tagsCanned.length <= 0 ){
     this.tagsCanned = []
     this.showLoading = true;
-    this.cannedResponsesService.getAll(tiledeskToken, projectId).subscribe((res) => {
+    this.cannedResponsesService.getAll(projectId).subscribe((res) => {
       this.logger.log('[CANNED] - loadTagsCanned  getCannedResponses RES', res)
 
       this.tagsCanned = res

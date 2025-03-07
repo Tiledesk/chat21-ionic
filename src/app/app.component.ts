@@ -40,7 +40,8 @@ import { Deeplinks } from '@ionic-native/deeplinks/ngx';
 import { TriggerEvents } from './services/triggerEvents/triggerEvents';
 import { Globals } from './utils/globals';
 import { GlobalSettingsService } from './services/global-settings/global-settings.service';
-import { commandToMessage, conversationToMessage, isSender } from 'src/chat21-core/utils/utils-message';
+import { conversationToMessage } from 'src/chat21-core/utils/utils-message';
+import { ProjectService } from './services/projects/project.service';
 
 @Component({
   selector: 'app-root',
@@ -103,13 +104,10 @@ export class AppComponent implements OnInit {
     private appConfigProvider: AppConfigProvider,
     public events: EventsService,
     public triggerEvents: TriggerEvents,
-    public config: Config,
     public chatManager: ChatManager,
     public translate: TranslateService,
     public alertController: AlertController,
     public navCtrl: NavController,
-    // public userService: UserService,
-    // public currentUserService: CurrentUserService,
     public modalController: ModalController,
     public messagingAuthService: MessagingAuthService,
     public tiledeskAuthService: TiledeskAuthService,
@@ -137,7 +135,8 @@ export class AppComponent implements OnInit {
     public fcm: FCM,
     public el: ElementRef,
     public g: Globals,
-    public globalSettingsService: GlobalSettingsService
+    public globalSettingsService: GlobalSettingsService,
+    public projectService: ProjectService
   ) {
 
     this.saveInStorageNumberOfOpenedChatTab();
@@ -1153,7 +1152,7 @@ export class AppComponent implements OnInit {
     // this.logger.info('initialize FROM [APP-COMP] - [APP-COMP] - GO-ONLINE isOnline ', this.isOnline);
     // clearTimeout(this.timeModalLogin);
     const tiledeskToken = this.tiledeskAuthService.getTiledeskToken();
-
+    const serverBaseURL = this.appConfigProvider.getConfig().apiUrl 
     // const supportmode = this.appConfigProvider.getConfig().supportMode;
     // this.logger.log('[APP-COMP] - GO-ONLINE - supportmode ', supportmode);
     // if (supportmode === true) {
@@ -1166,6 +1165,8 @@ export class AppComponent implements OnInit {
     this.logger.log('[APP-COMP] - GO-ONLINE - currentUser ', currentUser);
     this.chatManager.setTiledeskToken(tiledeskToken);
     this.chatManager.setCurrentUser(currentUser);
+
+    this.projectService.initialize(serverBaseURL)
     // this.chatManager.startApp();
 
     // ----------------------------------------------

@@ -14,6 +14,7 @@ import { map } from 'rxjs/operators';
 // Logger
 import { LoggerService } from 'src/chat21-core/providers/abstract/logger.service';
 import { LoggerInstance } from 'src/chat21-core/providers/logger/loggerInstance';
+import { AppStorageService } from 'src/chat21-core/providers/abstract/app-storage.service';
 
 @Injectable({
   providedIn: 'root'
@@ -26,36 +27,41 @@ export class ContactsService {
   BScontactDetail: BehaviorSubject<UserModel> = new BehaviorSubject<UserModel>(null);
 
   // private
-  private urlRemoteContacts: string;
+  private SERVER_BASE_URL: string;
+  private tiledeskToken: string;
+
   private contacts: UserModel[];
   private logger: LoggerService = LoggerInstance.getInstance();
 
   constructor(
     public http: HttpClient,
-    public appConfigProvider: AppConfigProvider
+    public appStorageService: AppStorageService
   ) {
-    this.urlRemoteContacts = appConfigProvider.getConfig().apiUrl + 'chat21/contacts';
+    this.logger.log('[COPILOT-SERVICE] HELLO !');
+  }
+
+  initialize(serverBaseUrl: string) {
+    this.logger.log('[COPILOT-SERVICE] - initialize serverBaseUrl', serverBaseUrl);
+    this.SERVER_BASE_URL = serverBaseUrl;
+    this.tiledeskToken = this.appStorageService.getItem('tiledeskToken')
   }
 
 
-  // initialize() {}
-
   /** */
-  public loadContactsFromUrl(token: string) {
-    this.contacts = [];
-    this.logger.log('[CONTACT-SERVICE] loadContactsFromUrl token', token);
-    this.logger.log('[CONTACT-SERVICE] loadContactsFromUrl urlRemoteContacts', this.urlRemoteContacts)
+  public loadContactsFromUrl() {
+    const url = this.SERVER_BASE_URL + 'chat21/contacts';
+    this.logger.log('[CONTACT-SERVICE] loadContactsFromUrl urlRemoteContacts', url)
     // if (this.urlRemoteContacts.startsWith('http') && token) {
     const that = this;
     const httpOptions = {
       headers: new HttpHeaders({
         'Content-Type': 'application/json',
-        Authorization: token
+        Authorization: this.tiledeskToken
       })
     };
-   
- 
-    this.http.get<any[]>(this.urlRemoteContacts, httpOptions).subscribe(users => {
+      
+    this.contacts = [];
+    this.http.get<any[]>(url, httpOptions).subscribe(users => {
       this.logger.log('[CONTACT-SERVICE] loadContactsFromUrl users ', users);
       users.forEach(user => {
         const member = that.createCompleteUser(user);
@@ -103,24 +109,21 @@ export class ContactsService {
   * @param token
   * @param uid
   */
-  public loadContactDetail(token: string, uid: string) {
+  public loadContactDetail(uid: string) {
     this.contacts = [];
+    const url = this.SERVER_BASE_URL + 'chat21/contacts/' + uid;
     this.logger.log('[CONTACT-SERVICE] - loadContactDetail - uid ', uid);
-    this.logger.log('[CONTACT-SERVICE] - loadContactDetail - token ', token);
-    const urlRemoteContactDetail = this.urlRemoteContacts + '/' + uid;
     // if (urlRemoteContactDetail.startsWith('http') && token) {
 
       const httpOptions = {
         headers: new HttpHeaders({
           'Content-Type': 'application/json',
-          Authorization: token
+          Authorization: this.tiledeskToken
         })
       };
       // const postData = {};
-      this.logger.log('[CONTACT-SERVICE] - loadContactDetail  url ', urlRemoteContactDetail);
-      return this.http
-        .get(urlRemoteContactDetail, httpOptions)
-        .pipe(map((res: any) => {
+      this.logger.log('[CONTACT-SERVICE] - loadContactDetail  url ', url);
+      return this.http.get(url, httpOptions).pipe(map((res: any) => {
           this.logger.log('[CONTACT-SERVICE] - loadContactDetail - loadContactDetail RES ', res);
           if (res.uid) {
             let user = this.createCompleteUser(res)

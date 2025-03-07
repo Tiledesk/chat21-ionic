@@ -11,6 +11,7 @@
   </div> -->
   <chat-options
     [message]="message"
+    [isCopilotEnabled]="isCopilotEnabled"
     [logLevel]="logger.getLoggerConfig().logLevel"
     (onOptionsDataReturned)="onOptionsDataReturnedFN($event)">
   </chat-options>

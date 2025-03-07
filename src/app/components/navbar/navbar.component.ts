@@ -1,7 +1,7 @@
 import { AppConfigProvider } from 'src/app/services/app-config';
 import { TiledeskAuthService } from 'src/chat21-core/providers/tiledesk/tiledesk-auth.service';
 import { EventsService } from 'src/app/services/events-service';
-import { ProjectsService } from './../../services/projects/projects.service';
+import { ProjectService } from '../../services/projects/project.service';
 import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { LoggerService } from 'src/chat21-core/providers/abstract/logger.service';
 import { LoggerInstance } from 'src/chat21-core/providers/logger/loggerInstance';
@@ -33,7 +33,7 @@ export class NavbarComponent implements OnInit {
   public MT: boolean;
 
   constructor(
-    private projectsService: ProjectsService,
+    private projectService: ProjectService,
     private tiledeskAuthService: TiledeskAuthService,
     private appConfigProvider: AppConfigProvider,
     private translateService: CustomTranslateService, 
@@ -78,7 +78,7 @@ export class NavbarComponent implements OnInit {
 
   getProjects() {
     this.logger.log('[NAVBAR] calling getProjects ... ');
-    this.projectsService.getProjects(this.tiledeskToken).subscribe((projects: any) => {
+    this.projectService.getProjects().subscribe((projects: any) => {
       this.logger.log('[NAVBAR] getProjects PROJECTS ', projects);
       if (projects) {
           // this.projects = projects;
@@ -170,7 +170,7 @@ export class NavbarComponent implements OnInit {
       url = baseUrl + '#/project/' + this.project.id_project.id + '/project-settings/general' + '?token=' + this.tiledeskToken
     }else if(event ==='allProjects'){
       url = baseUrl + '#/projects/' + '?token=' + this.tiledeskToken
-    }else if('addProject'){
+    }else if(event === 'addProject'){
       url = baseUrl + '#/create-new-project/' + '?token=' + this.tiledeskToken
     }
     console.log('onClickDropdownOption-->', url)

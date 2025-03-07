@@ -10,6 +10,7 @@ import { EventsService } from '../../services/events-service';
 // Logger
 import { LoggerService } from 'src/chat21-core/providers/abstract/logger.service';
 import { LoggerInstance } from 'src/chat21-core/providers/logger/loggerInstance';
+import { AppConfigProvider } from 'src/app/services/app-config';
 
 @Component({
   selector: 'app-contacts-directory',
@@ -18,7 +19,6 @@ import { LoggerInstance } from 'src/chat21-core/providers/logger/loggerInstance'
 })
 export class ContactsDirectoryPage implements OnInit {
   
-  @Input() token: string;
   @Input() isMobile: boolean;
   @Input() stylesMap: Map<string, string>;
   // @Input() user: string;
@@ -31,22 +31,23 @@ export class ContactsDirectoryPage implements OnInit {
     private navService: NavProxyService,
     // private contactsDirectoryService: ContactsDirectoryService,
     private contactsService: ContactsService,
+    private appConfigProvider: AppConfigProvider,
     public events: EventsService
   ) {
+    const serverBaseUrl = this.appConfigProvider.getConfig().apiUrl
+    this.contactsService.initialize(serverBaseUrl)
   }
 
   ngOnInit() {
-    this.logger.log('[CONTACT-DIRECTORY-PAGE] - TOKEN (ngOnInit)', this.token);
     this.initialize();
   }
 
   /** */
   initialize() {
     this.logger.log('[CONTACT-DIRECTORY-PAGE] - initialize');
-    this.logger.log('[CONTACT-DIRECTORY-PAGE] - token: ', this.token);
     this.contacts = [];
     this.initSubscriptions();
-    this.contactsService.loadContactsFromUrl(this.token);
+    this.contactsService.loadContactsFromUrl();
   }
 
   /**

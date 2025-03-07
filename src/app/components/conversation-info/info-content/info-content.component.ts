@@ -225,17 +225,15 @@ export class InfoContentComponent implements OnInit {
 
     this.member = null;
 
-    const tiledeskToken = this.tiledeskAuthService.getTiledeskToken();
-    this.contactsService.loadContactDetail(tiledeskToken, this.conversationWith)
-      .subscribe(res => {
-        this.logger.log('[INFO-CONTENT-COMP] - setInfoDirect loadContactDetail RES', res);
-        this.member = res
-        this.logger.log('[INFO-CONTENT-COMP] - setInfoDirect member', this.member);
-      }, (error) => {
-        this.logger.error('[INFO-CONTENT-COMP] - setInfoDirect loadContactDetail - ERROR  ', error);
-      }, () => {
-        this.logger.log('I[INFO-CONTENT-COMP] - setInfoDirect loadContactDetail * COMPLETE *');
-      });
+    this.contactsService.loadContactDetail(this.conversationWith).subscribe(res => {
+      this.logger.log('[INFO-CONTENT-COMP] - setInfoDirect loadContactDetail RES', res);
+      this.member = res
+      this.logger.log('[INFO-CONTENT-COMP] - setInfoDirect member', this.member);
+    }, (error) => {
+      this.logger.error('[INFO-CONTENT-COMP] - setInfoDirect loadContactDetail - ERROR  ', error);
+    }, () => {
+      this.logger.log('I[INFO-CONTENT-COMP] - setInfoDirect loadContactDetail * COMPLETE *');
+    });
   }
 
   // ---------------------------------------------------
