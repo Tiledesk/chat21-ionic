@@ -55,7 +55,7 @@
 <div *ngIf="!isMobile" class="manage_conversation_info_container" [ngClass]="{'close': !openInfoConversation, 'mobile': isMobile}">
   <ion-button fill="clear" *ngIf="openInfoConversation" (click)="onOpenCloseInfoConversationFN()"
   tooltip="{{translationMap?.get('LABEL_CLOSE_GROUP')}}" placement="bottom">
-    <ion-icon name="arrow-forward-outline"></ion-icon>
+    <ion-icon name="chevron-forward-outline"></ion-icon>
     <!-- {{translationMap.get('LABEL_CLOSE_GROUP')}} -->
     <!-- <ng-template #closeGroupTooltip>
       <span> {{ translationMap?.get('LABEL_CLOSE_GROUP')}} </span>
@@ -63,7 +63,7 @@
   </ion-button>
   <ion-button fill="clear" *ngIf="!openInfoConversation" (click)="onOpenCloseInfoConversationFN()"
   tooltip="{{ translationMap?.get('LABEL_OPEN_INFO_CONVERSATION')}}" placement="bottom">
-    <ion-icon name="arrow-back-outline"></ion-icon>
+    <ion-icon name="chevron-back-outline"></ion-icon>
     <!-- <ng-template #openGroupTooltip>
       <span> {{ translationMap?.get('LABEL_OPEN_INFO_CONVERSATION')}} </span>
     </ng-template> -->

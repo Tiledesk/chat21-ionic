@@ -34,14 +34,14 @@ export class HeaderConversationDetailComponent implements OnInit, OnChanges {
   @Input() conv_type: string
   @Input() liveInfo: {sourcePage: string, sourceTitle: string}
   @Input() isMobile: boolean
+  @Input() isCopilotEnabled: boolean = false;
   @Input() translationsMap: Map<string, string>
+  @Output() onClickHeaderSection = new EventEmitter();
   @Output() onOpenInfoConversation = new EventEmitter<boolean>();
   conversationWithFullname: string
   openInfoConversation = false
   
   isDirect = false
-  borderColor = '#ffffff'
-  fontColor = '#949494'
   platformName: string
   // conv_closed: boolean = false;
   IS_ON_MOBILE_DEVICE: boolean
@@ -66,7 +66,7 @@ export class HeaderConversationDetailComponent implements OnInit, OnChanges {
   // ----------------------------------------------------
   ngOnInit() {
 
-    this.logger.log('[CONVS-DETAIL][HEADER] - (ngOnInit) - idLoggedUser', this.idLoggedUser,)
+    this.logger.log('[CONVS-DETAIL][HEADER] - (ngOnInit) - idLoggedUser', this.idLoggedUser,this.translationsMap)
     this.logger.log('[CONVS-DETAIL][HEADER] - (ngOnInit) - conversationAvatar', this.conversationAvatar,)
     this.logger.log('[CONVS-DETAIL][HEADER] - (ngOnInit) -  conv_type', this.conv_type)
     this.IS_ON_MOBILE_DEVICE = isOnMobileDevice()
@@ -125,6 +125,9 @@ export class HeaderConversationDetailComponent implements OnInit, OnChanges {
     this.router.navigateByUrl('/conversations-list')
   }
 
+  onOpenSection(section){
+    this.onClickHeaderSection.emit(section)
+  }
   onOpenCloseInfoConversation(){
     this.openInfoConversation = !this.openInfoConversation
     this.onOpenInfoConversation.emit(this.openInfoConversation)

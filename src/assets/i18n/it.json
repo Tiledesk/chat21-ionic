@@ -308,6 +308,7 @@
     "HELLO":"Ciao",
     "COPILOT": {
         "ASK_AI":"Chiedi all'AI",
+        "SOLVE_WITH_AI":"Risolvi con AI",
         "NO_SUGGESTIONS_PRESENT":"Nessun suggerimento trovato",
         "INSERT_PROMPT_HERE":"Inserisci un prompt qui",
         "HOW_CAN_I_HELP_YOU":"Come posso aiutarti?"

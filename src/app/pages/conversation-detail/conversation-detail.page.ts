@@ -700,6 +700,7 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
       'ARRAY_DAYS',
       'LIVE',
       'Resolve',
+      'COPILOT.SOLVE_WITH_AI'
     ]
 
     const keysContentDetail = [
@@ -1880,12 +1881,18 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
     if (event === 'email' || event === 'templates') {
       this.getLeadDetail()
     }
+    
+  }
+
+  onClickHeaderSection(event: string){
+    this.logger.debug('[CONVS-DETAIL] onClickHeaderSection - section ', event)
     if(event === 'copilot'){
       this.SHOW_COPILOT_SUGGESTIONS = !this.SHOW_COPILOT_SUGGESTIONS
       this.SHOW_CANNED_RESPONSES = false
       this.copilotQuestion = ''
     }
   }
+
 
   // -------------- START SCROLL/RESIZE  -------------- //
   /** */

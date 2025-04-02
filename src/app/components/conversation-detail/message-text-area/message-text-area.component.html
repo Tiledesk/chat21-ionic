@@ -28,16 +28,6 @@
       </div>
     </div>
 
-    <div *ngIf="isCopilotEnabled">
-      <!-- COPILOT-OPTION -->
-      <div class="section-option" id="copilot" tooltip="{{translationMap?.get('COPILOT.ASK_AI')}}" placement="top">
-        <ion-button id="copilot" fill="clear" [class.active]="section ==='copilot'" (click)="onOpenSection('copilot')">
-          <ion-icon class="channel-icon" src="assets/images/icons/copilot.svg"></ion-icon>
-          {{translationMap?.get('COPILOT.ASK_AI')}}
-        </ion-button>
-      </div>
-    </div>
-
   </div>
 
   <ion-row id="message-email" [style.display]="section==='email'? 'flex': 'none'">

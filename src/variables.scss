@@ -58,6 +58,11 @@ body {
     --textarea-color: #06132b;
     // ***** Conversation-detail: end ***** //
 
+     // ***** Conversation-detail: HEADER: start ***** //
+     --copilot-background: #dce9ff;
+     --copilot-color: var(--basic-blue);
+     // ***** Conversation-detail: HEADER: end ***** //
+
     // ***** Conversation-detail PRIVATE-MSG: start ***** //
     --bubble-lightyellow: rgb(255, 247, 237);
     --bubble-privateMsg: rgb(254, 214, 168);
@@ -153,5 +158,10 @@ body {
     --tooltip-bckground: #2d323e;
     --tooltip-color: white;
     // ***** Sidebar: end ***** //
+
+    // ***** BUTTONS: start ***** //
+    --button-padding: 4px 10px;
+    --button-border-radius: 9999px;
+    // ***** BUTTONS: end ***** //
 
 }

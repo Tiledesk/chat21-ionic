@@ -307,7 +307,8 @@
   },
   "HELLO":"Hello",
   "COPILOT": {
-    "ASK_AI":"Ask to AI",
+    "ASK_AI":"Ask AI",
+    "SOLVE_WITH_AI":"Solve with AI",
     "NO_SUGGESTIONS_PRESENT":"No suggestions found",
     "INSERT_PROMPT_HERE":"Inster a prompt here",
     "HOW_CAN_I_HELP_YOU":"How can i help you?"
