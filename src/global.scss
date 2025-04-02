@@ -680,7 +680,11 @@ ul.dropdown-menu > li > a {
     .modal-wrapper{
         border-radius: 16px !important;
     }
-
+ 
+    .sendMail-modal-class .modal-wrapper{
+        --height: 90%;
+        --width: 70%;
+    }
     .json-modal-class .modal-wrapper{
         --height: 90%;
         --width: 70%;

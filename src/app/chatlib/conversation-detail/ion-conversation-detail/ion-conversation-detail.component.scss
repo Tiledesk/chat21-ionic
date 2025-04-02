@@ -107,31 +107,33 @@
         right: 0px;
     }
     &:not(.mobile):not(.close){
-        right: calc(320px + var(--padding-conversation-detail));
-        top: calc(60px + var(--padding-conversation-detail));
+        right: calc(325px + var(--padding-conversation-detail));
+        top: calc(62px + var(--padding-conversation-detail));
     }
-    &::before{
-        content: "";
-        width: 102px;
-        height: 34px;
-        background-image: url(data:image/svg+xml;base64,PHN2ZyBmaWxsPSJub25lIiBoZWlnaHQ9IjM0IiB2aWV3Qm94PSIwIDAgMTAyIDM0IiB3aWR0aD0iMTAyIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogICAgPHBhdGggZD0ibTEwMiAwaC0xMDJsLjA3MTQwOC40MTk3NTNjMTEuMzE5MTkyLS4wMTU1NTggMjIuMjg4MTkyIDMuOTIwMzM3IDMxLjAxMjA5MiAxMS4xMjc2NDdsNy40ODk0IDYuNTAyIDEuNjUwOCAxLjQyMjkgNi42OTU1IDUuNzhjNi41Mzc0IDUuNjQwNSAxNC44ODU3IDguNzQ1MSAyMy41MjI3IDguNzQ3N2gzMS41NTQxeiIKICAgICAgICAgIGZpbGw9IiNlMmU4ZWYiLz4KPC9zdmc+);
-        position: relative;
-        left: 50px;
-        z-index: -1;
-    }
+
 
     ion-button {
         text-transform: unset;
         color: var(--basic-blue);
+        --padding-start: 0px;
+        --padding-end: 0px;
+        height: auto;
+        border-radius: 50%;
+        background-color: #f5f8fa;
+        --color: var(--icon-color);
+        border: 1px solid transparent;
+        box-shadow: 0 0px 2px rgba(0, 0, 0, 0.3);
+
         &:hover {
             --background-hover: transparent;
             text-decoration: underline;
             text-decoration-color: var(--basic-blue);
+            border: 1px solid var(--icon-color);
         }
     }
 
     ion-icon{
-        margin: 5px;
+        margin: 2px;
         color: var(--icon-color)
     }
 }

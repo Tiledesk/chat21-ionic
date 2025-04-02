@@ -58,6 +58,13 @@
 
           </div>
         </div>
+        <!-- COPILOT-OPTION -->
+        <div *ngIf="isCopilotEnabled" class="copilot-container" id="copilot" tooltip="{{translationsMap?.get('COPILOT.SOLVE_WITH_AI')}}" placement="top">
+          <ion-button id="copilot" fill="clear" (click)="onOpenSection('copilot')">
+            <ion-icon class="channel-icon" src="assets/images/icons/copilot.svg"></ion-icon>
+            {{translationsMap?.get('COPILOT.SOLVE_WITH_AI')}}
+          </ion-button>
+        </div>
         
         <!-- <div>
           <ion-button class="live" ion-button color="danger">

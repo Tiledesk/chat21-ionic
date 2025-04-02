@@ -417,6 +417,7 @@ export class MessageTextAreaComponent implements OnInit, AfterViewInit, OnChange
       translationMap: this.translationMap};
     const modal: HTMLIonModalElement =
       await this.modalController.create({
+        cssClass: 'sendMail-modal-class',
         component: SendEmailModal,
         componentProps: attributes,
         swipeToClose: false,

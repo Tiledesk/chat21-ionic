@@ -46,6 +46,8 @@
     [liveInfo]="liveInfo" 
     [translationsMap]="translationsHeaderMap"
     [conv_type]="conv_type"
+    [isCopilotEnabled]="isCopilotEnabled"
+    (onClickHeaderSection)="onClickHeaderSection($event)"
     (onOpenInfoConversation)="onOpenCloseInfoConversation($event)">
   </app-header-conversation-detail>
 

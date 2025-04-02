@@ -20,7 +20,21 @@ ion-content{
     padding-top: 40px;
     padding-left: 8%;
     padding-right: 8%;
-
+    height: 100%;
+    form{
+        height: 100%;
+    }
+    .field-wrapper-email{
+        height: 75%;
+        ion-textarea{
+            min-height: calc(100% - 70px);
+            max-height: calc(100% - 70px);
+            
+            &::ng-deep textarea {
+                height: 100% !important;
+            }
+        }
+    }
 }
 
 .content-container[isMobile= true]{
@@ -124,7 +138,7 @@ ion-input{
     background-color: #f1f4f7;
     border: 0;
     border-radius: 6px;
-    padding: 34px;
+    padding: 34px 34px 0px 34px;
     font-size: 16px;
     overflow: hidden;
 
@@ -139,8 +153,8 @@ ion-input{
         --padding-bottom: 12px;
         --padding-start:12px;
         --padding-end: 12px;
-        min-height: 184px;
-        max-height: 184px;
+        min-height: 284px;
+        max-height: 284px;
         color: rgb(98, 112, 139);
 
         &::ng-deep textarea {
@@ -157,8 +171,8 @@ ion-label.message-placeholder{
 
 .info-wrapper{
     display: flex;
-    flex-direction: column;
     -webkit-box-align: center;
+    justify-content: center;
     align-items: center;
     margin-top: 20px;
     // padding-bottom: 30px;
@@ -166,9 +180,10 @@ ion-label.message-placeholder{
     text-align: center;
     color: rgb(98, 112, 139);
     font-size: 13px;
+    gap: 5px;
 
     img{
-        max-width: 35%;
+        max-width: 20%;
         max-height: 50px;
     }
 }

@@ -130,6 +130,41 @@ ion-header {
             margin-right: 20px;
         }
     }
+
+    .copilot-container{
+        color: var(--icon-color);
+        position: relative;
+        display: flex;
+        align-items: center;
+        border-radius: 4px;
+
+        ion-button{
+            background-color: var(--copilot-background);
+            --color: var(--copilot-color);
+            padding-bottom: 0px;
+            --padding-start: 0px;
+            --ripple-color: transparent;
+            text-transform: unset;
+            padding: var(--button-padding);
+            border-radius: var(--button-border-radius);
+            
+            ion-icon{
+                margin-right: 4px;
+                margin-left: 4px;
+            }
+
+            &#copilot {  
+                &:hover{
+                    ion-icon {
+                        transition: transform 1s ease-in-out;   
+                        transform: rotate(180deg);
+                        color: #ac87eb;
+                    }
+                }              
+                
+            }
+        }
+    }
 }
 
 .avatar-and-typing-wpr{
@@ -170,7 +205,7 @@ ion-header {
     flex-direction: column;
     justify-content: center;
     margin-left: 12px;
-    width: 80%;
+    width: 70%;
 }
 
 .user-presence {
