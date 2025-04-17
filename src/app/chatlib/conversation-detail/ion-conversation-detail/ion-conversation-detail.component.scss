@@ -287,6 +287,7 @@ ion-item {
     
 
     &:hover .message-date-hover, 
+    &:hover .btn-copilot,
     &:hover .btn-add-msg,
     &:hover .btn-options-msg,
     &:hover .options-container{
@@ -349,6 +350,11 @@ ion-item {
     }
 
 
+    .btn-copilot {
+        display: none;
+    }
+
+
 }
 
 .sourcePage-container{
@@ -408,6 +414,17 @@ ion-item {
     display: block;
     height: 25px;
     width: 25px;
+
+    &:hover{
+        cursor: pointer;
+        ion-icon#copilot{
+            
+                transition: transform 1s ease-in-out;   
+                transform: rotate(180deg);
+                color: #ac87eb;
+            
+        }
+    }
 }
 
  /* LOADING */

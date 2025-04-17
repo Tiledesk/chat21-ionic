@@ -14,7 +14,6 @@ import { CopilotPopoverComponent } from 'src/app/components/copilot-popover/copi
 export class OptionsComponent implements OnInit {
 
   @Input() message: MessageModel;
-  @Input() isCopilotEnabled: boolean = false;
   @Input() logLevel: number;
   @Output() onOptionsDataReturned = new EventEmitter<{option: string, data: any}>();
 
@@ -28,13 +27,6 @@ export class OptionsComponent implements OnInit {
       this.logger.log('[BUBBLE-MESSAGE] - onClickOptionsMessage', this.message);
       this.presentPopover(event)
   }
-
-  onClickOptionsCopilot(event){
-    this.logger.log('[BUBBLE-MESSAGE] - onClickOptionsCopilot', this.message);
-    this.presentCopilotPopover(event)
-  }
-
-  
   
   async presentPopover(ev: any) {
     const attributes = {
@@ -55,31 +47,6 @@ export class OptionsComponent implements OnInit {
       this.logger.log('[BUBBLE-MESSAGE] presentPopover dismissed. Returned value::', dataReturned.data)
       if(dataReturned.data){
         this.onOptionsDataReturned.emit({option: dataReturned.data.option, data: {message: this.message}})
-      }
-    })
-
-    return await popover.present();
-  }
-
-  async presentCopilotPopover(ev: any) {
-    const attributes = {
-      message: this.message,
-      logLevel: this.logLevel,
-      conversationWith: this.message.recipient
-    }
-    const popover = await this.popoverController.create({
-      component: CopilotPopoverComponent,
-      cssClass: 'copilot-popover',
-      componentProps: attributes,
-      event: ev,
-      translucent: true,
-      keyboardClose: true,
-      showBackdrop: false,
-    });
-    popover.onDidDismiss().then((dataReturned: any) => {
-      this.logger.log('[BUBBLE-MESSAGE] presentCopilotPopover dismissed. Returned value::', dataReturned.data)
-      if(dataReturned.data){
-        this.onOptionsDataReturned.emit({option: 'copilot_question', data: {text: dataReturned.data.text}})
       }
     })
 

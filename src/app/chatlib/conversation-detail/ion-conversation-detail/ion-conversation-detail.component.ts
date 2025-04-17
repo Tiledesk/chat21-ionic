@@ -18,6 +18,7 @@ import { AppConfigProvider } from 'src/app/services/app-config';
 import { ModalController, PopoverController, ToastController } from '@ionic/angular';
 import { CreateCannedResponsePage } from 'src/app/modals/create-canned-response/create-canned-response.page';
 import { EventsService } from 'src/app/services/events-service';
+import { CopilotPopoverComponent } from 'src/app/components/copilot-popover/copilot-popover.component';
 
 @Component({
   selector: 'ion-conversation-detail',
@@ -166,9 +167,6 @@ export class IonConversationDetailComponent extends ConversationContentComponent
       }
     }else if(event.option === 'jsonInfo'){
       this.presentJsonMessageModal(event.data.message)
-    } else if(event.option === 'copilot_question'){
-      this.eventService.publish('copilot:new_question', {text: event.data.text})
-
     }
   }
 
@@ -183,6 +181,11 @@ export class IonConversationDetailComponent extends ConversationContentComponent
       this.showSourceInfo = !this.showSourceInfo
       this.showSourceInfoIndex = index
     }
+  }
+
+  onClickOptionsCopilot(message: MessageModel, index: number){
+    this.logger.log('[CONVS-DETAIL][ION-CONVS-DETAIL] - onClickOptionsCopilot', message);
+    this.presentCopilotPopover(message)
   }
 
   onElementRenderedFN(event) {
@@ -262,4 +265,27 @@ export class IonConversationDetailComponent extends ConversationContentComponent
     });
     toast.present();
   }
+
+  async presentCopilotPopover(message: MessageModel,) {
+      const attributes = {
+        message: message,
+        conversationWith: message.recipient
+      }
+      const popover = await this.popoverController.create({
+        component: CopilotPopoverComponent,
+        cssClass: 'copilot-popover',
+        componentProps: attributes,
+        translucent: true,
+        keyboardClose: true,
+        showBackdrop: false,
+      });
+      popover.onDidDismiss().then((dataReturned: any) => {
+        this.logger.log('[BUBBLE-MESSAGE] presentCopilotPopover dismissed. Returned value::', dataReturned.data)
+        if(dataReturned.data){
+          this.eventService.publish('copilot:new_question', {text: dataReturned.data.text})
+        }
+      })
+  
+      return await popover.present();
+    }
 }

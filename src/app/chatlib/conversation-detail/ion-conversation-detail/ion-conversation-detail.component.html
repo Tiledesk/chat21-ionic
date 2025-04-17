@@ -110,9 +110,10 @@
 
         <!--backgroundColor non viene ancora usato -->
         <chat-bubble-message class="messages msg_sent" id="message_msg_sent" style="position: relative;" 
-          [ngClass]="{'has-metadata': (isImage(message) || isFrame(message)), 'privateMsg': (message?.attributes && message?.attributes?.subtype === 'private')}" 
           [class.no-background]="(isImage(message) || isFrame(message)) && message?.text && message?.text.trim() === '' "  
           [class.emoticon]="isEmojii(message?.text)"
+          [class.has-metadata]="(isImage(message) || isFrame(message))"
+          [class.privateMsg]="(message?.attributes && message?.attributes?.subtype === 'private')"
           [ngStyle]="{'background': stylesMap.get('bubbleSentBackground'), 'color': stylesMap.get('bubbleSentTextColor')}"
           [ngClass]="{'button-in-msg' : message.metadata && message.metadata.button}"
           [message]="message" 
@@ -154,9 +155,10 @@
       <div class="bubble-container">
         <!--backgroundColor non viene ancora usato -->
         <chat-bubble-message class="messages msg_receive" id="message_msg_receive"
-          [ngClass]="{'has-metadata': (isImage(message) || isFrame(message)), 'privateMsg': (message?.attributes && message?.attributes?.subtype === 'private')}" 
           [class.no-background]="(isImage(message) || isFrame(message)) && message?.text && message?.text.trim() === '' "  
           [class.emoticon]="isEmojii(message?.text)"
+          [class.has-metadata]="(isImage(message) || isFrame(message))"
+          [class.privateMsg]="(message?.attributes && message?.attributes?.subtype === 'private')"
           [ngStyle]="{'background': stylesMap?.get('bubbleReceivedBackground'), 'color': stylesMap.get('bubbleReceivedTextColor')}"
           [isSameSender]="isSameSender(message?.sender, i)"
           [message]="message" 
@@ -164,7 +166,6 @@
           [fontSize]="stylesMap?.get('fontSize')"
           [fontFamily]="stylesMap?.get('fontFamily')"
           [stylesMap]="stylesMap"
-          [isCopilotEnabled]="isCopilotEnabled"
           (onBeforeMessageRender)="onBeforeMessageRenderFN($event)"
           (onAfterMessageRender)="onAfterMessageRenderFN($event)" 
           (onElementRendered)="onElementRenderedFN($event)"
@@ -177,6 +178,13 @@
         <ion-button shape="round" size="small" class="btn-info-msg " ion-button fill="clear"
           (click)="onClickInfoMessage(message, i)" tooltip="{{viewedPageTooltipText}}" placement="bottom">
           <ion-icon slot="icon-only" name="information-circle-outline"></ion-icon>
+        </ion-button>
+      </ng-container>
+
+      <ng-container *ngIf="isCopilotEnabled">
+        <ion-button shape="round" size="small" class="btn-info-msg btn-copilot" ion-button fill="clear"
+          (click)="onClickOptionsCopilot(message, i)">
+          <ion-icon id="copilot" src="assets/images/icons/copilot.svg"></ion-icon>
         </ion-button>
       </ng-container>
 

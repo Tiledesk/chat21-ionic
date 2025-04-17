@@ -33,9 +33,14 @@ ion-header {
     ion-title {
         text-align: left;
         padding-inline: unset;
-        margin: 0px 10px;
-        // height: 40px;
+        padding: 0 var(--padding-conversation-detail);
+        height: var(--header-height);
         width: 100%;
+    }
+    ion-grid{
+        ion-col:first-child{
+            min-width: calc(100% - 320px);
+        }
     }
     ion-avatar {
         position: relative;
