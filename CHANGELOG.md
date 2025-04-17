@@ -1,5 +1,8 @@
 # chat21-ionic ver 3.0
 
+# 3.4.14-rc2
+- **changed**: minor improvement sendemail modal textarea
+
 # 3.4.14-rc1
 - **added**: moved copilot from message-text-area to header-conversaion-detail
 - **changed**: 'open/close conversation info' icon
