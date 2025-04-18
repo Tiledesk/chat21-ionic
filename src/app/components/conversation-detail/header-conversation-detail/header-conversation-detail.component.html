@@ -9,55 +9,57 @@
     <ion-title>
       <ion-grid class="ion-no-padding ion-no-margin">
         <ion-row>
-          <ion-col>
+          <ion-col [class.mobile]="isMobile">
             <div *ngIf="conversationAvatar" class="avatar-and-typing-wpr" [ngClass]="{'mobile': isMobile}">
               <!-- [ngStyle] = "{ 'left': platformName === 'ios' ? '55px' : ''  }" -->
-              <div class="avatar-container" [ngClass]="{ 'avatar-container-ios': platformName === 'ios' }">
-                <app-avatar-profile 
-                  [itemAvatar]=conversationAvatar>
-                </app-avatar-profile>
-              </div>
-              <div class="info-container">
-      
-                <!-- [ngClass] = "{ 'tile-info-with-ios': platformName === 'ios' ? '82px' : ''82px''  }" -->
-                <!-- (click)="onOpenCloseInfoConversation()" -->
-                <div class="tile-info-with" 
-                  [ngClass]="{ 'tile-info-with-ios': platformName === 'ios' }">
-                  <span class="tile-username truncate">{{ conversationAvatar.conversation_with_fullname}} </span>
-                  <!-- <span class="tile-username">{{ conversation_with_fullname }} </span> -->
+              <div class="conversation-info-container">
+                <div class="avatar-container" [ngClass]="{ 'avatar-container-ios': platformName === 'ios' }">
+                  <app-avatar-profile 
+                    [itemAvatar]=conversationAvatar>
+                  </app-avatar-profile>
                 </div>
-      
-                <div class="subtitle-info">
-                  <div class="conversation_project">
-                    <!-- DIRECT CONV -->
-                    <div *ngIf="isDirect">
-                      <app-user-presence 
-                        [idUser]="conversationAvatar.conversation_with"
-                        [isMobile]="isMobile"
-                        [translationMap]="translationsMap">
-                      </app-user-presence>
-                      <!-- <svg xmlns="http://www.w3.org/2000/svg" height="15"  width="15" viewBox="0 0 24 24" fill="#000000"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-                      <span  class="truncate">{{translationsMap.get('DIRECT_CHAT')}}</span> -->
-                    </div>
-                    <!-- GROUP CONV -->
-                    <div *ngIf="conversationUid?.startsWith(CHANNEL_TYPE.GROUP)">
-                      <svg xmlns="http://www.w3.org/2000/svg" height="15"  width="15" viewBox="0 0 24 24" fill="#000000"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
-                      <span  class="truncate">{{translationsMap.get('GROUP_CHAT')}}</span>
-                    </div>
-                    <!-- SUPPORT-GROUP CONV -->
-                    <div  *ngIf="conversationUid?.startsWith(CHANNEL_TYPE.SUPPORT_GROUP) && !IS_ON_MOBILE_DEVICE">
-                      <img class="channel-icon" src="assets/images/channel_icons/chat21.svg" *ngIf="( (conversationAvatar?.request_channel && conversationAvatar?.request_channel === CHANNEL_TYPE.CHAT21) ||  !conversationAvatar?.request_channel) " >
-                      <img class="channel-icon" src="assets/images/channel_icons/email-logo.svg" *ngIf="conversationAvatar?.request_channel && conversationAvatar?.request_channel === CHANNEL_TYPE.EMAIL" >
-                      <img class="channel-icon" src="assets/images/channel_icons/form-logo_v2.svg" *ngIf="conversationAvatar?.request_channel && conversationAvatar?.request_channel === CHANNEL_TYPE.FORM" >
-                      <img class="channel-icon" src="assets/images/channel_icons/messenger-logo.svg" *ngIf="conversationAvatar?.request_channel && conversationAvatar?.request_channel === CHANNEL_TYPE.MESSENGER" >
-                      <img class="channel-icon" src="assets/images/channel_icons/whatsapp-logo.svg" *ngIf="conversationAvatar?.request_channel && conversationAvatar?.request_channel === CHANNEL_TYPE.WHATSAPP" >
-                      <img class="channel-icon" src="assets/images/channel_icons/telegram-logo.svg" *ngIf="conversationAvatar?.request_channel && conversationAvatar?.request_channel === CHANNEL_TYPE.TELEGRAM" >
-                      <img class="channel-icon" src="assets/images/channel_icons/voice.svg" *ngIf="conversationAvatar?.request_channel && conversationAvatar?.request_channel.startsWith(CHANNEL_TYPE.VOICE)" >
-                      <span *ngIf="conversationAvatar?.project_name" class="truncate">{{conversationAvatar?.project_name}}</span>
-                      <span *ngIf="!conversationAvatar?.project_name" class="truncate">{{conversationAvatar?.projectId}}</span>
-                    </div>
+                <div class="info-container">
+        
+                  <!-- [ngClass] = "{ 'tile-info-with-ios': platformName === 'ios' ? '82px' : ''82px''  }" -->
+                  <!-- (click)="onOpenCloseInfoConversation()" -->
+                  <div class="tile-info-with" 
+                    [ngClass]="{ 'tile-info-with-ios': platformName === 'ios' }">
+                    <span class="tile-username truncate">{{ conversationAvatar.conversation_with_fullname}} </span>
+                    <!-- <span class="tile-username">{{ conversation_with_fullname }} </span> -->
                   </div>
-      
+        
+                  <div class="subtitle-info">
+                    <div class="conversation_project">
+                      <!-- DIRECT CONV -->
+                      <div *ngIf="isDirect">
+                        <app-user-presence 
+                          [idUser]="conversationAvatar.conversation_with"
+                          [isMobile]="isMobile"
+                          [translationMap]="translationsMap">
+                        </app-user-presence>
+                        <!-- <svg xmlns="http://www.w3.org/2000/svg" height="15"  width="15" viewBox="0 0 24 24" fill="#000000"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                        <span  class="truncate">{{translationsMap.get('DIRECT_CHAT')}}</span> -->
+                      </div>
+                      <!-- GROUP CONV -->
+                      <div *ngIf="conversationUid?.startsWith(CHANNEL_TYPE.GROUP)">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="15"  width="15" viewBox="0 0 24 24" fill="#000000"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                        <span  class="truncate">{{translationsMap.get('GROUP_CHAT')}}</span>
+                      </div>
+                      <!-- SUPPORT-GROUP CONV -->
+                      <div  *ngIf="conversationUid?.startsWith(CHANNEL_TYPE.SUPPORT_GROUP) && !IS_ON_MOBILE_DEVICE">
+                        <img class="channel-icon" src="assets/images/channel_icons/chat21.svg" *ngIf="( (conversationAvatar?.request_channel && conversationAvatar?.request_channel === CHANNEL_TYPE.CHAT21) ||  !conversationAvatar?.request_channel) " >
+                        <img class="channel-icon" src="assets/images/channel_icons/email-logo.svg" *ngIf="conversationAvatar?.request_channel && conversationAvatar?.request_channel === CHANNEL_TYPE.EMAIL" >
+                        <img class="channel-icon" src="assets/images/channel_icons/form-logo_v2.svg" *ngIf="conversationAvatar?.request_channel && conversationAvatar?.request_channel === CHANNEL_TYPE.FORM" >
+                        <img class="channel-icon" src="assets/images/channel_icons/messenger-logo.svg" *ngIf="conversationAvatar?.request_channel && conversationAvatar?.request_channel === CHANNEL_TYPE.MESSENGER" >
+                        <img class="channel-icon" src="assets/images/channel_icons/whatsapp-logo.svg" *ngIf="conversationAvatar?.request_channel && conversationAvatar?.request_channel === CHANNEL_TYPE.WHATSAPP" >
+                        <img class="channel-icon" src="assets/images/channel_icons/telegram-logo.svg" *ngIf="conversationAvatar?.request_channel && conversationAvatar?.request_channel === CHANNEL_TYPE.TELEGRAM" >
+                        <img class="channel-icon" src="assets/images/channel_icons/voice.svg" *ngIf="conversationAvatar?.request_channel && conversationAvatar?.request_channel.startsWith(CHANNEL_TYPE.VOICE)" >
+                        <span *ngIf="conversationAvatar?.project_name" class="truncate">{{conversationAvatar?.project_name}}</span>
+                        <span *ngIf="!conversationAvatar?.project_name" class="truncate">{{conversationAvatar?.projectId}}</span>
+                      </div>
+                    </div>
+        
+                  </div>
                 </div>
               </div>
               <!-- COPILOT-OPTION -->

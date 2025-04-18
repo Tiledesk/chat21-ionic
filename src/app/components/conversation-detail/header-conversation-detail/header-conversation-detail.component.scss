@@ -10,6 +10,7 @@ ion-header {
     
     ion-toolbar{
         height: var(--header-height);
+        --background: #fff;
         &:not(.mobile){
             --background: var(--list-bkg-color);
         }
@@ -39,7 +40,9 @@ ion-header {
     }
     ion-grid{
         ion-col:first-child{
-            min-width: calc(100% - 320px);
+            &:not(.mobile){
+                min-width: calc(100% - 320px);
+            }
         }
     }
     ion-avatar {
@@ -152,6 +155,7 @@ ion-header {
             text-transform: unset;
             padding: var(--button-padding);
             border-radius: var(--button-border-radius);
+            font-size: 11px;
             
             ion-icon{
                 margin-right: 4px;
@@ -174,11 +178,17 @@ ion-header {
 
 .avatar-and-typing-wpr{
     display: flex;
+    justify-content: space-between;
     &.mobile{
         margin-left: 25px;
     }
 }
 
+.conversation-info-container{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
 .avatar-container {
     // background-color: #fff;
     color: #fff;
