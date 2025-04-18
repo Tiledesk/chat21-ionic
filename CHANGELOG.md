@@ -5,6 +5,8 @@
 ### **Copyrigth**: 
 *Tiledesk SRL*
 
+# 3.4.16-rc2
+- **changed**: minor UI improvement copilot header button
 
 # 3.4.16-rc1
 - **added**: moved copilot from bubble-message to external rigth side
