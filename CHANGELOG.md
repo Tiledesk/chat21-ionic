@@ -1,4 +1,18 @@
-# chat21-ionic ver 3.0
+# ** CHAT21 IONIC - Changelog**
+
+### **Authors**: 
+*Gabriele Panico* <br>
+### **Copyrigth**: 
+*Tiledesk SRL*
+
+
+# 3.4.16-rc1
+- **added**: moved copilot from bubble-message to external rigth side
+- **bug-fixed**: internal note note visible for message-sent section (rigth side)
+
+# 3.4.15 in PROD
+
+# 3.4.14 in PROD
 
 # 3.4.14-rc2
 - **changed**: minor improvement sendemail modal textarea
