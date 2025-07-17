@@ -8,6 +8,9 @@
 ### **Copyrigth**: 
 *Tiledesk SRL*
 
+# 3.4.21-rc1
+- **added**:  implement badge notification for agentDesktop sw when new conversation is assigned to logged agent
+
 # 3.4.20 in PROD
 
 # 3.4.19 in PROD
