@@ -1111,6 +1111,7 @@ export class AppComponent implements OnInit {
       if (conversation && conversation.is_new === true && this.isInitialized) {
         this.manageTabNotification('conv_added', conversation.sound)
         this.manageEventNewConversation(conversation)
+        this.manageNotification(conversation);
       }
       if(conversation) this.updateConversationsOnStorage()
     });
@@ -1633,8 +1634,17 @@ export class AppComponent implements OnInit {
   }
 
   private manageEventNewConversation(conversation){
-    this.triggerEvents.triggerOnNewConversationInit(conversation, this.conversationsHandlerService.countIsNew())
+    this.triggerEvents.triggerOnNewConversationInit(conversation)
   }
+
+  private manageNotification(conversation: ConversationModel) {
+    this.logger.log('[APP-COMP] manageNotification conversation', conversation);
+    if(window['AGENTDESKTOP']){
+      this.logger.log('[APP-COMP] manageNotification AGENTDESKTOP exist', window['AGENTDESKTOP']);
+      window['AGENTDESKTOP']['TAB'].Badge(this.conversationsHandlerService.countIsNew().toString())
+    }
+  }
+
 
   @HostListener('document:visibilitychange', [])
   visibilitychange() {
