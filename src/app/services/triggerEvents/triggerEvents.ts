@@ -73,14 +73,14 @@ export class TriggerEvents {
 
     }
 
-    public triggerOnNewConversationInit(conversation: ConversationModel){
+    public triggerOnNewConversationInit(conversation: ConversationModel, countIsNew: Number){
         this.logger.debug(' ---------------- triggerOnNewConversation ---------------- ', conversation);
         try {
-            const onNewConversation = new CustomEvent('onNewConversation', { detail: { conversation: conversation} });
+            const onNewConversation = new CustomEvent('onNewConversation', { detail: { conversation: conversation, count: countIsNew} });
             const windowContext = this.windowContext;
             if (windowContext){
                 // windowContext.document.dispatchEvent(onNewConversation);
-                windowContext.postMessage({type: "onNewConversation", detail: { conversation: conversation}}, '*')
+                windowContext.postMessage({type: "onNewConversation", detail: { conversation: conversation, count: countIsNew}}, '*')
             }
         } catch (e) {
             this.logger.error('[TRIGGER-HANDLER] > Error:' + e);
