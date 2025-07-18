@@ -8,6 +8,9 @@
 ### **Copyrigth**: 
 *Tiledesk SRL*
 
+# 3.4.21-rc3
+- **changed**: badge notification for agentDesktop
+
 # 3.4.21-rc2
 - **added**: count in newConversation handler event
 

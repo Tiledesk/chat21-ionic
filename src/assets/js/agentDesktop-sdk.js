@@ -12,24 +12,6 @@
   script.onload = () => {
     console.log('AgentDesktop SDK caricato');
     window.agentDesktopLoaded = true;
-
-    const TILEDESK_EVENT = {
-      AUTH_CHANGED: 'onAuthStateChanged',
-      NEW_CONVERSATION: 'onNewConversation',
-    }
-
-    window.addEventListener( 'message', function(event){
-      if(event && event.data && event.data.type){
-        switch(event.data.type){
-          case TILEDESK_EVENT.NEW_CONVERSATION: {
-            console.log('HANDLED onNewConversation:', event.data)
-            let count = event.data.detail.count.toString()
-            window['AGENTDESKTOP']['TAB'].Badge(count)
-            break;
-          }
-        }
-      }
-    })
   };
 
   script.onerror = (error) => {
