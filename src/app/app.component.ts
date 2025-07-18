@@ -333,7 +333,7 @@ export class AppComponent implements OnInit {
 
   listenToPostMsgs() {
     window.addEventListener("message", (event) => {
-      this.logger.log("[APP-COMP] message event ", event);
+      // this.logger.log("[APP-COMP] message event ", event);
 
       if (event && event.data && event.data.action && event.data.parameter) {
         if (event.data.action === 'openJoinConversationModal') {
@@ -1111,7 +1111,6 @@ export class AppComponent implements OnInit {
       if (conversation && conversation.is_new === true && this.isInitialized) {
         this.manageTabNotification('conv_added', conversation.sound)
         this.manageEventNewConversation(conversation)
-        this.manageNotification(conversation);
       }
       if(conversation) this.updateConversationsOnStorage()
     });
@@ -1634,17 +1633,8 @@ export class AppComponent implements OnInit {
   }
 
   private manageEventNewConversation(conversation){
-    this.triggerEvents.triggerOnNewConversationInit(conversation)
+    this.triggerEvents.triggerOnNewConversationInit(conversation, this.conversationsHandlerService.countIsNew())
   }
-
-  private manageNotification(conversation: ConversationModel) {
-    this.logger.log('[APP-COMP] manageNotification AGENTDESKTOP', conversation);
-    if(window['AGENTDESKTOP']){
-      this.logger.log('[APP-COMP] manageNotification AGENTDESKTOP', window['AGENTDESKTOP']);
-      window['AGENTDESKTOP']['TAB'].Badge(this.conversationsHandlerService.countIsNew())
-    }
-  }
-
 
   @HostListener('document:visibilitychange', [])
   visibilitychange() {
