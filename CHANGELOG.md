@@ -8,6 +8,9 @@
 ### **Copyrigth**: 
 *Tiledesk SRL*
 
+# 3.4.21-rc2
+- **added**: count in newConversation handler event
+
 # 3.4.21-rc1
 - **added**:  implement badge notification for agentDesktop sw when new conversation is assigned to logged agent
 
