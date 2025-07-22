@@ -8,6 +8,9 @@
 ### **Copyrigth**: 
 *Tiledesk SRL*
 
+# 3.4.21-rc4
+- **added**: ability to init and decrement new conversation count badge
+
 # 3.4.21-rc3
 - **changed**: badge notification for agentDesktop
 
