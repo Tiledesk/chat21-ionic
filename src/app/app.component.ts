@@ -1111,7 +1111,7 @@ export class AppComponent implements OnInit {
       if (conversation && conversation.is_new === true && this.isInitialized) {
         this.manageTabNotification('conv_added', conversation.sound)
         this.manageEventNewConversation(conversation)
-        this.manageNotification(conversation);
+        this.setNotification();
       }
       if(conversation) this.updateConversationsOnStorage()
     });
@@ -1346,6 +1346,9 @@ export class AppComponent implements OnInit {
   subscribeConversationSelected= (conversation: ConversationModel) => {
     if(conversation && conversation.is_new){
       this.audio_NewConv.pause()
+
+      //UPDATE NOTIFICATION FOR NEW CONVERSATION COUNT 
+      this.setNotification();
     }
   }
 
@@ -1421,6 +1424,9 @@ export class AppComponent implements OnInit {
         this.logger.debug('[APP-COMP]-CONVS - INIT CONV CONVS 2', conversations)
         this.events.publish('appcompSubscribeToConvs:loadingIsActive', false);
       }
+
+      //INIT NOTIFICATION FOR NEW CONVERSATION COUNT 
+      this.setNotification();
     });
 
   }
@@ -1637,8 +1643,8 @@ export class AppComponent implements OnInit {
     this.triggerEvents.triggerOnNewConversationInit(conversation)
   }
 
-  private manageNotification(conversation: ConversationModel) {
-    this.logger.log('[APP-COMP] manageNotification conversation', conversation);
+  private setNotification() {
+    this.logger.log('[APP-COMP] setNotification for NEW CONVERSATION');
     if(window['AGENTDESKTOP']){
       this.logger.log('[APP-COMP] manageNotification AGENTDESKTOP exist', window['AGENTDESKTOP']);
       window['AGENTDESKTOP']['TAB'].Badge(this.conversationsHandlerService.countIsNew().toString())
