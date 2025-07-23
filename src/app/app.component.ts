@@ -1345,8 +1345,8 @@ export class AppComponent implements OnInit {
 
   subscribeConversationSelected= (conversation: ConversationModel) => {
     if(conversation && conversation.is_new){
-      this.audio_NewConv.pause()
-
+      this.audio_NewConv.pause();
+      this.conversationsHandlerService.setConversationRead(conversation.uid)
       //UPDATE NOTIFICATION FOR NEW CONVERSATION COUNT 
       this.setNotification();
     }
