@@ -8,6 +8,9 @@
 ### **Copyrigth**: 
 *Tiledesk SRL*
 
+# 3.4.21-rc5
+- **added**: setConversation as read when agent click on it
+
 # 3.4.21-rc4
 - **added**: ability to init and decrement new conversation count badge
 
