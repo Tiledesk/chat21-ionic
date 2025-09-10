@@ -8,6 +8,9 @@
 ### **Copyrigth**: 
 *Tiledesk SRL*
 
+# 3.4.21-rc6
+- **added**: managed allowed_upload_extentions from project settings
+
 # 3.4.21-rc5
 - **added**: setConversation as read when agent click on it
 
