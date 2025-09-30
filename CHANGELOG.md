@@ -11,6 +11,24 @@
 # 3.4.22 in PROD
 - **added**: managed allowed_upload_extentions from project settings
 
+# 3.4.21-rc6
+- **added**: managed allowed_upload_extentions from project settings
+
+# 3.4.21-rc5
+- **added**: setConversation as read when agent click on it
+
+# 3.4.21-rc4
+- **added**: ability to init and decrement new conversation count badge
+
+# 3.4.21-rc3
+- **changed**: badge notification for agentDesktop
+
+# 3.4.21-rc2
+- **added**: count in newConversation handler event
+
+# 3.4.21-rc1
+- **added**:  implement badge notification for agentDesktop sw when new conversation is assigned to logged agent
+
 # 3.4.21 in PROD
 
 # 3.4.20 in PROD
