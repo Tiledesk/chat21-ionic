@@ -8,6 +8,9 @@
 ### **Copyrigth**: 
 *Tiledesk SRL*
 
+# 3.4.23-rc2
+- **bug-fixed**: cannot upload xlsx files
+
 # 3.4.23-rc1
 - **bug-fixed**: cannot click to change user status 
 - **bug-fixed**: tooltip not hided alfter click on it
