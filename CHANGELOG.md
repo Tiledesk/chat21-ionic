@@ -8,6 +8,10 @@
 ### **Copyrigth**: 
 *Tiledesk SRL*
 
+# 3.4.23-rc1
+- **bug-fixed**: cannot click to change user status 
+- **bug-fixed**: tooltip not hided alfter click on it
+
 # 3.4.22 in PROD
 - **added**: managed allowed_upload_extentions from project settings
 
