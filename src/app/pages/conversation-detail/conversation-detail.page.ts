@@ -1099,9 +1099,9 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
     this.logger.log('[CONVS-DETAIL] - SEND MESSAGE - type: ', type)
     this.logger.log('[CONVS-DETAIL] - SEND MESSAGE - metadata: ', metadata)
     this.logger.log('[CONVS-DETAIL] - SEND MESSAGE - additional_attributes: ', additional_attributes)
-    let fullname = this.loggedUser.uid
+    let firstname = this.loggedUser.uid
     if (this.loggedUser.fullname) {
-      fullname = this.loggedUser.fullname
+      firstname = this.loggedUser.firstname
     }
 
     const g_attributes = this.setAttributes()
@@ -1165,7 +1165,7 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
             this.conversationWith,
             this.conversationWithFullname,
             this.loggedUser.uid,
-            fullname,
+            firstname,
             this.channelType,
             attributes,
           )
@@ -1179,7 +1179,7 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
           this.conversationWith,
           this.conversationWithFullname,
           this.loggedUser.uid,
-          fullname,
+          firstname,
           this.channelType,
           attributes,
         )
