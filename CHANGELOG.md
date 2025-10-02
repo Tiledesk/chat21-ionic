@@ -8,6 +8,9 @@
 ### **Copyrigth**: 
 *Tiledesk SRL*
 
+# 3.4.23-rc3
+- **added**: managed firstname and not fullname in message sent by agent
+
 # 3.4.23-rc2
 - **bug-fixed**: cannot upload xlsx files
 
