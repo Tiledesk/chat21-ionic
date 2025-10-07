@@ -8,6 +8,11 @@
 ### **Copyrigth**: 
 *Tiledesk SRL*
 
+# 3.4.26-rc1
+- **added**: tiledesk_projectID query param to manage user status
+- **added**: token to managane ticket feature
+- **added**: getOsCode login into utils.ts
+
 # 3.4.25 in PROD
 - **changed**: pipe marked to support malicious text input
 
