@@ -102,9 +102,8 @@ export class IonListConversationsComponent extends ListConversationsComponent im
 
   }
   ngOnInit() {
-    this.isApp = this.platform.is('ios') || this.platform.is('android')
-    this.logger.log('[ION-LIST-CONVS-COMP] - ngOnInit - IS-APP ', this.isApp);
     this.IS_ON_MOBILE_DEVICE = isOnMobileDevice()
+    this.logger.log('[ION-LIST-CONVS-COMP] - ngOnInit - IS_ON_MOBILE_DEVICE ', this.IS_ON_MOBILE_DEVICE);
   }
 
   ngOnChanges(changes: { [property: string]: SimpleChange }) {

@@ -23,6 +23,7 @@ import { LoggerInstance } from 'src/chat21-core/providers/logger/loggerInstance'
 import { WebsocketService } from 'src/app/services/websocket/websocket.service';
 import { checkPlatformIsMobile, setLastDateWithLabels } from 'src/chat21-core/utils/utils';
 import { Project } from 'src/chat21-core/models/projects';
+import { getOSCode } from 'src/app/utils/utils';
 
 @Component({
   selector: 'app-profile-info',
@@ -264,30 +265,7 @@ export class ProfileInfoPage implements OnInit {
   getOSCODE() {
     let public_Key = this.appConfigProvider.getConfig().t2y12PruGU9wUtEGzBJfolMIgK;
     this.logger.log('[PROFILE-INFO-PAGE] AppConfigService getAppConfig public_Key', public_Key);
-    this.logger.log('[PROFILE-INFO-PAGE] AppConfigService getAppConfig', this.appConfigProvider.getConfig());
-    if (public_Key) {
-      let keys = public_Key.split("-");
-      this.logger.log('[PROFILE-INFO-PAGE] PUBLIC-KEY - public_Key keys', keys)
-
-      keys.forEach(key => {
-        if (key.includes("PAY")) {
-
-          let pay = key.split(":");
-
-          if (pay[1] === "F") {
-            this.isVisiblePAY = false;
-          } else {
-            this.isVisiblePAY = true;
-          }
-        }
-      });
-
-      if (!public_Key.includes("PAY")) {
-        this.isVisiblePAY = false;
-      }
-    } else {
-      this.isVisiblePAY = false;
-    }
+    this.isVisiblePAY = getOSCode("PAY", public_Key);
   }
 
   copyLoggedUserUID() {

@@ -1196,6 +1196,7 @@ export class AppComponent implements OnInit {
       this.initArchivedConversationsHandler(currentUser.uid);
       this.segmentSignIn()
     }
+    
     this.checkPlatform();
     try {
       this.logger.debug('[APP-COMP] ************** closeModal', this.authModal);

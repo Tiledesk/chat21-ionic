@@ -15,6 +15,7 @@ import { tranlatedLanguage } from '../../../chat21-core/utils/constants';
 // utils
 import { avatarPlaceholder, getColorBck } from 'src/chat21-core/utils/utils-user';
 import { BRAND_BASE_INFO, LOGOS_ITEMS } from 'src/app/utils/utils-resources';
+import { getOSCode } from 'src/app/utils/utils';
 
 @Component({
   selector: 'app-sidebar',
@@ -267,103 +268,14 @@ export class SidebarComponent implements OnInit {
 
   getOSCODE() {
     this.public_Key = this.appConfigProvider.getConfig().t2y12PruGU9wUtEGzBJfolMIgK;
-    this.logger.log('[SIDEBAR] AppConfigService getAppConfig public_Key', this.public_Key);
-
-    if (this.public_Key) {
-      let keys = this.public_Key.split("-");
-      this.logger.log('[SIDEBAR] PUBLIC-KEY - public_Key keys', keys)
-
-      keys.forEach(key => {
-
-        if (key.includes("ANA")) {
-
-          let ana = key.split(":");
-
-          if (ana[1] === "F") {
-            this.isVisibleANA = false;
-          } else {
-            this.isVisibleANA = true;
-          }
-        }
-
-        if (key.includes("ACT")) {
-          let act = key.split(":");
-          if (act[1] === "F") {
-            this.isVisibleACT = false;
-          } else {
-            this.isVisibleACT = true;
-          }
-        }
-
-        if (key.includes("APP")) {
-          let lbs = key.split(":");
-          if (lbs[1] === "F") {
-            this.isVisibleAPP = false;
-          } else {
-            this.isVisibleAPP = true;
-          }
-        }
-
-        if (key.includes("MON")) {
-          let lbs = key.split(":");
-          if (lbs[1] === "F") {
-            this.isVisibleMON = false;
-          } else {
-            this.isVisibleMON = true;
-          }
-        }
-
-        if (key.includes("CNT")) {
-          let lbs = key.split(":");
-          if (lbs[1] === "F") {
-            this.isVisibleCNT = false;
-          } else {
-            this.isVisibleCNT = true;
-          }
-        }
-
-        if (key.includes("KNB")) {
-          let lbs = key.split(":");
-          if (lbs[1] === "F") {
-            this.isVisibleKNB = false;
-          } else {
-            this.isVisibleKNB = true;
-          }
-        }
-        
-      });
-
-
-      if (!this.public_Key.includes("ANA")) {
-        this.isVisibleANA = false;
-      }
-      if (!this.public_Key.includes("ACT")) {
-        this.isVisibleACT = false;
-      }
-      if (!this.public_Key.includes("APP")) {
-        this.isVisibleAPP = false;
-      }
-      if (!this.public_Key.includes("MON")) {
-        this.isVisibleMON = false;
-      }
-      if (!this.public_Key.includes("CNT")) {
-        this.isVisibleCNT = false;
-      }
-
-      if (!this.public_Key.includes("KNB")) {
-        this.isVisibleKNB = false;
-      }
-
-    } else {
-      this.isVisibleANA = false;
-      this.isVisibleACT = false;
-      this.isVisibleAPP = false;
-      this.isVisibleMON = false;
-      this.isVisibleCNT = false;
-      this.isVisibleKNB = false;
-    }
-
-
+    
+    this.isVisibleANA = getOSCode("ANA", this.public_Key);
+    this.isVisibleACT = getOSCode("ACT", this.public_Key);
+    this.isVisibleAPP = getOSCode("APP", this.public_Key);
+    this.isVisibleMON = getOSCode("MON", this.public_Key);
+    this.isVisibleCNT = getOSCode("CNT", this.public_Key);
+    this.isVisibleKNB = getOSCode("KNB", this.public_Key);
+    
   }
 
   listenTocurrentProjectUserUserAvailability$() {

@@ -1,6 +1,6 @@
 import { ConversationModel } from 'src/chat21-core/models/conversation';
 import { EventsService } from './../../services/events-service';
-import { Component, EventEmitter, HostListener, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, HostListener, Input, OnInit, Output } from '@angular/core';
 import { WebsocketService } from 'src/app/services/websocket/websocket.service';
 import { Subject } from 'rxjs';
 import { takeUntil, skip } from 'rxjs/operators';
@@ -24,6 +24,7 @@ import { ProjectService } from 'src/app/services/projects/project.service';
 export class ProjectItemComponent implements OnInit {
   private logger: LoggerService = LoggerInstance.getInstance();
 
+  @Input() projectID: string;
   @Output() projectIdEvent = new EventEmitter<string>()
   @Output() openUnsevedConvsEvent = new EventEmitter<any>()
 
@@ -180,8 +181,21 @@ export class ProjectItemComponent implements OnInit {
 
         this.logger.log('[INFO-CONTENT-COMP] - GET PROJECTS - RES this.project', this.project);
 
-        localStorage.setItem('last_project', JSON.stringify(projects[0]))
+        if(this.projectID){
+          const project = projects.find(prjct => prjct.id_project._id === this.projectID)
+          if(project){
+            this.project = project
+            this.logger.log('[PROJECT-ITEM] - GET PROJECTS - project found with this.projectID', this.project);
+            localStorage.setItem('last_project', JSON.stringify(this.project))
+            this.doProjectSubscriptions(this.project)
+            return
+          }else{
+            this.logger.log('[PROJECT-ITEM] - GET PROJECTS - project NOT found with this.projectID', this.projectID);
+          }
+        }
+
         if (projects[0]) {
+          localStorage.setItem('last_project', JSON.stringify(projects[0]))
           this.project = projects[0];
           this.doProjectSubscriptions(this.project)
         }

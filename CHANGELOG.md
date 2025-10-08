@@ -8,6 +8,15 @@
 ### **Copyrigth**: 
 *Tiledesk SRL*
 
+# 3.4.26 in PROD
+
+# 3.4.26-rc2
+- **removed**: archive button on list conversations if is not on mobile device
+
+# 3.4.26-rc1
+- **added**: tiledesk_projectID query param to manage user status
+- **added**: token to managane ticket feature
+
 # 3.4.25 in PROD
 - **changed**: pipe marked to support malicious text input
 
