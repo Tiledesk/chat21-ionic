@@ -8,6 +8,9 @@
 ### **Copyrigth**: 
 *Tiledesk SRL*
 
+# 3.4.26-rc2
+- **removed**: archive button on list conversations if is not on mobile device
+
 # 3.4.26-rc1
 - **added**: tiledesk_projectID query param to manage user status
 - **added**: token to managane ticket feature
@@ -65,8 +68,8 @@
 - **bug-fixed**: minor fix on ion-texarea element with allowed url domain
 
 # 3.4.19-rc1
-- added: ability to check for if emoji is allowd to be sent in message textarea
-- added: ability to check for if url domain  is allowd to be sent in message textarea
+- **added**: ability to check for if emoji is allowd to be sent in message textarea
+- **added**: ability to check for if url domain  is allowd to be sent in message textarea
 
 # 3.4.18 in PROD
 
