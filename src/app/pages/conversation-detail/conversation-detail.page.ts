@@ -83,6 +83,8 @@ import { WebsocketService } from 'src/app/services/websocket/websocket.service';
 import { Project } from 'src/chat21-core/models/projects';
 import { Globals } from 'src/app/utils/globals';
 import { ProjectService } from 'src/app/services/projects/project.service';
+import { ProjectUsersService } from 'src/app/services/project_users/project-users.service';
+import { ProjectUser } from 'src/chat21-core/models/projectUsers';
 
 @Component({
   selector: 'app-conversation-detail',
@@ -239,6 +241,7 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
     public toastController: ToastController,
     public tiledeskService: TiledeskService,
     public projectService: ProjectService,
+    public projectUsersService: ProjectUsersService,
     private networkService: NetworkService,
     private events: EventsService,
     private webSocketService: WebsocketService,
@@ -573,6 +576,7 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
         this.offlineMsgEmail = this.checkOfflineMsgEmailIsEnabled(project)
         this.isCopilotEnabled = this.projectPlanUtils.checkProjectProfileFeature(project, 'copilot');
         this.fileUploadAccept = this.checkAcceptedUploadFile(project)
+        let project_user = await this.projectUsersService.getProjectUserByProjectId(project._id)
       }
     }, (error) => {
       this.logger.error('[CONVS-DETAIL] - GET PROJECTID BY CONV RECIPIENT - ERROR  ', error)

@@ -44,6 +44,7 @@ import { conversationToMessage } from 'src/chat21-core/utils/utils-message';
 import { ProjectService } from './services/projects/project.service';
 import { ContactsService } from './services/contacts/contacts.service';
 import { TiledeskService } from './services/tiledesk/tiledesk.service';
+import { ProjectUsersService } from './services/project_users/project-users.service';
 
 @Component({
   selector: 'app-root',
@@ -142,6 +143,7 @@ export class AppComponent implements OnInit {
     /**TILEDESK SERVICES */
     private tiledeskService: TiledeskService,
     private projectService: ProjectService,
+    private projectUsersService: ProjectUsersService,
     private contactsService: ContactsService
   ) {
 
@@ -1174,6 +1176,7 @@ export class AppComponent implements OnInit {
 
     this.tiledeskService.initialize(serverBaseURL)
     this.projectService.initialize(serverBaseURL)
+    this.projectUsersService.initialize(serverBaseURL)
     this.contactsService.initialize(serverBaseURL)
     // this.chatManager.startApp();
 
