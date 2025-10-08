@@ -133,7 +133,7 @@ export class ConversationListPage implements OnInit {
     public appConfigProvider: AppConfigProvider,
     public platform: Platform,
     public wsService: WebsocketService,
-    private g: Globals,
+    public g: Globals,
   ) {
     this.checkPlatform();
     this.translations();
