@@ -12,5 +12,8 @@ export interface ProjectUser {
     isBusy?: boolean;
     status?: string;
     id_user?: any;
+    rolePermissions?: string[];
+    profileStatus?: string;
+    presence?: { [key: string]: string}
     __v?: any;
 }

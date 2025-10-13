@@ -85,7 +85,8 @@ import { Globals } from 'src/app/utils/globals';
 import { ProjectService } from 'src/app/services/projects/project.service';
 import { ProjectUsersService } from 'src/app/services/project_users/project-users.service';
 import { ProjectUser } from 'src/chat21-core/models/projectUsers';
-import { getOSCode } from 'src/app/utils/utils';
+import { getOSCode, hasRole } from 'src/app/utils/utils';
+import { PERMISSIONS } from 'src/app/utils/permissions.constants';
 
 @Component({
   selector: 'app-conversation-detail',
@@ -110,6 +111,7 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
   private subscriptions: Array<any>
   public tenant: string;
   public loggedUser: UserModel
+  public projectUser: ProjectUser;
   public conversationWith: string
   public conversationWithFullname: string
   public messages: Array<MessageModel> = []
@@ -139,6 +141,7 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
   public tagsCannedFilter: Array<any> = [];
   public SHOW_CANNED_RESPONSES: boolean = false
   public canShowCanned: boolean = true
+  public rolesCanned: { [key: string]: boolean }
 
   public SHOW_COPILOT_SUGGESTIONS: boolean = false;
 
@@ -537,7 +540,6 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
         this.logger.log('[CONVS-DETAIL] - GET PROJECTID BY CONV RECIPIENT * COMPLETE *',)
       })
     }else {
-      this.canShowCanned = false;
       this.offlineMsgEmail = false;
     }
     
@@ -548,11 +550,13 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
       this.logger.log('[CONVS-DETAIL] - GET PROJECTID BY CONV RECIPIENT RES', project)
       if (project) {
         const projectId = project.id_project
-        this.canShowCanned = this.projectPlanUtils.checkPlanIsExpired(project)
+        this.projectUser = await this.projectUsersService.getProjectUserByProjectId(project._id)
         this.offlineMsgEmail = this.checkOfflineMsgEmailIsEnabled(project)
         this.isCopilotEnabled = this.projectPlanUtils.checkProjectProfileFeature(project, 'copilot');
         this.fileUploadAccept = this.checkAcceptedUploadFile(project)
-        let project_user = await this.projectUsersService.getProjectUserByProjectId(project._id)
+        this.rolesCanned = this.checkCannedResponsesRoles(project)
+        this.canShowCanned = this.checkCannedResponses(project)
+        console.log('[CONVS-DETAIL] this.rolesCanned ', this.rolesCanned)
       }
     }, (error) => {
       this.logger.error('[CONVS-DETAIL] - GET PROJECTID BY CONV RECIPIENT - ERROR  ', error)
@@ -588,6 +592,40 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
     }
 
     return this.appConfigProvider.getConfig().fileUploadAccept
+  }
+
+  checkCannedResponses(project: Project): boolean {
+    let expires = this.projectPlanUtils.checkPlanIsExpired(project)
+    this.logger.log('[CONVS-DETAIL] checkCannedResponses expires ', expires)
+    if(expires){
+      return false
+    }
+
+    let hasRoleToShowCanned = this.rolesCanned[PERMISSIONS.CANNED_RESPONSES_READ]
+    this.logger.log('[CONVS-DETAIL] checkCannedResponses hasRoleToShowCanned ', hasRoleToShowCanned)
+    if(hasRoleToShowCanned){
+      return true
+    }
+
+    return true
+  }
+
+  checkCannedResponsesRoles(project: Project): { [key: string]: boolean } {
+    const permissionKeys = [
+      'CANNED_RESPONSES_CREATE',
+      'CANNED_RESPONSES_READ',
+      'CANNED_RESPONSES_UPDATE',
+      'CANNED_RESPONSES_DELETE',
+    ] as const;
+
+    const roles: { [key: string]: boolean } = {};
+    for (const key of permissionKeys) {
+      const permission = PERMISSIONS[key];
+      roles[permission] = hasRole(this.projectUser, permission);
+    }
+
+    return roles;
+
   }
 
   // getProjectIdSelectedConversation(conversationWith: string): string{

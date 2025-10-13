@@ -26,6 +26,7 @@ import { CopilotService } from 'src/app/services/copilot/copilot.service';
 import { BRAND_BASE_INFO } from 'src/app/utils/utils-resources';
 import { ProjectService } from 'src/app/services/projects/project.service';
 import { Project } from 'src/chat21-core/models/projects';
+import { ProjectUser } from 'src/chat21-core/models/projectUsers';
 
 
 @Component({
@@ -49,6 +50,7 @@ export class MessageTextAreaComponent implements OnInit, AfterViewInit, OnChange
   @ViewChild('fileInput', { static: false }) fileInput: any;
 
   @Input() loggedUser: UserModel;
+  @Input() projectUser: ProjectUser;
   @Input() conversationWith: string;
   @Input() channelType: string;
   @Input() channel: string;
@@ -62,6 +64,7 @@ export class MessageTextAreaComponent implements OnInit, AfterViewInit, OnChange
   @Input() offlineMsgEmail: boolean;
   @Input() whatsappTemplatesSection: boolean;
   @Input() isOpenInfoConversation: boolean;
+  @Input() cannedSection: boolean;
   @Input() stylesMap: Map<string, string>;
   @Input() translationMap: Map<string, string>;
   @Input() dropEvent: any;

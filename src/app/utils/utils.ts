@@ -1,3 +1,5 @@
+import { ProjectUser } from "src/chat21-core/models/projectUsers";
+
 export function getOSCode(key: string, token: string): boolean {
 
     if (token) {
@@ -21,4 +23,19 @@ export function getOSCode(key: string, token: string): boolean {
     } 
 
     return false
+}
+
+
+export function hasRole(projectUser: ProjectUser, role: string ): boolean {
+  let roles = ['owner', 'admin', 'agent'];
+  if(roles.includes(projectUser.role)){
+    return true
+  }
+
+  if(Array.isArray(projectUser.rolePermissions) && projectUser.rolePermissions.includes(role)){
+    return true
+  }
+
+  return false
+
 }
