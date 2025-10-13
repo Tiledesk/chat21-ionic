@@ -14,9 +14,7 @@ import { LoggerService } from 'src/chat21-core/providers/abstract/logger.service
 import { LoggerInstance } from 'src/chat21-core/providers/logger/loggerInstance'
 import { Platform } from '@ionic/angular'
 
-import { ModalController } from '@ionic/angular'
 import { EventsService } from 'src/app/services/events-service'
-import { CreateTicketPage } from 'src/app/modals/create-ticket/create-ticket.page'
 import { TiledeskService } from 'src/app/services/tiledesk/tiledesk.service'
 import { CHANNEL_TYPE } from 'src/chat21-core/utils/constants'
 import { isOnMobileDevice } from 'src/chat21-core/utils/utils';
@@ -132,24 +130,5 @@ export class HeaderConversationDetailComponent implements OnInit, OnChanges {
     this.openInfoConversation = !this.openInfoConversation
     this.onOpenInfoConversation.emit(this.openInfoConversation)
   }
-
-  // -----------------------------------------------------------------
-  // PRESENT MODAL CREATE TICKET (MOVED IN ddp-deader.component.ts)
-  // -----------------------------------------------------------------
-  // async presentCreateTicketModal(e: any): Promise<any>{
-
-  //   // const attributes = {  enableBackdropDismiss: false };
-  //   const modal: HTMLIonModalElement =
-  //     await this.modalController.create({
-  //       component: CreateTicketPage,
-  //       // componentProps: attributes,
-  //       swipeToClose: false,
-  //       backdropDismiss: false
-  //     });
-  //   modal.onDidDismiss().then((detail: any) => {
-  //     this.logger.log('[CONVS-DETAIL][HEADER] ', detail.data);
-  //   });
-  //   return await modal.present();
-  // }
 }
 

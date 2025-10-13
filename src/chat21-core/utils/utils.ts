@@ -975,7 +975,10 @@ export function isEmoji(str: string) {
 
 export function isAllowedUrlInText(text: string, allowedUrls: string[]) {
   const urlsInMessage = extractUrls(text);
-  console.log('urlsInMessage ++++ :', urlsInMessage);
+
+  if (urlsInMessage.length === 0) {
+    return true; // Nessun URL => testo ammesso
+  }
 
   const allowedPatterns = allowedUrls.map((url) => {
     try {
@@ -990,6 +993,9 @@ export function isAllowedUrlInText(text: string, allowedUrls: string[]) {
 
   const matchesAllowed = (domain: string) => {
     return allowedPatterns.some((pattern) => {
+      if (pattern === '*') {
+        return true; //accept all
+      }
       if (pattern.startsWith('*.')) {
         const base = pattern.replace(/^\*\./, '');
         return domain === base || domain.endsWith('.' + base);

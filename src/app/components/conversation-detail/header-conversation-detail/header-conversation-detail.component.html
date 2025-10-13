@@ -94,11 +94,6 @@
     <!-- openInfoConversation  {{openInfoConversation}} -->
     <ion-buttons slot="end" *ngIf="isMobile">
 
-      <!-- <ion-button ion-button fill="clear" color="primary" size="small" (click)="presentCreateTicketModal()" [ngClass]="{'resolve-conv-margin-right': !isMobile}">
-        <ion-icon name="ticket-outline"></ion-icon>
-        <span style="text-transform: capitalize; margin-left: 5px;"> {{ 'Crea ticket' | translate}} </span>
-      </ion-button> -->
-
       <!-- <ion-button *ngIf="conversationUid?.startsWith('support-group') && conv_type !== 'archived'" ion-button fill="clear" size="small" 
         (click)="closeConversation()" [disabled]="conv_closed === true">
         <ion-icon name="archive-outline"></ion-icon>

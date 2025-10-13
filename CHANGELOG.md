@@ -8,6 +8,33 @@
 ### **Copyrigth**: 
 *Tiledesk SRL*
 
+# 3.4.26 in PROD
+
+# 3.4.26-rc2
+- **removed**: archive button on list conversations if is not on mobile device
+
+# 3.4.26-rc1
+- **added**: tiledesk_projectID query param to manage user status
+- **added**: token to managane ticket feature
+
+# 3.4.25 in PROD
+- **changed**: pipe marked to support malicious text input
+
+# 3.4.24 in PROD
+- **changed**: fullname in info message replaced with firstname
+
+# 3.4.23 in PROD
+
+# 3.4.23-rc3
+- **added**: managed firstname and not fullname in message sent by agent
+
+# 3.4.23-rc2
+- **bug-fixed**: cannot upload xlsx files
+
+# 3.4.23-rc1
+- **bug-fixed**: cannot click to change user status 
+- **bug-fixed**: tooltip not hided alfter click on it
+
 # 3.4.22 in PROD
 - **added**: managed allowed_upload_extentions from project settings
 

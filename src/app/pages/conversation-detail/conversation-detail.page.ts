@@ -83,6 +83,7 @@ import { WebsocketService } from 'src/app/services/websocket/websocket.service';
 import { Project } from 'src/chat21-core/models/projects';
 import { Globals } from 'src/app/utils/globals';
 import { ProjectService } from 'src/app/services/projects/project.service';
+import { getOSCode } from 'src/app/utils/utils';
 
 @Component({
   selector: 'app-conversation-detail',
@@ -266,6 +267,7 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
 
     this.getConversations();
     this.watchToConnectionStatus();
+    this.supportMode = this.g.supportMode;
     this.getOSCODE();
     this.listenToEventServiceEvents();
     this.listenToDsbrdPostMsgs();
@@ -374,35 +376,9 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
   }
 
   getOSCODE() {
-    this.supportMode = this.g.supportMode;
-    this.logger.log('[CONVS-DETAIL] AppConfigService getAppConfig supportMode', this.supportMode)
     this.public_Key = this.appConfigProvider.getConfig().t2y12PruGU9wUtEGzBJfolMIgK
     this.logger.log('[CONVS-DETAIL] AppConfigService getAppConfig public_Key', this.public_Key)
-
-    if (this.public_Key) {
-      let keys = this.public_Key.split('-')
-      this.logger.log('[CONVS-DETAIL] PUBLIC-KEY - public_Key keys', keys)
-
-      keys.forEach((key) => {
-        if (key.includes('CAR')) {
-          let car = key.split(':')
-          if (car[1] === 'F') {
-            this.areVisibleCAR = false
-            this.logger.log('[CONVS-DETAIL] PUBLIC-KEY - areVisibleCAR', this.areVisibleCAR)
-          } else {
-            this.areVisibleCAR = true
-            this.logger.log('[CONVS-DETAIL] PUBLIC-KEY - areVisibleCAR', this.areVisibleCAR)
-          }
-        }
-      })
-
-      if (!this.public_Key.includes('CAR')) {
-        this.areVisibleCAR = false
-        this.logger.log('[CONVS-DETAIL] PUBLIC-KEY - areVisibleCAR', this.areVisibleCAR)
-      }
-    } else {
-      this.areVisibleCAR = false
-    }
+    this.areVisibleCAR = getOSCode("CAR", this.public_Key);
   }
 
   watchToConnectionStatus() {

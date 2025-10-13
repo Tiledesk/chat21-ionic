@@ -15,6 +15,7 @@ import { avatarPlaceholder, getColorBck } from 'src/chat21-core/utils/utils-user
 import { environment } from 'src/environments/environment';
 import { Project } from 'src/chat21-core/models/projects';
 import { BRAND_BASE_INFO } from 'src/app/utils/utils-resources';
+import { getOSCode } from 'src/app/utils/utils';
 @Component({
   selector: 'app-sidebar-user-details',
   templateUrl: './sidebar-user-details.component.html',
@@ -253,29 +254,8 @@ export class SidebarUserDetailsComponent implements OnInit, OnChanges {
     this.public_Key = this.appConfigProvider.getConfig().t2y12PruGU9wUtEGzBJfolMIgK;
     this.logger.log('[SIDEBAR-USER-DETAILS] AppConfigService getAppConfig public_Key', this.public_Key);
     this.logger.log('[SIDEBAR-USER-DETAILS] AppConfigService getAppConfig', this.appConfigProvider.getConfig());
-    if (this.public_Key) {
-      let keys = this.public_Key.split("-");
-      this.logger.log('[SIDEBAR-USER-DETAILS] PUBLIC-KEY - public_Key keys', keys)
-
-      keys.forEach(key => {
-        if (key.includes("PAY")) {
-
-          let pay = key.split(":");
-
-          if (pay[1] === "F") {
-            this.isVisiblePAY = false;
-          } else {
-            this.isVisiblePAY = true;
-          }
-        }
-      });
-
-      if (!this.public_Key.includes("PAY")) {
-        this.isVisiblePAY = false;
-      }
-    } else {
-      this.isVisiblePAY = false;
-    }
+    
+    this.isVisiblePAY = getOSCode("PAY", this.public_Key);
   }
 
   listenToCurrentStoredProject() {

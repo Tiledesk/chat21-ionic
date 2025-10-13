@@ -122,7 +122,7 @@
           {{conversation?.conversation_with_fullname}}
         </span>
       </div>
-      <div class="conversation_message truncate" [ngClass]="{'truncate-on-desktop': !isApp}">
+      <div class="conversation_message truncate" [ngClass]="{'truncate-on-desktop': !IS_ON_MOBILE_DEVICE}">
   
         <!-- -------------------------------------------------------------------------- -->
         <!-- if conversation type is image display the image icon before the message -->
@@ -130,7 +130,7 @@
         <!-- <div *ngIf="conversation.type === 'image'" class="icon-image-before-msg-wpr">
           <ion-icon name="image-outline" class="icon-image-before-msg"></ion-icon>
         </div>
-        <p [class.not-read]="conversation.is_new" class="truncate" [ngClass]="{'truncate-on-desktop': !isApp}"
+        <p [class.not-read]="conversation.is_new" class="truncate" [ngClass]="{'truncate-on-desktop': !IS_ON_MOBILE_DEVICE}"
           [innerHTML]="conversation.last_message_text"></p> -->
   
         <!-- <div *ngIf="conversation.type === 'image'" class="icon-image-before-msg-wpr"> -->
@@ -146,7 +146,7 @@
     </ion-label>
   </div>
 
-  <ion-note *ngIf="!conversation.archived" class="conversation_time" [ngClass]="{'is-on-mobile': isApp}">
+  <ion-note *ngIf="!conversation.archived" class="conversation_time" [ngClass]="{'is-on-mobile': IS_ON_MOBILE_DEVICE}">
     {{conversation.timestamp | amTimeAgo}}
   </ion-note>
   <ion-note item-end *ngIf="conversation?.archived" class="conversation_time">
@@ -162,7 +162,7 @@
 
   <ion-buttons slot="end">
     <ion-button *ngIf="!conversation.archived" placement="bottom"
-      [ngClass]="{'hide': !isApp, 'button-on-desktop': !isApp, 'button-on-mobile': isApp  }"
+      [ngClass]="{'hide': !IS_ON_MOBILE_DEVICE, 'button-on-desktop': !IS_ON_MOBILE_DEVICE, 'button-on-mobile': IS_ON_MOBILE_DEVICE  }"
       id="{{ 'close_conversation_button' + conversation.uid }}" class="close-conversation-button" ion-button clear
       item-end (click)="closeConversation(conversation);$event.stopPropagation();" padding>
       <ion-icon slot="icon-only" style="display:block;" id="{{ 'close_button_icon' + conversation.uid }}" name="archive-outline" item-end></ion-icon>
@@ -171,7 +171,7 @@
     </ion-button>
 
     <!-- <ion-button *ngIf="conversation?.recipient.startsWith('support-group') && !conversation.archived" [tooltip]="joinTooltip"  [options]="tooltip_options" placement="bottom"  content-type="template"
-      [ngClass]="{'hide': !isApp, 'button-on-desktop': !isApp, 'button-on-mobile': isApp  }"
+      [ngClass]="{'hide': !IS_ON_MOBILE_DEVICE, 'button-on-desktop': !IS_ON_MOBILE_DEVICE, 'button-on-mobile': IS_ON_MOBILE_DEVICE  }"
       id="{{ 'join_conversation_button' + conversation.uid }}" class="close-conversation-button" ion-button clear
       item-end (click)="joinConversation(conversation);$event.stopPropagation();" padding>
       <ion-icon slot="icon-only" style="display:block;" id="{{ 'join_button_icon' + conversation.uid }}" name="link-outline" item-end></ion-icon>
@@ -193,7 +193,7 @@
 
   <!-- && !conversation?.archived -->
   <div item-end class="notification_point"
-    [ngClass]="{'notification_point-on-desktop': !isApp, 'notification_point-on-mobile': isApp }"
+    [ngClass]="{'notification_point-on-desktop': !IS_ON_MOBILE_DEVICE, 'notification_point-on-mobile': IS_ON_MOBILE_DEVICE }"
     *ngIf="conversation.is_new">
   </div>
 

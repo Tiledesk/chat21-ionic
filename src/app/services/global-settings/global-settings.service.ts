@@ -135,5 +135,10 @@ export class GlobalSettingsService {
         globals.logLevel = TEMP;
     }
 
+    TEMP = getParameterByName(windowContext, 'tiledesk_projectID');
+    if (TEMP) {
+        globals.projectID = TEMP;
+    }
+
 }
 }

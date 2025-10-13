@@ -53,6 +53,7 @@ import { Globals } from 'src/app/utils/globals';
 import { TriggerEvents } from 'src/app/services/triggerEvents/triggerEvents';
 import { MessageModel } from 'src/chat21-core/models/message';
 import { Project } from 'src/chat21-core/models/projects';
+import { getOSCode } from 'src/app/utils/utils';
 
 @Component({
   selector: 'app-conversations-list',
@@ -80,6 +81,7 @@ export class ConversationListPage implements OnInit {
   public writeto_btn: boolean
   public archived_btn: boolean
   public sound_btn: string
+  public isVisibleTKT: boolean = true;
   public convertMessage = convertMessage
   private isShowMenuPage = false
   private logger: LoggerService = LoggerInstance.getInstance()
@@ -131,7 +133,7 @@ export class ConversationListPage implements OnInit {
     public appConfigProvider: AppConfigProvider,
     public platform: Platform,
     public wsService: WebsocketService,
-    private g: Globals,
+    public g: Globals,
   ) {
     this.checkPlatform();
     this.translations();
@@ -206,7 +208,7 @@ export class ConversationListPage implements OnInit {
   // -----------------------------------------------
   ngOnInit() {
     this.getAppConfigToHideDiplayBtns()
-    
+    this.getOSCODE();
   }
 
   ngOnChanges() {
@@ -233,7 +235,6 @@ export class ConversationListPage implements OnInit {
     } else {
       this.sound_btn = 'enabled'
     }
-
 
   }
 
@@ -624,6 +625,12 @@ export class ConversationListPage implements OnInit {
       const keys = ['LABEL_CONTACTS']
       this.headerTitle = this.translateService.translateLanguage(keys).get(keys[0])
     }
+  }
+
+  getOSCODE() {
+    const public_Key = this.appConfigProvider.getConfig().t2y12PruGU9wUtEGzBJfolMIgK
+    this.logger.log('[CONVS-LIST-PAGE] AppConfigService getAppConfig public_Key', public_Key)
+    this.isVisibleTKT = getOSCode("TKT", public_Key);
   }
 
   onBackButtonFN(event) {
