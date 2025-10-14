@@ -8,6 +8,9 @@
 ### **Copyrigth**: 
 *Tiledesk SRL*
 
+# 3.4.27-rc2
+- **bug-fixed**: cannede responses role
+
 # 3.4.27-rc1
 - **added**: managed canned responses with roles
 - **changed**: name in info mesage 
