@@ -8,6 +8,10 @@
 ### **Copyrigth**: 
 *Tiledesk SRL*
 
+# 3.4.27-rc1
+- **added**: managed canned responses with roles
+- **changed**: name in info mesage 
+
 # 3.4.26 in PROD
 
 # 3.4.26-rc2
