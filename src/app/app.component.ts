@@ -44,6 +44,7 @@ import { conversationToMessage } from 'src/chat21-core/utils/utils-message';
 import { ProjectService } from './services/projects/project.service';
 import { ContactsService } from './services/contacts/contacts.service';
 import { TiledeskService } from './services/tiledesk/tiledesk.service';
+import { Project } from 'src/chat21-core/models/projects';
 
 @Component({
   selector: 'app-root',
@@ -1177,11 +1178,14 @@ export class AppComponent implements OnInit {
     this.contactsService.initialize(serverBaseURL)
     // this.chatManager.startApp();
 
+
+    //INIT WEBSOCKET
+    this.connetWebsocket(tiledeskToken)
+
     // ----------------------------------------------
     // PUSH NOTIFICATIONS
     // ----------------------------------------------
     const pushEngine = this.appConfigProvider.getConfig().pushEngine
-
     if (currentUser) {
       if (pushEngine && pushEngine !== 'none') {
         this.notificationsService.getNotificationPermissionAndSaveToken(currentUser.uid);
@@ -1202,6 +1206,24 @@ export class AppComponent implements OnInit {
       }
     } catch (err) {
       this.logger.error('[APP-COMP] -> error:', err);
+    }
+
+    // ----------------------------------------------
+    // LAST PROJECT FROM URL
+    // ----------------------------------------------
+    if(this.g.projectID){
+      this.projectService.getProjects().subscribe({ next: (projects: Project[]) => {
+        const project = projects.find(prjct => prjct.id_project._id === this.g.projectID)
+        if(project){
+          this.logger.log('[APP-COMP] - GET PROJECT - project found with this.projectID', project);
+          localStorage.setItem('last_project', JSON.stringify(project)) 
+          this.events.publish('storage:last_project', project)
+        }
+      }, error: (error) => {
+        this.logger.log('[APP-COMP] - GET PROJECT - project NOT found with this.projectID', this.g.projectID, error);
+      }, complete: () => {
+
+      }});
     }
   }
 
@@ -1246,6 +1268,21 @@ export class AppComponent implements OnInit {
     let DASHBOARD_URL = this.appConfigProvider.getConfig().dashboardUrl + '#/login'
     const myWindow = window.open(DASHBOARD_URL, '_self');
     myWindow.focus();
+  }
+
+  connetWebsocket(tiledeskToken) {
+
+    this.logger.log('[WEBSOCKET-JS] connetWebsocket called in [PROJECT-ITEM] tiledeskToken ', tiledeskToken)
+    const appconfig = this.appConfigProvider.getConfig();
+    this.logger.log('[WEBSOCKET-JS] connetWebsocket called in [PROJECT-ITEM] wsUrl ', appconfig.wsUrl)
+    const WS_URL = appconfig.wsUrl + '?token=' + tiledeskToken
+    this.logger.log('[WEBSOCKET-JS] connetWebsocket called in [PROJECT-ITEM] wsUrl ', WS_URL)
+    this.webSocketJs.init(
+      WS_URL,
+      undefined,
+      undefined,
+      undefined
+    );
   }
 
 

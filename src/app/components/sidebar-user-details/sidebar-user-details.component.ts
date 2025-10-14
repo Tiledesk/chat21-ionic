@@ -284,6 +284,8 @@ export class SidebarUserDetailsComponent implements OnInit, OnChanges {
         } else if (this.project.profile.type === 'payment' && this.project.profile.name === 'enterprise') {
           this.getEnterprisePlanTranslation();
         }
+
+        this.wsService.subscriptionToWsCurrentProjectUserAvailability(this.project._id, projectObjct._id);
       }
     })
 
