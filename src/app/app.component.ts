@@ -45,6 +45,7 @@ import { ProjectService } from './services/projects/project.service';
 import { ContactsService } from './services/contacts/contacts.service';
 import { TiledeskService } from './services/tiledesk/tiledesk.service';
 import { Project } from 'src/chat21-core/models/projects';
+import { ProjectUsersService } from './services/project_users/project-users.service';
 
 @Component({
   selector: 'app-root',
@@ -143,6 +144,7 @@ export class AppComponent implements OnInit {
     /**TILEDESK SERVICES */
     private tiledeskService: TiledeskService,
     private projectService: ProjectService,
+    private projectUsersService: ProjectUsersService,
     private contactsService: ContactsService
   ) {
 
@@ -168,6 +170,7 @@ export class AppComponent implements OnInit {
       }
     }, { capture: true });
   }
+
 
   listenChatAlreadyOpenWithoutParamsInMobileMode() {
     this.events.subscribe('noparams:mobile', (isAlreadyOpenInMobileMode) => {
@@ -333,7 +336,7 @@ export class AppComponent implements OnInit {
 
   listenToPostMsgs() {
     window.addEventListener("message", (event) => {
-      this.logger.log("[APP-COMP] message event ", event);
+      // this.logger.log("[APP-COMP] message event ", event);
 
       if (event && event.data && event.data.action && event.data.parameter) {
         if (event.data.action === 'openJoinConversationModal') {
@@ -1111,6 +1114,7 @@ export class AppComponent implements OnInit {
       if (conversation && conversation.is_new === true && this.isInitialized) {
         this.manageTabNotification('conv_added', conversation.sound)
         this.manageEventNewConversation(conversation)
+        this.setNotification();
       }
       if(conversation) this.updateConversationsOnStorage()
     });
@@ -1175,6 +1179,7 @@ export class AppComponent implements OnInit {
 
     this.tiledeskService.initialize(serverBaseURL)
     this.projectService.initialize(serverBaseURL)
+    this.projectUsersService.initialize(serverBaseURL)
     this.contactsService.initialize(serverBaseURL)
     // this.chatManager.startApp();
 
@@ -1381,7 +1386,10 @@ export class AppComponent implements OnInit {
 
   subscribeConversationSelected= (conversation: ConversationModel) => {
     if(conversation && conversation.is_new){
-      this.audio_NewConv.pause()
+      this.audio_NewConv.pause();
+      this.conversationsHandlerService.setConversationRead(conversation.uid)
+      //UPDATE NOTIFICATION FOR NEW CONVERSATION COUNT 
+      this.setNotification();
     }
   }
 
@@ -1457,6 +1465,9 @@ export class AppComponent implements OnInit {
         this.logger.debug('[APP-COMP]-CONVS - INIT CONV CONVS 2', conversations)
         this.events.publish('appcompSubscribeToConvs:loadingIsActive', false);
       }
+
+      //INIT NOTIFICATION FOR NEW CONVERSATION COUNT 
+      this.setNotification();
     });
 
   }
@@ -1671,6 +1682,14 @@ export class AppComponent implements OnInit {
 
   private manageEventNewConversation(conversation){
     this.triggerEvents.triggerOnNewConversationInit(conversation)
+  }
+
+  private setNotification() {
+    this.logger.log('[APP-COMP] setNotification for NEW CONVERSATION');
+    if(window['AGENTDESKTOP']){
+      this.logger.log('[APP-COMP] manageNotification AGENTDESKTOP exist', window['AGENTDESKTOP']);
+      window['AGENTDESKTOP']['TAB'].Badge(this.conversationsHandlerService.countIsNew().toString())
+    }
   }
 
 
