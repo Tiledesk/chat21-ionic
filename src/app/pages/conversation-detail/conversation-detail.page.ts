@@ -556,7 +556,7 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
         this.fileUploadAccept = this.checkAcceptedUploadFile(project)
         this.rolesCanned = this.checkCannedResponsesRoles(project)
         this.canShowCanned = this.checkCannedResponses(project)
-        console.log('[CONVS-DETAIL] this.rolesCanned ', this.rolesCanned)
+        this.logger.log('[CONVS-DETAIL] this.rolesCanned ', this.canShowCanned)
       }
     }, (error) => {
       this.logger.error('[CONVS-DETAIL] - GET PROJECTID BY CONV RECIPIENT - ERROR  ', error)
@@ -603,8 +603,8 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
 
     let hasRoleToShowCanned = this.rolesCanned[PERMISSIONS.CANNED_RESPONSES_READ]
     this.logger.log('[CONVS-DETAIL] checkCannedResponses hasRoleToShowCanned ', hasRoleToShowCanned)
-    if(hasRoleToShowCanned){
-      return true
+    if(!hasRoleToShowCanned){
+      return false
     }
 
     return true
