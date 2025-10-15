@@ -22,6 +22,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { SafeHtmlPipe } from '../directives/safe-html.pipe';
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { createTranslateLoader } from 'src/chat21-core/utils/utils';
+import { HttpClient } from '@angular/common/http';
 
 // import { MessageTextAreaComponent } from '../components/conversation-detail/message-text-area/message-text-area.component'; // MessageTextAreaComponent is part of the declarations ConversationDetailPageModule
 
@@ -139,6 +142,14 @@ import { SafeHtmlPipe } from '../directives/safe-html.pipe';
     MomentModule,
     NgSelectModule,
     FormsModule,
+
+    TranslateModule.forChild({
+      loader: {
+        provide: TranslateLoader,
+        useFactory: (createTranslateLoader),
+        deps: [HttpClient]
+      }
+    })
 
   ],
   schemas: [
