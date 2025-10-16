@@ -8,6 +8,9 @@
 ### **Copyrigth**: 
 *Tiledesk SRL*
 
+# 3.4.27-rc3
+- **bug-fixed**: cannot set user availability if supportMode is enabled and tiledesk_projectID url params is set
+
 # 3.4.27-rc2
 - **bug-fixed**: cannede responses role
 
