@@ -869,7 +869,8 @@ export class AppComponent implements OnInit {
       // console.log('[APP-COMP] PLATFORM', PLATFORM_MOBILE, 'route.snapshot', this.route.snapshot);
       if (!IDConv) {
         this.logger.log('[APP-COMP]  navigateByUrl -- conversations-list');
-        this.router.navigateByUrl('conversations-list')
+        const queryString = window.location.search; // restituisce ad es. "?jwt=...&tiledesk_supportMode=false"
+        this.router.navigateByUrl('conversations-list' + queryString);
       }
       // this.router.navigateByUrl(pageUrl);
       // this.navService.setRoot(ConversationListPage, {});
@@ -893,6 +894,11 @@ export class AppComponent implements OnInit {
       if (IDConv && FullNameConv) {
         pageUrl += IDConv + '/' + FullNameConv + '/' + Convtype
       }
+
+      const queryParams = this.route.snapshot.queryParams;
+      const queryString = new URLSearchParams(queryParams).toString();
+      pageUrl += queryString ? `?${queryString}` : '';
+
       // replace(/\(/g, '%28').replace(/\)/g, '%29') -> used for the encoder of any round brackets
       this.router.navigateByUrl(pageUrl.replace(/\(/g, '%28').replace(/\)/g, '%29').replace( /#/g, "%23" ));
 
