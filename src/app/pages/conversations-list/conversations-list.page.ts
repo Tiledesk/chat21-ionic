@@ -371,6 +371,11 @@ export class ConversationListPage implements OnInit {
     // save conversationHandler in chatManager
     this.chatManager.setConversationsHandler(this.conversationsHandlerService)
     this.showPlaceholder = false
+    
+    // Hide loading spinner if there are no conversations
+    if (this.conversations.length === 0) {
+      this.loadingIsActive = false
+    }
   }
 
   // private manageStoredConversations() {

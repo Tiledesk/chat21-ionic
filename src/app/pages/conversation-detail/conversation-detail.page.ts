@@ -418,6 +418,8 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
   ionViewDidEnter() {
     this.logger.log('[CONVS-DETAIL] > ionViewDidEnter')
     // this.info_content_child_enabled = true;
+    // Scroll to bottom to show the last message without animation
+    this.scrollToLastMessage()
   }
 
   // Unsubscibe when new page transition end
@@ -1924,6 +1926,29 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
         this.ionContentChatArea.scrollToBottom(time)
       }, 0)
       // nota: se elimino il settimeout lo scrollToBottom non viene richiamato!!!!!
+    }
+  }
+
+  /**
+   * Scroll to last message without animation using requestAnimationFrame
+   * This is a best practice alternative to setTimeout
+   */
+  private scrollToLastMessage() {
+    this.showIonContent = true
+    if (this.ionContentChatArea) {
+      // Use requestAnimationFrame for better performance
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          // Double RAF ensures DOM is fully rendered
+          this.ionContentChatArea.scrollToBottom(0).then(() => {
+            this.logger.log('[CONVS-DETAIL] scroll posizionato all\'ultimo messaggio')
+          }).catch((error) => {
+            this.logger.error('[CONVS-DETAIL] errore durante lo scroll:', error)
+          })
+        })
+      })
+    } else {
+      this.logger.warn('[CONVS-DETAIL] ionContentChatArea non disponibile')
     }
   }
 
