@@ -7,6 +7,10 @@ import { LoggerService } from 'src/chat21-core/providers/abstract/logger.service
 import { LoggerInstance } from 'src/chat21-core/providers/logger/loggerInstance';
 import { Project } from 'src/chat21-core/models/projects';
 import { CustomTranslateService } from 'src/chat21-core/providers/custom-translate.service';
+import { ProjectUsersService } from 'src/app/services/project_users/project-users.service';
+import { ProjectUser } from 'src/chat21-core/models/projectUsers';
+import { PERMISSIONS } from 'src/app/utils/permissions.constants';
+import { getOSCode, hasRole } from 'src/app/utils/utils';
 
 @Component({
   selector: 'app-navbar',
@@ -30,10 +34,14 @@ export class NavbarComponent implements OnInit {
   public openDropdownProjects: boolean = false
   private public_Key: string;
   public isVisible: boolean;
-  public MT: boolean;
+  public isVisibleMT: boolean;
 
+  public projectUser: ProjectUser;
+  public roles: { [key: string]: boolean }
+  PERMISSIONS = PERMISSIONS;
   constructor(
     private projectService: ProjectService,
+    public projectUsersService: ProjectUsersService,
     private tiledeskAuthService: TiledeskAuthService,
     private appConfigProvider: AppConfigProvider,
     private translateService: CustomTranslateService, 
@@ -96,11 +104,14 @@ export class NavbarComponent implements OnInit {
   }
 
   getStoredProjectAndUserRole() {
-    this.events.subscribe('storage:last_project',project =>{
+    this.events.subscribe('storage:last_project',async (project) =>{
       this.logger.log('[NAVBAR] stored_project ', project)
       if (project && project !== 'undefined') {
         this.project = project;
         this.USER_ROLE = project.role;
+        this.projectUser = await this.projectUsersService.getProjectUserByProjectId(project.id_project.id)
+        this.roles = this.checkRoles()
+        console.log('[SIDEBAR] roles ', this.roles)
       }
     })
   }
@@ -108,44 +119,24 @@ export class NavbarComponent implements OnInit {
   getOSCODE() {
     this.public_Key = this.appConfigProvider.getConfig().t2y12PruGU9wUtEGzBJfolMIgK;
     this.logger.log('[NAVBAR] AppConfigService getAppConfig public_Key', this.public_Key)
-    this.logger.log('[NAVBAR] public_Key', this.public_Key)
+    
+    this.isVisibleMT = getOSCode("MTT", this.public_Key);
 
-    let keys = this.public_Key.split("-");
-    // this.logger.log('PUBLIC-KEY (Navbar) - public_Key keys', keys)
+  }
 
-    keys.forEach(key => {
-        // this.logger.log('NavbarComponent public_Key key', key)
-        if (key.includes("PAY")) {
-            // this.logger.log('PUBLIC-KEY (Navbar) - key', key);
-            let pay = key.split(":");
-            // this.logger.log('PUBLIC-KEY (Navbar) - pay key&value', pay);
-            if (pay[1] === "F") {
-                this.isVisible = false;
-                // this.logger.log('PUBLIC-KEY (Navbar) - pay isVisible', this.isVisible);
-            } else {
-                this.isVisible = true;
-                // this.logger.log('PUBLIC-KEY (Navbar) - pay isVisible', this.isVisible);
-            }
-        }
+  checkRoles(): { [key: string]: boolean } {
+    const permissionKeys = [
+      'CHANGE_PROJECT',
+      'SIMULATE_CONV',
+    ] as const;
 
-        if (key.includes("MTT")) {
-            // this.logger.log('PUBLIC-KEY (Navbar) - key', key);
-            let mt = key.split(":");
-            // this.logger.log('PUBLIC-KEY (Navbar) - mt key&value', mt);
-            if (mt[1] === "F") {
-                this.MT = false;
-                // this.logger.log('PUBLIC-KEY (Navbar) - mt is', this.MT);
-            } else {
-                this.MT = true;
-                // this.logger.log('PUBLIC-KEY (Navbar) - mt is', this.MT);
-            }
-        }
-    });
-
-    if (!this.public_Key.includes("MTT")) {
-        this.MT = false;
-        // this.logger.log('PUBLIC-KEY (Navbar) - mt is', this.MT);
+    const roles: { [key: string]: boolean } = {};
+    for (const key of permissionKeys) {
+      const permission = PERMISSIONS[key];
+      roles[permission] = hasRole(this.projectUser, permission);
     }
+    
+    return roles;
 
   }
 

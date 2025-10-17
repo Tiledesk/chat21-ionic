@@ -4,6 +4,8 @@ export const PERMISSIONS = {
   REQUEST_READ_GROUP: 'request_read_group',
   REQUEST_READ_MY: 'request_read_my',
  
+  HOME_READ: 'home_read',
+
   INBOX_READ: 'inbox_read',
   REQUEST_UPDATE: 'request_update',
   REQUEST_SEND: 'request_send',
@@ -24,6 +26,8 @@ export const PERMISSIONS = {
   REQUEST_TRANSCRIPT_SEND: 'request_transcript_send',
 
   HISTORY_READ: 'history_read',
+
+  RATING_READ:'rating_read',
 
   AUTOMATIONSLOG_READ: "automationslog_read",
   AUTOMATIONSLOG_CREATE: "automationslog_create",
@@ -70,18 +74,21 @@ export const PERMISSIONS = {
   WIDGETSETUP_READ: 'widgetsetup_read',
   INSTALLATION_READ: 'installation_read',
   TRANSLATIONS_READ: 'translations_read',
+  WIDGETSETUP_UPDATE: 'widgetsetup_update',
+
+  
 
   DEPARTMENTS_LIST_READ: 'department_list_read',
   DEPARTMENT_DETAIL_READ: 'department_detail_read',
   DEPARTMENT_CREATE_READ: 'department_create_read',
 
   TEAMMATES_READ: 'teammates_read',
-  TEAMMATES_DETAILS_READ: 'teammates_detail_read',
+  TEAMMATE_UPDATE: 'teammate_update',
   TEAMMATES_CREATE: 'teammates_create',
   ROLES_READ: 'roles_read',
   GROUPS_READ: 'groups_read',
 
-  TEAMMATE_STATUS_UPDATE: 'teammate_status_update',
+
 
   EMAIL_TICKETING_READ:'email_ticketing_read',
   EMAIL_TICKETING_UPDATE:'email_ticketing_update',
@@ -107,29 +114,25 @@ export const PERMISSIONS = {
   APPS_READ:'apps_read',
   APPS_UPDATE:'apps_update',
 
+  SETTINGS_READ: 'settings_read',
   PROJECTSETTINGS_GENERAL_READ: 'projectsettings_general_read',
   PROJECTSETTINGS_GENERAL_UPDATE: 'projectsettings_general_update',
-
   PROJECTSETTINGS_SUBSCRIPTION_READ: 'projectsettings_subscription_read',
-
   PROJECTSETTINGS_DEVELOPER_READ: 'projectsettings_developer_read',
   PROJECTSETTINGS_DEVELOPER_UPDATE: 'projectsettings_developer_update',
-
   PROJECTSETTINGS_SMARTASSIGNMENT_READ: 'projectsettings_smartassignment_read',
   PROJECTSETTINGS_SMARTASSIGNMENT_UPDATE: 'projectsettings_smartassignment_update',
-
   PROJECTSETTINGS_NOTIFICATION_READ: 'projectsettings_notification_read',
-
   PROJECTSETTINGS_SECURITY_READ: 'projectsettings_security_read',
-
   PROJECTSETTINGS_BANNED_READ: 'projectsettings_banned_read',
-
   PROJECTSETTINGS_ADVANCED_READ: 'projectsettings_advanced_read',
   
-
   ACCESS_LISTS: 'accessLists',
   PROFILE_PAGES: 'profilePages',
   LEAD_DATA: 'leadData',
   IMPORT_DATA: 'importData',
-  MANAGE_TAGS: 'manageTags'
+  MANAGE_TAGS: 'manageTags',
+
+  CHANGE_PROJECT:'change_project',
+  SIMULATE_CONV:'simulate_conv',
 };
