@@ -8,6 +8,10 @@
 ### **Copyrigth**: 
 *Tiledesk SRL*
 
+# 3.4.27-rc5
+- **added**: managed roles in sidebar e navbar
+- **bug-fixed**: projectId and supportMode url is not saved in localstorage
+
 # 3.4.27-rc4
 - **bug-fixed**: extractUrls function is not able to detect url start with www or without https/http
 - **bug-fixed**: if message is sent with keydown, error on domain check is not showed
