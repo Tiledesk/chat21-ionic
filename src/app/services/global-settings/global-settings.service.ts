@@ -115,7 +115,6 @@ export class GlobalSettingsService {
     if (TEMP) {
         globals.supportMode = stringToBoolean(TEMP);
         this.appStorageService.setItem('supportMode', String(globals.supportMode))
-        console.log('globals.supportMode', globals.supportMode);
     }
 
     TEMP = getParameterByName(windowContext, 'tiledesk_lang');
