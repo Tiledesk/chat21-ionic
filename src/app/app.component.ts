@@ -300,7 +300,7 @@ export class AppComponent implements OnInit {
         this.zone = new NgZone({}); // a cosa serve?
 
         this.SUPPORT_MODE = this.g.supportMode
-        console.log('[APP-COMP] this.SUPPORT_MODE', this.SUPPORT_MODE)
+        this.logger.info('[APP-COMP] this.SUPPORT_MODE', this.SUPPORT_MODE)
       }
 
     });
