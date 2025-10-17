@@ -8,6 +8,9 @@
 ### **Copyrigth**: 
 *Tiledesk SRL*
 
+# 3.4.27-rc6
+- **bug-fixed**: user for dashboard app is incorrect
+
 # 3.4.27-rc5
 - **added**: managed roles in sidebar e navbar
 - **bug-fixed**: projectId and supportMode url is not saved in localstorage
