@@ -581,7 +581,10 @@ export class ConversationListPage implements OnInit {
     })
 
     this.conversationsHandlerService.conversationRemoved.subscribe((conversation: ConversationModel) => {
-        this.logger.log('[CONVS-LIST-PAGE] ***** conversationsRemoved *****',conversation)
+        this.logger.log('[CONVS-LIST-PAGE] ***** conversationsRemoved *****',conversation);
+        if (this.conversations.length === 0) {
+          this.loadingIsActive = false;
+        }
     })
 
     this.archivedConversationsHandlerService.archivedConversationAdded.subscribe((conversation: ConversationModel) => {
