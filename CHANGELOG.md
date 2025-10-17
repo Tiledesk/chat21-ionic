@@ -8,6 +8,11 @@
 ### **Copyrigth**: 
 *Tiledesk SRL*
 
+
+# 3.4.27-rc7
+- **bug-fixed**: Scrolling to the last message when opening a conversation
+- **bug-fixed**: Loading in the conversation list disabled when removing the last conversation
+
 # 3.4.27-rc6
 - **bug-fixed**: user for dashboard app is incorrect
 
