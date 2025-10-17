@@ -177,6 +177,7 @@ export class TiledeskAuthService {
       this.currentUser = member;
       this.logger.log('[TILEDESK-AUTH] - createCompleteUser member ', member);
       this.appStorage.setItem('currentUser', JSON.stringify(this.currentUser));
+      localStorage.setItem('user', JSON.stringify(this.currentUser));
 
     } catch (err) {
       this.logger.error('[TILEDESK-AUTH]- createCompleteUser ERR ', err)
