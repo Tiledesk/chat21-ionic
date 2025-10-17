@@ -88,8 +88,8 @@ export class GlobalSettingsService {
     this.logger.debug('[GLOBAL-SET] setVariableFromStorage :::::::: SET VARIABLE ---------->', Object.keys(globals));
     for (const key of Object.keys(globals)) {
         const val = this.appStorageService.getItem(key);
-        // this.logger.debug('[GLOBAL-SET] setVariableFromStorage SET globals KEY ---------->', key);
-        // this.logger.debug('[GLOBAL-SET] setVariableFromStorage SET globals VAL ---------->', val);
+        this.logger.debug('[GLOBAL-SET] setVariableFromStorage SET globals KEY ---------->', key);
+        this.logger.debug('[GLOBAL-SET] setVariableFromStorage SET globals VAL ---------->', val);
         if (val && val !== null) {
             // globals.setParameter(key, val);
             globals[key] = stringToBoolean(val);
