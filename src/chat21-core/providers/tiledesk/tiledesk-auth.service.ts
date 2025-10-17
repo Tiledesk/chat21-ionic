@@ -121,6 +121,7 @@ export class TiledeskAuthService {
       this.http.post(this.URL_TILEDESK_SIGNIN_WITH_CUSTOM_TOKEN, null, requestOptions).subscribe((data) => {
         if (data['success'] && data['token']) {
           that.tiledeskToken = data['token'];
+          data['user'].token = tiledeskToken; // mantengo il token custom nell'oggetto user
           that.createCompleteUser(data['user']);
           this.checkAndSetInStorageTiledeskToken(that.tiledeskToken)
           this.BS_IsONLINE.next(true)
@@ -177,7 +178,8 @@ export class TiledeskAuthService {
       this.currentUser = member;
       this.logger.log('[TILEDESK-AUTH] - createCompleteUser member ', member);
       this.appStorage.setItem('currentUser', JSON.stringify(this.currentUser));
-      localStorage.setItem('user', JSON.stringify(this.currentUser));
+      const { iat, aud, iss, jti, ...cleanUser } = user; //destructuring and rest user object
+      localStorage.setItem('user', JSON.stringify(cleanUser));
 
     } catch (err) {
       this.logger.error('[TILEDESK-AUTH]- createCompleteUser ERR ', err)
