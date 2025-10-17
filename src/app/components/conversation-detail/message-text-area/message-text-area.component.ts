@@ -566,8 +566,10 @@ export class MessageTextAreaComponent implements OnInit, AfterViewInit, OnChange
       if (!text.includes("/")) {
         this.logger.log('[CONVS-DETAIL][MSG-TEXT-AREA] onKeydown - SEND MESSAGE 1 message: ', message);
         this.logger.log("[CONVS-DETAIL] replaceTagInMessage onKeydown in msg-texarea  SEND MESSAGE 1 message: ", message);
-        this.messageString = '';
+        
         this.sendMessage(text);
+        // this.messageString = '';
+
         this.countClicks = 0
       } else if (text.includes("/") && pos === 0 && this.countClicks > 1 && this.tagsCannedFilter.length > 0) {
         this.logger.log('[CONVS-DETAIL][MSG-TEXT-AREA] onKeydown - tagsCannedFilter.length 2: ', this.tagsCannedFilter.length);
@@ -579,9 +581,10 @@ export class MessageTextAreaComponent implements OnInit, AfterViewInit, OnChange
         this.logger.log("[CONVS-DETAIL] replaceTagInMessage onKeydown in msg-texarea SEND MESSAGE 2 this.countClicks: ", this.countClicks);
         this.logger.log("[CONVS-DETAIL][MSG-TEXT-AREA] onKeydown in msg-texarea SEND MESSAGE 2 this.countClicks: ", this.countClicks);
         this.logger.log('[CONVS-DETAIL][MSG-TEXT-AREA] onKeydown - SEND MESSAGE 2 message: ', message);
-        this.messageString = '';
-
+        
         this.sendMessage(text);
+        // this.messageString = '';
+
         this.countClicks = 0
       } else if (text.includes("/") && pos > 0 && this.countClicks > 1 && this.tagsCannedFilter.length > 0 && text.substr(-1) !== '/') {
         this.logger.log('[CONVS-DETAIL][MSG-TEXT-AREA] onKeydown - tagsCannedFilter.length 3: ', this.tagsCannedFilter.length);
@@ -593,17 +596,19 @@ export class MessageTextAreaComponent implements OnInit, AfterViewInit, OnChange
         this.logger.log("[CONVS-DETAIL] replaceTagInMessage onKeydown in msg-texarea SEND MESSAGE 2 this.countClicks: ", this.countClicks);
         this.logger.log("[CONVS-DETAIL][MSG-TEXT-AREA] onKeydown in msg-texarea SEND MESSAGE 2 this.countClicks: ", this.countClicks);
         this.logger.log('[CONVS-DETAIL][MSG-TEXT-AREA] onKeydown - SEND MESSAGE 2 message: ', message);
-        this.messageString = '';
-
+        
         this.sendMessage(text);
+        // this.messageString = '';
+
         this.countClicks = 0
       } else if (text.includes("/") && this.tagsCannedFilter.length === 0) {
         this.logger.log('[CONVS-DETAIL][MSG-TEXT-AREA] onKeydown - tagsCannedFilter.length 3: ', this.tagsCannedFilter.length);
         this.logger.log('[CONVS-DETAIL][MSG-TEXT-AREA] onKeydown - SEND MESSAGE 3 message: ', message);
         this.logger.log("[CONVS-DETAIL] replaceTagInMessage onKeydown in msg-texarea SEND MESSAGE 3 message: ", message);
-        this.messageString = '';
-
+        
         this.sendMessage(text);
+        // this.messageString = '';
+
         this.countClicks = 0
 
       }
