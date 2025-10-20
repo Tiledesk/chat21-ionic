@@ -296,7 +296,8 @@ select:-webkit-autofill:focus {
 
 // SIDEBAR: start
 .sidebar {
-    background-color: var(--sidebar-background-color);
+    // background-color: var(--sidebar-background-color);
+    background-color: var(--sidebar-header-background);
     color: var(--sidebar-color);
 
     transition-property: top, bottom, width;

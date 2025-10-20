@@ -13,6 +13,8 @@ export class Globals {
   persistence: string;
   lang: string;
   jwt: string;
+  fileUploadAccept: string;
+  projectID: string;
 
   constructor(
   ) { }
@@ -32,6 +34,8 @@ export class Globals {
     this.logLevel = 'ERROR'
     this.persistence = 'local';
     this.lang = 'en'
+    this.fileUploadAccept = 'image/*,.pdf,.txt'
+    this.projectID = null;
 
   }
 

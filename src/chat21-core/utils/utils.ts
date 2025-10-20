@@ -903,6 +903,8 @@ function getMimeTypeFromExtension(extension: string): string {
     '.txt': 'text/plain',
     '.doc': 'application/msword',
     '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    '.xls': 'application/vnd.ms-excel',
     '.wav' : 'audio/wav'
     // Aggiungi altri tipi MIME se necessario
   };
@@ -973,7 +975,10 @@ export function isEmoji(str: string) {
 
 export function isAllowedUrlInText(text: string, allowedUrls: string[]) {
   const urlsInMessage = extractUrls(text);
-  console.log('urlsInMessage ++++ :', urlsInMessage);
+
+  if (urlsInMessage.length === 0) {
+    return true; // Nessun URL => testo ammesso
+  }
 
   const allowedPatterns = allowedUrls.map((url) => {
     try {
@@ -988,6 +993,9 @@ export function isAllowedUrlInText(text: string, allowedUrls: string[]) {
 
   const matchesAllowed = (domain: string) => {
     return allowedPatterns.some((pattern) => {
+      if (pattern === '*') {
+        return true; //accept all
+      }
       if (pattern.startsWith('*.')) {
         const base = pattern.replace(/^\*\./, '');
         return domain === base || domain.endsWith('.' + base);
@@ -1010,6 +1018,14 @@ export function isAllowedUrlInText(text: string, allowedUrls: string[]) {
 }
 
 function extractUrls(text: string): string[] {
-  const urlRegex = /https?:\/\/[^\s]+/g;
-  return text.match(urlRegex) || [];
+  // Rileva URL con o senza protocollo (http/https)
+  const urlRegex = /\b((https?:\/\/)?(www\.)?[a-z0-9.-]+\.[a-z]{2,})(\/[^\s]*)?/gi;
+  const matches = text.match(urlRegex) || [];
+  // Normalizza: aggiunge https:// se manca, così il parsing con new URL() funziona
+  return matches.map((url) => {
+    if (!/^https?:\/\//i.test(url)) {
+      return 'https://' + url;
+    }
+    return url;
+  });
 }

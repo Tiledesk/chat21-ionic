@@ -36,7 +36,8 @@
     // transform: translate(0);
     transform: translate(60px);
     display: block;
-    left: 0px;
+    // left: 0px;
+    left: 10px;
 }
 
 .user-details-btn-close {
@@ -243,7 +244,7 @@
     -webkit-font-smoothing: antialiased;
     vertical-align: middle;
     cursor: pointer;
-
+    height: 60px;
     &:hover {
         text-decoration: underline;
     }
@@ -258,7 +259,7 @@
     text-align: center;
 
     padding-bottom: 15px;
-    padding-top: 100px;
+    padding-top: 56px;
     font-size: 16px;
     font-weight: 400;
     z-index: 1;

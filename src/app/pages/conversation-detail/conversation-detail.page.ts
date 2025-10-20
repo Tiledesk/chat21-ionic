@@ -83,6 +83,10 @@ import { WebsocketService } from 'src/app/services/websocket/websocket.service';
 import { Project } from 'src/chat21-core/models/projects';
 import { Globals } from 'src/app/utils/globals';
 import { ProjectService } from 'src/app/services/projects/project.service';
+import { ProjectUsersService } from 'src/app/services/project_users/project-users.service';
+import { ProjectUser } from 'src/chat21-core/models/projectUsers';
+import { getOSCode, hasRole } from 'src/app/utils/utils';
+import { PERMISSIONS } from 'src/app/utils/permissions.constants';
 
 @Component({
   selector: 'app-conversation-detail',
@@ -107,6 +111,7 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
   private subscriptions: Array<any>
   public tenant: string;
   public loggedUser: UserModel
+  public projectUser: ProjectUser;
   public conversationWith: string
   public conversationWithFullname: string
   public messages: Array<MessageModel> = []
@@ -136,6 +141,7 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
   public tagsCannedFilter: Array<any> = [];
   public SHOW_CANNED_RESPONSES: boolean = false
   public canShowCanned: boolean = true
+  public rolesCanned: { [key: string]: boolean }
 
   public SHOW_COPILOT_SUGGESTIONS: boolean = false;
 
@@ -154,6 +160,7 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
   isEmailEnabled: boolean;
   offlineMsgEmail: boolean;
   isWhatsappTemplatesEnabled: boolean;
+  fileUploadAccept: string;
   //SOUND
   setTimeoutSound: any;
   audio: any;
@@ -242,6 +249,7 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
     public toastController: ToastController,
     public tiledeskService: TiledeskService,
     public projectService: ProjectService,
+    public projectUsersService: ProjectUsersService,
     private networkService: NetworkService,
     private events: EventsService,
     private webSocketService: WebsocketService,
@@ -269,6 +277,7 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
 
     this.getConversations();
     this.watchToConnectionStatus();
+    this.supportMode = this.g.supportMode;
     this.getOSCODE();
     this.listenToEventServiceEvents();
     this.listenToDsbrdPostMsgs();
@@ -377,35 +386,9 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
   }
 
   getOSCODE() {
-    this.supportMode = this.g.supportMode;
-    this.logger.log('[CONVS-DETAIL] AppConfigService getAppConfig supportMode', this.supportMode)
     this.public_Key = this.appConfigProvider.getConfig().t2y12PruGU9wUtEGzBJfolMIgK
     this.logger.log('[CONVS-DETAIL] AppConfigService getAppConfig public_Key', this.public_Key)
-
-    if (this.public_Key) {
-      let keys = this.public_Key.split('-')
-      this.logger.log('[CONVS-DETAIL] PUBLIC-KEY - public_Key keys', keys)
-
-      keys.forEach((key) => {
-        if (key.includes('CAR')) {
-          let car = key.split(':')
-          if (car[1] === 'F') {
-            this.areVisibleCAR = false
-            this.logger.log('[CONVS-DETAIL] PUBLIC-KEY - areVisibleCAR', this.areVisibleCAR)
-          } else {
-            this.areVisibleCAR = true
-            this.logger.log('[CONVS-DETAIL] PUBLIC-KEY - areVisibleCAR', this.areVisibleCAR)
-          }
-        }
-      })
-
-      if (!this.public_Key.includes('CAR')) {
-        this.areVisibleCAR = false
-        this.logger.log('[CONVS-DETAIL] PUBLIC-KEY - areVisibleCAR', this.areVisibleCAR)
-      }
-    } else {
-      this.areVisibleCAR = false
-    }
+    this.areVisibleCAR = getOSCode("CAR", this.public_Key);
   }
 
   watchToConnectionStatus() {
@@ -494,7 +477,7 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
     this.showMessageWelcome = false
 
     const appconfig = this.appConfigProvider.getConfig()
-    this.tenant = appconfig.firebaseConfig.tenant
+    this.tenant = appconfig.firebaseConfig.tenant;
     this.logger.log('[CONVS-DETAIL] - initialize -> firebaseConfig tenant ', this.tenant)
 
     this.logger.log('[CONVS-DETAIL] - initialize -> conversationWith: ', this.conversationWith, ' -> conversationWithFullname: ', this.conversationWithFullname)
@@ -562,7 +545,6 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
         this.logger.log('[CONVS-DETAIL] - GET PROJECTID BY CONV RECIPIENT * COMPLETE *',)
       })
     }else {
-      this.canShowCanned = false;
       this.offlineMsgEmail = false;
     }
     
@@ -573,9 +555,13 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
       this.logger.log('[CONVS-DETAIL] - GET PROJECTID BY CONV RECIPIENT RES', project)
       if (project) {
         const projectId = project.id_project
-        this.canShowCanned = this.projectPlanUtils.checkPlanIsExpired(project)
+        this.projectUser = await this.projectUsersService.getProjectUserByProjectId(project._id)
         this.offlineMsgEmail = this.checkOfflineMsgEmailIsEnabled(project)
-        this.isCopilotEnabled = this.projectPlanUtils.checkProjectProfileFeature(project, 'copilot')
+        this.isCopilotEnabled = this.projectPlanUtils.checkProjectProfileFeature(project, 'copilot');
+        this.fileUploadAccept = this.checkAcceptedUploadFile(project)
+        this.rolesCanned = this.checkCannedResponsesRoles(project)
+        this.canShowCanned = this.checkCannedResponses(project)
+        this.logger.log('[CONVS-DETAIL] this.rolesCanned ', this.canShowCanned)
       }
     }, (error) => {
       this.logger.error('[CONVS-DETAIL] - GET PROJECTID BY CONV RECIPIENT - ERROR  ', error)
@@ -602,6 +588,49 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
     }
 
     return check
+  }
+
+  checkAcceptedUploadFile(project: Project): string {
+
+    if(project && project?.settings?.allowed_upload_extentions){
+      return this.g.fileUploadAccept = project?.settings?.allowed_upload_extentions
+    }
+
+    return this.appConfigProvider.getConfig().fileUploadAccept
+  }
+
+  checkCannedResponses(project: Project): boolean {
+    let expires = this.projectPlanUtils.checkPlanIsExpired(project)
+    this.logger.log('[CONVS-DETAIL] checkCannedResponses expires ', expires)
+    if(expires){
+      return false
+    }
+
+    let hasRoleToShowCanned = this.rolesCanned[PERMISSIONS.CANNED_RESPONSES_READ]
+    this.logger.log('[CONVS-DETAIL] checkCannedResponses hasRoleToShowCanned ', hasRoleToShowCanned)
+    if(!hasRoleToShowCanned){
+      return false
+    }
+
+    return true
+  }
+
+  checkCannedResponsesRoles(project: Project): { [key: string]: boolean } {
+    const permissionKeys = [
+      'CANNED_RESPONSES_CREATE',
+      'CANNED_RESPONSES_READ',
+      'CANNED_RESPONSES_UPDATE',
+      'CANNED_RESPONSES_DELETE',
+    ] as const;
+
+    const roles: { [key: string]: boolean } = {};
+    for (const key of permissionKeys) {
+      const permission = PERMISSIONS[key];
+      roles[permission] = hasRole(this.projectUser, permission);
+    }
+
+    return roles;
+
   }
 
   // getProjectIdSelectedConversation(conversationWith: string): string{
@@ -1098,9 +1127,9 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
     this.logger.log('[CONVS-DETAIL] - SEND MESSAGE - type: ', type)
     this.logger.log('[CONVS-DETAIL] - SEND MESSAGE - metadata: ', metadata)
     this.logger.log('[CONVS-DETAIL] - SEND MESSAGE - additional_attributes: ', additional_attributes)
-    let fullname = this.loggedUser.uid
+    let firstname = this.loggedUser.uid
     if (this.loggedUser.fullname) {
-      fullname = this.loggedUser.fullname
+      firstname = this.loggedUser.firstname
     }
 
     const g_attributes = this.setAttributes()
@@ -1164,7 +1193,7 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
             this.conversationWith,
             this.conversationWithFullname,
             this.loggedUser.uid,
-            fullname,
+            firstname,
             this.channelType,
             attributes,
           )
@@ -1178,7 +1207,7 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
           this.conversationWith,
           this.conversationWithFullname,
           this.loggedUser.uid,
-          fullname,
+          firstname,
           this.channelType,
           attributes,
         )
@@ -2018,8 +2047,8 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
 
   checkAcceptedFile(draggedFileMimeType) {
     let isAcceptFile = false
-    this.logger.log('[CONVS-DETAIL] > checkAcceptedFile - fileUploadAccept: ', this.appConfigProvider.getConfig().fileUploadAccept)
-    const accept_files = this.appConfigProvider.getConfig().fileUploadAccept
+    this.logger.log('[CONVS-DETAIL] > checkAcceptedFile - fileUploadAccept: ', this.fileUploadAccept)
+    const accept_files = this.fileUploadAccept
     this.logger.log('[CONVS-DETAIL] > checkAcceptedFile - mimeType: ', draggedFileMimeType)
     if (accept_files === '*/*') {
       isAcceptFile = true
@@ -2185,7 +2214,7 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
       this.logger.log('[CONVS-DETAIL] ----> FILE - DROP mimeType files ', mimeType)
       
       // const isAccepted = this.checkAcceptedFile(mimeType)
-      const canUploadFile = checkAcceptedFile(mimeType, this.appConfigProvider.getConfig().fileUploadAccept)
+      const canUploadFile = checkAcceptedFile(mimeType, this.fileUploadAccept)
       if(!canUploadFile){
         this.presentToast(this.translationsMap.get('FAILED_TO_UPLOAD_THE_FORMAT_IS_NOT_SUPPORTED'), 'danger', 'toast-custom-class', 5000)
         return;

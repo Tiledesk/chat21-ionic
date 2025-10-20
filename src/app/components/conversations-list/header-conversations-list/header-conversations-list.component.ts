@@ -16,6 +16,7 @@ export class HeaderConversationsList implements OnInit {
   @Input() writeto_btn: boolean
   @Input() sound_btn: string;
   @Input() isMobile: boolean;
+  @Input() isVisibleTKT: boolean = true;
   @Output() onSoundChange = new EventEmitter<string>()
   @Output() openContactsDirectory = new EventEmitter()
   @Output() openProfileInfo = new EventEmitter()
@@ -83,23 +84,6 @@ export class HeaderConversationsList implements OnInit {
   onClickArchivedConversation() {
     this.events.publish('profileInfoButtonClick:changed', 'displayArchived')
   }
-
-  // PRESENT MODAL CREATE TICKET
-  // async presentCreateTicketModal(): Promise<any>{
-
-  //   // const attributes = {  enableBackdropDismiss: false };
-  //   const modal: HTMLIonModalElement =
-  //     await this.modalController.create({
-  //       component: CreateTicketPage,
-  //       // componentProps: attributes,
-  //       swipeToClose: false,
-  //       backdropDismiss: false
-  //     });
-  //   modal.onDidDismiss().then((detail: any) => {
-  //     console.log('[DDP-HEADER] ', detail.data);
-  //   });
-  //   return await modal.present();
-  // }
 
   async presentCreateTicketModal() {
     // const attributes = {  enableBackdropDismiss: false };

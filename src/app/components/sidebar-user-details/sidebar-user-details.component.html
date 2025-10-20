@@ -81,11 +81,11 @@
             [searchable]="false">
             <ng-template ng-label-tmp let-item="item">
                 <img style="width: 15px;height: 15px;position: relative; top: 1px;" height="15" width="15" [src]="item?.avatar" />
-                <span id="sidebaravatar_{{item.name}}" style="text-transform: capitalize; margin-left:8px">  {{item.label}} </span>
+                <span id="sidebaravatar_{{item.name}}" style="text-transform: capitalize; margin-left:8px">  {{item.label | translate}} </span>
             </ng-template>
             <ng-template ng-option-tmp let-item="item" let-index="index">
                 <img style="width: 15px;height: 15px;position: relative; top: 1px;" height="15" width="15" [src]="item?.avatar" />
-                <span id="sidebaravatar_{{item.name}}" style="text-transform: capitalize; margin-left:8px">  {{item.label}} </span>
+                <span id="sidebaravatar_{{item.name}}" style="text-transform: capitalize; margin-left:8px">  {{item.label | translate}} </span>
             </ng-template>
         </ng-select>
     </section>

@@ -15,6 +15,7 @@ import { avatarPlaceholder, getColorBck } from 'src/chat21-core/utils/utils-user
 import { environment } from 'src/environments/environment';
 import { Project } from 'src/chat21-core/models/projects';
 import { BRAND_BASE_INFO } from 'src/app/utils/utils-resources';
+import { getOSCode } from 'src/app/utils/utils';
 @Component({
   selector: 'app-sidebar-user-details',
   templateUrl: './sidebar-user-details.component.html',
@@ -87,7 +88,7 @@ export class SidebarUserDetailsComponent implements OnInit, OnChanges {
 
   subcribeToAuthStateChanged() {
     this.messagingAuthService.BSAuthStateChanged.subscribe((state) => {
-      this.logger.log('[SIDEBAR-USER-DETAILS] BSAuthStateChanged ', state)
+     this.logger.log('[SIDEBAR-USER-DETAILS] BSAuthStateChanged ', state)
 
       if (state === 'online') {
         const storedCurrentUser = this.appStorageService.getItem('currentUser')
@@ -241,9 +242,9 @@ export class SidebarUserDetailsComponent implements OnInit, OnChanges {
                           .set('SubscriptionPaymentProblem', text['SubscriptionPaymentProblem'])
                           .set('ThePlanHasExpired', text['ThePlanHasExpired'])
 
-      this.teammateStatus.forEach(element => {
-        element.label = this.translationsMap.get(element.label)
-      });
+      // this.teammateStatus.forEach(element => {
+      //   element.label = this.translationsMap.get(element.label)
+      // });
       
     });
   }
@@ -253,35 +254,14 @@ export class SidebarUserDetailsComponent implements OnInit, OnChanges {
     this.public_Key = this.appConfigProvider.getConfig().t2y12PruGU9wUtEGzBJfolMIgK;
     this.logger.log('[SIDEBAR-USER-DETAILS] AppConfigService getAppConfig public_Key', this.public_Key);
     this.logger.log('[SIDEBAR-USER-DETAILS] AppConfigService getAppConfig', this.appConfigProvider.getConfig());
-    if (this.public_Key) {
-      let keys = this.public_Key.split("-");
-      this.logger.log('[SIDEBAR-USER-DETAILS] PUBLIC-KEY - public_Key keys', keys)
-
-      keys.forEach(key => {
-        if (key.includes("PAY")) {
-
-          let pay = key.split(":");
-
-          if (pay[1] === "F") {
-            this.isVisiblePAY = false;
-          } else {
-            this.isVisiblePAY = true;
-          }
-        }
-      });
-
-      if (!this.public_Key.includes("PAY")) {
-        this.isVisiblePAY = false;
-      }
-    } else {
-      this.isVisiblePAY = false;
-    }
+    
+    this.isVisiblePAY = getOSCode("PAY", this.public_Key);
   }
 
   listenToCurrentStoredProject() {
     this.events.subscribe('storage:last_project', projectObjct => {
       if (projectObjct && projectObjct !== 'undefined') {
-        // console.log('[SIDEBAR-USER-DETAILS] - GET STORED PROJECT ', projectObjct)
+        this.logger.log('[SIDEBAR-USER-DETAILS] - GET STORED PROJECT ', projectObjct)
 
         //TODO: recuperare info da root e non da id_project
         this.project = {
@@ -304,12 +284,14 @@ export class SidebarUserDetailsComponent implements OnInit, OnChanges {
         } else if (this.project.profile.type === 'payment' && this.project.profile.name === 'enterprise') {
           this.getEnterprisePlanTranslation();
         }
+
+        this.wsService.subscriptionToWsCurrentProjectUserAvailability(this.project._id, projectObjct._id);
       }
     })
 
     try {
       this.tiledeskToken = this.appStorageService.getItem('tiledeskToken');
-      // console.log('[SIDEBAR-USER-DETAILS] - GET STORED TOKEN ', this.tiledeskToken)
+      // this.logger.log('[SIDEBAR-USER-DETAILS] - GET STORED TOKEN ', this.tiledeskToken)
     } catch (err) {
       this.logger.error('[SIDEBAR-USER-DETAILS] - GET STORED TOKEN ', err)
     }
@@ -346,17 +328,17 @@ export class SidebarUserDetailsComponent implements OnInit, OnChanges {
 
         if (projectUser) {
           if (projectUser['user_available'] === false && projectUser['profileStatus'] === 'inactive') {
-            // console.log('teammateStatus ', this.teammateStatus) 
+            // this.logger.log('teammateStatus ', this.teammateStatus) 
             this.selectedStatus = this.teammateStatus[2].id;
             this.logger.debug('[SIDEBAR-USER-DETAILS] - PROFILE_STATUS selected option', this.teammateStatus[2].name);
-            this.teammateStatus = this.teammateStatus.slice(0)
+            // this.teammateStatus = this.teammateStatus.slice(0)
           } else if (projectUser['user_available'] === false && (projectUser['profileStatus'] === '' || !projectUser['profileStatus'])) {
             this.selectedStatus = this.teammateStatus[1].id;
             this.logger.debug('[SIDEBAR-USER-DETAILS] - PROFILE_STATUS selected option', this.teammateStatus[1].name);
-            this.teammateStatus = this.teammateStatus.slice(0)
+            // this.teammateStatus = this.teammateStatus.slice(0)
           } else if (projectUser['user_available'] === true && (projectUser['profileStatus'] === '' || !projectUser['profileStatus'])) {
             this.selectedStatus = this.teammateStatus[0].id
-            this.teammateStatus = this.teammateStatus.slice(0)
+            // this.teammateStatus = this.teammateStatus.slice(0)
             this.logger.debug('[SIDEBAR-USER-DETAILS] - PROFILE_STATUS selected option', this.teammateStatus[0].name);
           }
           this.IS_BUSY = projectUser['isBusy']

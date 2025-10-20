@@ -6,6 +6,7 @@
     [writeto_btn]="writeto_btn"
     [sound_btn]="sound_btn"
     [isMobile]="isMobile"
+    [isVisibleTKT]="isVisibleTKT"
     (onSoundChange)="onSoundChange($event)"
     (openContactsDirectory)=openContactsDirectory($event) 
     (openProfileInfo)=openProfileInfo($event)>
@@ -39,6 +40,7 @@
           </ion-note> -->
      
           <app-project-item
+            [projectID]="g?.projectID"
             (openUnsevedConvsEvent)="openUnsevedConversationIframe($event)"
             (projectIdEvent)="getLastProjectId($event)">
           </app-project-item>

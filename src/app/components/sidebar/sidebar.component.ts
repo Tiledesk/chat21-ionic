@@ -15,6 +15,10 @@ import { tranlatedLanguage } from '../../../chat21-core/utils/constants';
 // utils
 import { avatarPlaceholder, getColorBck } from 'src/chat21-core/utils/utils-user';
 import { BRAND_BASE_INFO, LOGOS_ITEMS } from 'src/app/utils/utils-resources';
+import { getOSCode, hasRole } from 'src/app/utils/utils';
+import { PERMISSIONS } from 'src/app/utils/permissions.constants';
+import { ProjectUser } from 'src/chat21-core/models/projectUsers';
+import { ProjectUsersService } from 'src/app/services/project_users/project-users.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -30,7 +34,7 @@ export class SidebarComponent implements OnInit {
   IS_AVAILABLE: boolean = false;
   IS_INACTIVE: boolean = true;
   IS_BUSY: boolean; 
-  isVisibleAPP: boolean;
+  // isVisibleAPP: boolean;
   isVisibleANA: boolean;
   isVisibleACT: boolean;
   isVisibleMON: boolean;
@@ -40,9 +44,10 @@ export class SidebarComponent implements OnInit {
   project_id: string;
   DASHBOARD_URL: string;
   // HAS_CLICKED_OPEN_USER_DETAIL: boolean = false
-  public translationMap: Map<string, string>;
+  public translationsMap: Map<string, string>;
   public_Key: any;
   conversations_lbl: string;
+  whatsappbroadcast_lbl: string;
   contacts_lbl: string;
   apps_lbl: string;
   analytics_lbl: string;
@@ -52,19 +57,14 @@ export class SidebarComponent implements OnInit {
   countClickOnOpenUserDetailSidebar: number = 0
   USER_PHOTO_PROFILE_EXIST: boolean;
   currentUser: any;
-  dashboard_home_url: string;
-  dashboard_knb_url: string;
-  dashboard_bots_url: string;
-  dashboard_convs_url: string;
-  dashboard_contacts_url: string;
-  dashboard_app_url: string;
-  dashboard_analytics_url: string;
-  dashboard_activities_url: string;
-  dashboard_history_url: string;
-  dashboard_settings_url: string;
-  tiledesk_url: string;
+  URLS: { [key: string]: string} = {};
+
+  public projectUser: ProjectUser;
+  public roles: { [key: string]: boolean }
+
   LOGOS_ITEMS = LOGOS_ITEMS;
   BRAND_BASE_INFO = BRAND_BASE_INFO;
+  PERMISSIONS = PERMISSIONS;
   constructor(
     public imageRepoService: ImageRepoService,
     public appStorageService: AppStorageService,
@@ -74,12 +74,13 @@ export class SidebarComponent implements OnInit {
     public wsService: WebsocketService,
     public appConfigProvider: AppConfigProvider,
     private translate: TranslateService,
+    public projectUsersService: ProjectUsersService,
     public events: EventsService,
 
   ) { }
 
   ngOnInit() {
-    this.tiledesk_url = BRAND_BASE_INFO['COMPANY_SITE_URL'] as string
+    this.URLS.TILEDESK = BRAND_BASE_INFO['COMPANY_SITE_URL'] as string
     
     this.DASHBOARD_URL = this.appConfig.getConfig().dashboardUrl + '#/project/';
     this.getStoredProjectAndUserRole()
@@ -91,33 +92,36 @@ export class SidebarComponent implements OnInit {
 
 
   getStoredProjectAndUserRole() {
-    this.events.subscribe('storage:last_project',project =>{
+    this.events.subscribe('storage:last_project',async (project) =>{
       this.logger.log('[SIDEBAR] stored_project ', project)
       if (project && project !== 'undefined') {
         this.project_id = project.id_project.id
         this.USER_ROLE = project.role;
         this.buildURLs(this.USER_ROLE)
+        this.projectUser = await this.projectUsersService.getProjectUserByProjectId(project.id_project.id)
+        this.roles = this.checkRoles()
+        this.logger.log('[SIDEBAR] roles ', this.roles)
       }
     })
   }
 
   buildURLs(USER_ROLE) {
-    this.dashboard_home_url = this.DASHBOARD_URL + this.project_id + '/home'
-    this.dashboard_knb_url = this.DASHBOARD_URL + this.project_id + '/knowledge-bases'
-    this.dashboard_bots_url = this.DASHBOARD_URL + this.project_id + '/bots'
-    this.dashboard_convs_url = this.DASHBOARD_URL + this.project_id + '/wsrequests'
-    this.dashboard_contacts_url = this.DASHBOARD_URL + this.project_id + '/contacts'
-    this.dashboard_app_url = this.DASHBOARD_URL + this.project_id + '/app-store'
-    this.dashboard_analytics_url = this.DASHBOARD_URL + this.project_id + '/analytics'
-    this.dashboard_activities_url = this.DASHBOARD_URL + this.project_id + '/activities'
-    this.dashboard_history_url = this.DASHBOARD_URL + this.project_id + '/history'
-    this.dashboard_settings_url = ''
-    if (USER_ROLE !== 'agent') {
-      this.dashboard_settings_url = this.DASHBOARD_URL + this.project_id + '/widget-set-up'
-    } else if (USER_ROLE === 'agent') {
-      this.dashboard_settings_url = this.DASHBOARD_URL + this.project_id + '/cannedresponses'
-    }
-    this.tiledesk_url = 'https://www.tiledesk.com'
+    const base = this.DASHBOARD_URL + this.project_id;
+
+    this.URLS = {
+      HOME: `${base}/home`,
+      KNOWLEDGEBASE: `${base}/knowledge-bases`,
+      BOTS: `${base}/bots`,
+      MONITOR: `${base}/wsrequests`,
+      WHATSAPP: `${base}/automations`,
+      CONTACTS: `${base}/contacts`,
+      APPSTORE: `${base}/app-store`,
+      ANALYTICS: `${base}/analytics`,
+      ACTIVITIES: `${base}/activities`,
+      HISTORY: `${base}/history`,
+      SETTINGS: USER_ROLE !== 'agent' ? `${base}/widget-set-up` : `${base}/cannedresponses`,
+      TILEDESK: 'https://www.tiledesk.com'
+    };
 
   }
 
@@ -239,6 +243,7 @@ export class SidebarComponent implements OnInit {
       this.logger.error('[SIDEBAR] - ngOnInit - currentUser not found in storage ')
     }
     this.translateLabels()
+    this.translations()
   }
 
 
@@ -255,6 +260,7 @@ export class SidebarComponent implements OnInit {
 
     this.translate.get(keys).subscribe((text: string) => {
       this.conversations_lbl = text['Conversations'];
+      this.whatsappbroadcast_lbl = text['WhatsAppBroadcasts']
       this.contacts_lbl = text['LABEL_CONTACTS']
       this.apps_lbl = text['Apps']
       this.analytics_lbl = text['Analytics']
@@ -267,104 +273,57 @@ export class SidebarComponent implements OnInit {
 
   getOSCODE() {
     this.public_Key = this.appConfigProvider.getConfig().t2y12PruGU9wUtEGzBJfolMIgK;
-    this.logger.log('[SIDEBAR] AppConfigService getAppConfig public_Key', this.public_Key);
-
-    if (this.public_Key) {
-      let keys = this.public_Key.split("-");
-      this.logger.log('[SIDEBAR] PUBLIC-KEY - public_Key keys', keys)
-
-      keys.forEach(key => {
-
-        if (key.includes("ANA")) {
-
-          let ana = key.split(":");
-
-          if (ana[1] === "F") {
-            this.isVisibleANA = false;
-          } else {
-            this.isVisibleANA = true;
-          }
-        }
-
-        if (key.includes("ACT")) {
-          let act = key.split(":");
-          if (act[1] === "F") {
-            this.isVisibleACT = false;
-          } else {
-            this.isVisibleACT = true;
-          }
-        }
-
-        if (key.includes("APP")) {
-          let lbs = key.split(":");
-          if (lbs[1] === "F") {
-            this.isVisibleAPP = false;
-          } else {
-            this.isVisibleAPP = true;
-          }
-        }
-
-        if (key.includes("MON")) {
-          let lbs = key.split(":");
-          if (lbs[1] === "F") {
-            this.isVisibleMON = false;
-          } else {
-            this.isVisibleMON = true;
-          }
-        }
-
-        if (key.includes("CNT")) {
-          let lbs = key.split(":");
-          if (lbs[1] === "F") {
-            this.isVisibleCNT = false;
-          } else {
-            this.isVisibleCNT = true;
-          }
-        }
-
-        if (key.includes("KNB")) {
-          let lbs = key.split(":");
-          if (lbs[1] === "F") {
-            this.isVisibleKNB = false;
-          } else {
-            this.isVisibleKNB = true;
-          }
-        }
-        
-      });
-
-
-      if (!this.public_Key.includes("ANA")) {
-        this.isVisibleANA = false;
-      }
-      if (!this.public_Key.includes("ACT")) {
-        this.isVisibleACT = false;
-      }
-      if (!this.public_Key.includes("APP")) {
-        this.isVisibleAPP = false;
-      }
-      if (!this.public_Key.includes("MON")) {
-        this.isVisibleMON = false;
-      }
-      if (!this.public_Key.includes("CNT")) {
-        this.isVisibleCNT = false;
-      }
-
-      if (!this.public_Key.includes("KNB")) {
-        this.isVisibleKNB = false;
-      }
-
-    } else {
-      this.isVisibleANA = false;
-      this.isVisibleACT = false;
-      this.isVisibleAPP = false;
-      this.isVisibleMON = false;
-      this.isVisibleCNT = false;
-      this.isVisibleKNB = false;
-    }
-
+    
+    this.isVisibleANA = getOSCode("ANA", this.public_Key);
+    this.isVisibleACT = getOSCode("ACT", this.public_Key);
+    this.isVisibleMON = getOSCode("MON", this.public_Key);
+    this.isVisibleCNT = getOSCode("CNT", this.public_Key);
+    this.isVisibleKNB = getOSCode("KNB", this.public_Key);
 
   }
+
+
+  checkRoles(): { [key: string]: boolean } {
+      const permissionKeys = [
+        'HOME_READ',
+        'KB_READ',
+        'FLOWS_READ',
+        'INBOX_READ',
+        'AUTOMATIONSLOG_READ',
+        'LEADS_READ',
+        'ANALYTICS_READ',
+        'ACTIVITIES_READ',
+        'HISTORY_READ',
+        'PROJECTSETTINGS_GENERAL_READ',
+        'PROJECTSETTINGS_DEVELOPER_READ',
+        'PROJECTSETTINGS_SMARTASSIGNMENT_READ',
+        'PROJECTSETTINGS_NOTIFICATION_READ',
+        'PROJECTSETTINGS_SECURITY_READ',
+        'PROJECTSETTINGS_BANNED_READ',
+        'PROJECTSETTINGS_ADVANCED_READ'
+      ] as const;
+  
+      const roles: { [key: string]: boolean } = {};
+      for (const key of permissionKeys) {
+        const permission = PERMISSIONS[key];
+        roles[permission] = hasRole(this.projectUser, permission);
+      }
+
+
+      let settingRoleKEys = [
+        'PROJECTSETTINGS_GENERAL_READ',
+        'PROJECTSETTINGS_DEVELOPER_READ',
+        'PROJECTSETTINGS_SMARTASSIGNMENT_READ',
+        'PROJECTSETTINGS_NOTIFICATION_READ',
+        'PROJECTSETTINGS_SECURITY_READ',
+        'PROJECTSETTINGS_BANNED_READ',
+        'PROJECTSETTINGS_ADVANCED_READ'
+      ] as const;
+      roles[PERMISSIONS.SETTINGS_READ] = settingRoleKEys.some(settingKey => roles[PERMISSIONS[settingKey]]);
+  
+      return roles;
+  
+    }
 
   listenTocurrentProjectUserUserAvailability$() {
     this.wsService.currentProjectUserAvailability$.subscribe((data) => {
@@ -415,92 +374,20 @@ export class SidebarComponent implements OnInit {
     }
   }
 
-  goToHome() {
-    let url = this.DASHBOARD_URL + this.project_id + '/home'
-    this.dashboard_home_url = url;
-    const myWindow = window.open(url, '_self');
-    myWindow.focus();
-  }
-
-  goToBots() {
-    let url = this.DASHBOARD_URL + this.project_id + '/bots/my-chatbots/all'
-    const myWindow = window.open(url, '_self');
-    myWindow.focus();
-  }
-
-  goToConversations() {
-    let url = this.DASHBOARD_URL + this.project_id + '/wsrequests'
-    const myWindow = window.open(url, '_self');
-    myWindow.focus();
-  }
-
-  goToContacts() {
-    let url = this.DASHBOARD_URL + this.project_id + '/contacts'
-    const myWindow = window.open(url, '_self');
-    myWindow.focus();
-  }
-
-  goToAppStore() {
-    let url = this.DASHBOARD_URL + this.project_id + '/app-store'
-    const myWindow = window.open(url, '_self');
-    myWindow.focus();
-  }
-
-  goToAnalytics() {
-    let url = this.DASHBOARD_URL + this.project_id + '/analytics'
-    const myWindow = window.open(url, '_self');
-    myWindow.focus();
-  }
-
-  goToActivities() {
-    let url = this.DASHBOARD_URL + this.project_id + '/activities'
-    const myWindow = window.open(url, '_self');
-    myWindow.focus();
-  }
-
-  goToHistory() {
-    let url = this.DASHBOARD_URL + this.project_id + '/history'
-    const myWindow = window.open(url, '_self');
-    myWindow.focus();
-  }
-
-  goToWidgetSetUpOrToCannedResponses() {
-    if (this.USER_ROLE !== 'agent') {
-      this.goToWidgetSetUp()
-    } else if (this.USER_ROLE === 'agent') {
-      this.goToSettings_CannedResponses()
-    }
-  }
-
-  goToWidgetSetUp() {
-    let url = this.DASHBOARD_URL + this.project_id + '/widget-set-up'
-    const myWindow = window.open(url, '_self');
-    myWindow.focus();
-  }
-
-  goToSettings_CannedResponses() {
-    let url = this.DASHBOARD_URL + this.project_id + '/cannedresponses'
-    const myWindow = window.open(url, '_self');
-    myWindow.focus();
-  }
-
-
-
   public translations() {
     const keys = [
-      'LABEL_AVAILABLE',
-      'LABEL_NOT_AVAILABLE',
-      'LABEL_BUSY',
-      'VIEW_ALL_CONVERSATIONS',
-      'CONVERSATIONS_IN_QUEUE',
-      'CONVERSATION_IN_QUEUE',
-      'NO_CONVERSATION_IN_QUEUE',
-      'PINNED_PROJECT',
-      'CHANGE_PINNED_PROJECT',
-      "CHANGE_TO_YOUR_STATUS_TO_AVAILABLE",
-      "CHANGE_TO_YOUR_STATUS_TO_UNAVAILABLE"
+      'Monitor',
+      'Flows',
+      'Knowledgebases',
+      'WhatsAppBroadcasts',
+      'LABEL_CONTACTS',
+      'Apps',
+      'Analytics',
+      'Activities',
+      'History',
+      'Settings'
     ];
-    this.translationMap = this.translateService.translateLanguage(keys);
+    this.translationsMap = this.translateService.translateLanguage(keys);
   }
 
 

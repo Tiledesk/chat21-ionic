@@ -80,7 +80,7 @@
       <div class="buttons-left">
 
         <!-- CANNED RESPONSES -->
-        <ng-container *ngIf="areVisibleCAR && supportMode">
+        <ng-container *ngIf="areVisibleCAR && supportMode && cannedSection">
           <div class="canned-responses-btn-wpr" tooltip="{{translationMap?.get('CANNED_RESPONSES')}}" placement="top">
             <ion-button ion-button fill="clear" class="canned-responses-btn" (click)="openCannedResponses()"
               [disabled]="!conversationWith?.startsWith(CHANNEL_TYPE.SUPPORT_GROUP) || disableTextarea">

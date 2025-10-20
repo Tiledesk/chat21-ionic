@@ -59,10 +59,12 @@ body {
     --textarea-color: #06132b;
     // ***** Conversation-detail: end ***** //
 
-     // ***** Conversation-detail: HEADER: start ***** //
-     --copilot-background: #dce9ff;
-     --copilot-color: var(--basic-blue);
-     // ***** Conversation-detail: HEADER: end ***** //
+    // ***** Conversation-detail: HEADER: start ***** //
+    --copilot-background: #ffffff00;
+    --copilot-color: var(--basic-blue);
+    --copilot-hover-background: var(--basic-blue);
+    --copilot-hover-color: #f8fafc;
+    // ***** Conversation-detail: HEADER: end ***** //
 
     // ***** Conversation-detail PRIVATE-MSG: start ***** //
     --bubble-lightyellow: rgb(255, 247, 237);

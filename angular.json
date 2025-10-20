@@ -26,6 +26,7 @@
               "src/chat-config-mqtt-localhost.json",
               "src/chat-config-native-mqtt.json",
               "src/chat-config-native-prod.json",
+              "src/chat-config-native-stage.json",
               "src/firebase-messaging-sw.js",
               "src/manifest.json",
               "src/chat-config-template.json",

@@ -155,6 +155,7 @@ ion-header {
             text-transform: unset;
             padding: var(--button-padding);
             border-radius: var(--button-border-radius);
+            border: 1px solid var(--copilot-color);
             font-size: 11px;
             
             ion-icon{
@@ -164,6 +165,10 @@ ion-header {
 
             &#copilot {  
                 &:hover{
+                    background: var(--copilot-hover-background);
+                    --background-hover: var(--copilot-hover-background);
+                    --color: var(--copilot-hover-color);
+
                     ion-icon {
                         transition: transform 1s ease-in-out;   
                         transform: rotate(180deg);

@@ -187,6 +187,10 @@ ion-item:hover {
     ion-buttons {
         ion-button {
             display: block;
+
+            &.hide {
+                display: none;
+            }
         }
     }
 }
