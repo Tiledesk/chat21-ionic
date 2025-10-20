@@ -8,6 +8,9 @@
 ### **Copyrigth**: 
 *Tiledesk SRL*
 
+# 3.4.27-rc8
+- **added**: ability to open ticket to external service
+- **added**: ticketSection env var
 
 # 3.4.27-rc7
 - **bug-fixed**: Scrolling to the last message when opening a conversation
