@@ -169,6 +169,10 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
   copilotQuestion: string = '';
   /**COPILOT : end */
 
+  /** TICKET: start */
+  isTicketEnabled: boolean = false;
+  /** TICKET: end */
+
   isMine = isMine
   isInfo = isInfo
   isFirstMessage = isFirstMessage
@@ -500,6 +504,7 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
     this.messages = [] // list messages of conversation
     this.isFileSelected = false // indicates if a file has been selected (image to upload)
     this.isEmailEnabled = (this.appConfigProvider.getConfig().emailSection === 'true' || this.appConfigProvider.getConfig().emailSection === true) ? true : false;
+    this.isTicketEnabled = (this.appConfigProvider.getConfig().ticketSection === 'true' || this.appConfigProvider.getConfig().ticketSection === true) ? true : false;
     this.isWhatsappTemplatesEnabled = (this.appConfigProvider.getConfig().whatsappTemplatesSection === 'true' || this.appConfigProvider.getConfig().whatsappTemplatesSection === true) ? true : false;
 
     this.cannedResponsesService.initialize(appconfig.apiUrl)
@@ -681,6 +686,11 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
       "WHATSAPP.SELECT_MESSAGE_TEMPLATE",
       "WHATSAPP.ERROR_WHATSAPP_NOT_INSTALLED",
       "WHATSAPP.ERROR_WHATSAPP_GENERIC_ERROR",
+
+      "TICKET.OPEN_TICKET",
+      "TICKET.DESCRIPTION",
+      "TICKET.CONFIRM",
+      "TICKET.CLOSE",
 
       "COPILOT.ASK_AI",
       "COPILOT.NO_SUGGESTIONS_PRESENT",
@@ -1897,6 +1907,13 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
   }
 
 
+  onOpenTicket() {
+    this.logger.debug('[CONVS-DETAIL] openTicketOnExternalService - conversationWith ', this.conversationWith)
+    if(window['openTicketOnHDA']){
+      window['openTicketOnHDA'](this.conversationWith)
+    }
+
+  }
   // -------------- START SCROLL/RESIZE  -------------- //
   /** */
   resizeTextArea() {
