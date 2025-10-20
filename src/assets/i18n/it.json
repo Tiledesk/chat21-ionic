@@ -312,7 +312,13 @@
         "NO_SUGGESTIONS_PRESENT":"Nessun suggerimento trovato",
         "INSERT_PROMPT_HERE":"Inserisci un prompt qui",
         "HOW_CAN_I_HELP_YOU":"Come posso aiutarti?"
-  },
-  "EMOJI_NOT_ELLOWED": "Emoji non consentite",
-  "DOMAIN_NOT_ALLOWED": "L'URL contiene un dominio non consentito"
+    },
+    "EMOJI_NOT_ELLOWED": "Emoji non consentite",
+    "DOMAIN_NOT_ALLOWED": "L'URL contiene un dominio non consentito",
+    "TICKET": {
+        "OPEN_TICKET": "Apri Ticket",
+        "DESCRIPTION": "Confermi di voler aprire un ticket per questa conversazione?",
+        "CONFIRM": "Conferma",
+        "CLOSE": "Chiudi"
+    }
 }

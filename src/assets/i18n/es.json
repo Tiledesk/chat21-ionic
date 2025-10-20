@@ -306,5 +306,11 @@
     "SEND_EMAIL_SUCCESS_OFFLINE_MESSAGE":"Mensaje también enviado por correo electrónico 📩"
   },
   "EMOJI_NOT_ELLOWED": "Emoji no permitido",
-  "DOMAIN_NOT_ALLOWED": "La URL contiene un dominio no permitido"
+  "DOMAIN_NOT_ALLOWED": "La URL contiene un dominio no permitido",
+  "TICKET": {
+    "OPEN_TICKET": "Abrir Ticket",
+    "DESCRIPTION": "¿Confirmas que deseas abrir un ticket para esta conversación?",
+    "CONFIRM": "Confirmar",
+    "CLOSE": "Cerrar"
+  }
 }

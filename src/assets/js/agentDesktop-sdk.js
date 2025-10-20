@@ -32,4 +32,16 @@
   }
 }
 
+
+function openTicketOnHDA(requestId){
+  console.log('openTicketOnHDA called with requestId:', requestId);
+  if(window && window.parent){
+    const message = { companyID: "1", sourceID: "CHAT", tiledeskID: requestId }
+    window.parent.postMessage(message, 'https://devhda2bo.aruba.it/HDAPortal/');
+    window.postMessage(message, 'https://devhda2bo.aruba.it/HDAPortal/');
+    console.log('Message posted to parent window and current window');
+  }
+
+}
+
 loadAgentDesktopScript();

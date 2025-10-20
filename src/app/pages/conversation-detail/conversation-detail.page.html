@@ -215,6 +215,7 @@
               [offlineMsgEmail]="offlineMsgEmail"
               [whatsappTemplatesSection]="isWhatsappTemplatesEnabled"
               [isOpenInfoConversation]="openInfoConversation" 
+              [ticketSection]="isTicketEnabled"
               [stylesMap]="styleMap"
               [translationMap]="translationsMap"
               [dropEvent]="dropEvent"
@@ -223,7 +224,8 @@
               (onClickOpenCannedResponses)="onClickOpenCannedResponses($event)"
               (eventSendMessage)="returnSendMessage($event)" 
               (onPresentModalScrollToBottom)="onPresentModalScrollToBottom($event)"
-              (onOpenFooterSection)="onOpenFooterSection($event)">
+              (onOpenFooterSection)="onOpenFooterSection($event)"
+              (onOpenTicket)="onOpenTicket($event)">
             </app-message-text-area>
             <!-- [events]="eventsReplaceTexareaText.asObservable()" -->
           </ion-row>
