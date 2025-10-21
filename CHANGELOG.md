@@ -8,6 +8,9 @@
 ### **Copyrigth**: 
 *Tiledesk SRL*
 
+# 3.4.27-rc10
+- **added**: ability to manage header-conversation-list with roles
+- **bug-fixed**: members in group list not loaded
 
 # 3.4.27-rc9
 - **bug-fixed**: Scrolling to the last message when opening a conversation
