@@ -1,3 +1,4 @@
+import { PERMISSIONS } from 'src/app/utils/permissions.constants';
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core'
 import { ModalController } from '@ionic/angular'
 import { EventsService } from 'src/app/services/events-service'
@@ -17,6 +18,8 @@ export class HeaderConversationsList implements OnInit {
   @Input() sound_btn: string;
   @Input() isMobile: boolean;
   @Input() isVisibleTKT: boolean = true;
+  @Input() isVisibleCNT: boolean = true;;
+  @Input() roles: Array<string>;
   @Output() onSoundChange = new EventEmitter<string>()
   @Output() openContactsDirectory = new EventEmitter()
   @Output() openProfileInfo = new EventEmitter()
@@ -24,6 +27,7 @@ export class HeaderConversationsList implements OnInit {
   createTicketModal = null
   public translationMap: Map<string, string>;
 
+  PERMISSIONS = PERMISSIONS;
   constructor(
     public events: EventsService,
     public modalController: ModalController,
@@ -62,7 +66,7 @@ export class HeaderConversationsList implements OnInit {
   // }
 
   ngOnInit() {
-    // console.log('DDP HEADER SUPPORT MODE ', this.supportMode)
+    console.log('DDP HEADER SUPPORT MODE ', this.roles)
   }
 
   // START @Output() //
