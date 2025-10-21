@@ -53,7 +53,10 @@ import { Globals } from 'src/app/utils/globals';
 import { TriggerEvents } from 'src/app/services/triggerEvents/triggerEvents';
 import { MessageModel } from 'src/chat21-core/models/message';
 import { Project } from 'src/chat21-core/models/projects';
-import { getOSCode } from 'src/app/utils/utils';
+import { getOSCode, hasRole } from 'src/app/utils/utils';
+import { PERMISSIONS } from 'src/app/utils/permissions.constants';
+import { ProjectUser } from 'src/chat21-core/models/projectUsers';
+import { ProjectUsersService } from 'src/app/services/project_users/project-users.service';
 
 @Component({
   selector: 'app-conversations-list',
@@ -82,6 +85,7 @@ export class ConversationListPage implements OnInit {
   public archived_btn: boolean
   public sound_btn: string
   public isVisibleTKT: boolean = true;
+  public isVisibleCNT: boolean = true;;
   public convertMessage = convertMessage
   private isShowMenuPage = false
   private logger: LoggerService = LoggerInstance.getInstance()
@@ -103,6 +107,9 @@ export class ConversationListPage implements OnInit {
 
   public isMobile: boolean = false;
   public isInitialized: boolean = false;
+
+  public projectUser: ProjectUser;
+  public rolesHeader: { [key: string]: boolean }
 
   // PROJECT AVAILABILITY INFO: start
   project: Project
@@ -130,6 +137,7 @@ export class ConversationListPage implements OnInit {
     private translateService: CustomTranslateService,
     public tiledeskService: TiledeskService,
     public tiledeskAuthService: TiledeskAuthService,
+    public projectUsersService: ProjectUsersService,
     public appConfigProvider: AppConfigProvider,
     public platform: Platform,
     public wsService: WebsocketService,
@@ -476,9 +484,9 @@ export class ConversationListPage implements OnInit {
   }
 
   listenToCurrentStoredProject() {
-    this.events.subscribe('storage:last_project', projectObjct => {
+    this.events.subscribe('storage:last_project', async(projectObjct) => {
       if (projectObjct && projectObjct !== 'undefined') {
-        // console.log('[CONVS-LIST-PAGE] - GET STORED PROJECT ', projectObjct)
+        console.log('[CONVS-LIST-PAGE] - GET STORED PROJECT ', projectObjct)
 
         //TODO: recuperare info da root e non da id_project
         this.project = {
@@ -501,6 +509,10 @@ export class ConversationListPage implements OnInit {
         } else if (this.project.profile.type === 'payment' && this.project.profile.name === 'enterprise') {
           this.profile_name_translated = this.translationMapHeader.get('PaydPlanNameEnterprise');
         }
+
+        this.projectUser = await this.projectUsersService.getProjectUserByProjectId(this.project._id)
+        this.rolesHeader = this.checkCannedResponsesRoles();
+        this.logger.log('[CONVS-LIST-PAGE] - GET PROJECT USER ROLES ', this.rolesHeader)
       }
     })
   }
@@ -636,7 +648,23 @@ export class ConversationListPage implements OnInit {
     const public_Key = this.appConfigProvider.getConfig().t2y12PruGU9wUtEGzBJfolMIgK
     this.logger.log('[CONVS-LIST-PAGE] AppConfigService getAppConfig public_Key', public_Key)
     this.isVisibleTKT = getOSCode("TKT", public_Key);
+    this.isVisibleCNT = getOSCode("CNT", public_Key);
   }
+
+  checkCannedResponsesRoles(): { [key: string]: boolean } {
+      const permissionKeys = [
+        'LEADS_READ',
+      ] as const;
+  
+      const roles: { [key: string]: boolean } = {};
+      for (const key of permissionKeys) {
+        const permission = PERMISSIONS[key];
+        roles[permission] = hasRole(this.projectUser, permission);
+      }
+  
+      return roles;
+  
+    }
 
   onBackButtonFN(event) {
     this.conversationType = 'active'

@@ -561,7 +561,7 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
         this.offlineMsgEmail = this.checkOfflineMsgEmailIsEnabled(project)
         this.isCopilotEnabled = this.projectPlanUtils.checkProjectProfileFeature(project, 'copilot');
         this.fileUploadAccept = this.checkAcceptedUploadFile(project)
-        this.rolesCanned = this.checkCannedResponsesRoles(project)
+        this.rolesCanned = this.checkCannedResponsesRoles()
         this.canShowCanned = this.checkCannedResponses(project)
         this.logger.log('[CONVS-DETAIL] this.rolesCanned ', this.canShowCanned)
       }
@@ -617,7 +617,7 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
     return true
   }
 
-  checkCannedResponsesRoles(project: Project): { [key: string]: boolean } {
+  checkCannedResponsesRoles(): { [key: string]: boolean } {
     const permissionKeys = [
       'CANNED_RESPONSES_CREATE',
       'CANNED_RESPONSES_READ',

@@ -8,6 +8,14 @@
 ### **Copyrigth**: 
 *Tiledesk SRL*
 
+# 3.4.27-rc10
+- **added**: ability to manage header-conversation-list with roles
+- **bug-fixed**: members in group list not loaded
+
+# 3.4.27-rc9
+- **bug-fixed**: Scrolling to the last message when opening a conversation
+- **bug-fixed**: Loading in the conversation list disabled when removing the last conversation
+
 # 3.4.27-rc8
 - **added**: ability to open ticket to external service
 - **added**: ticketSection env var
