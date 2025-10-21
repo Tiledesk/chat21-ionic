@@ -16,7 +16,7 @@
     (onOpenNewChat) = openNewChat($event)>
   </component-contacts-directory>
 
-  <div class="loader" *ngIf="contacts.length === 0">
+  <div class="loader" *ngIf="isLoading">
     <div class="box">
       <div class="spinner" [ngStyle]="{'border-top-color': stylesMap?.get('themeColor')}"></div>
       <div class="label">{{'LABEL_LOADING' | translate}}</div>

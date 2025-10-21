@@ -24,6 +24,7 @@ export class ContactsDirectoryPage implements OnInit {
   // @Input() user: string;
 
   public contacts: Array<UserModel>;
+  public isLoading: boolean = true;
   private logger: LoggerService = LoggerInstance.getInstance();
 
   constructor(
@@ -43,6 +44,7 @@ export class ContactsDirectoryPage implements OnInit {
   initialize() {
     this.logger.log('[CONTACT-DIRECTORY-PAGE] - initialize');
     this.contacts = [];
+    this.isLoading = true;
     this.initSubscriptions();
     this.contactsService.loadContactsFromUrl();
   }
@@ -58,6 +60,7 @@ export class ContactsDirectoryPage implements OnInit {
       if (contacts) {
         that.contacts = contacts;
       }
+      this.isLoading = false;
     });
   }
 
@@ -79,6 +82,7 @@ export class ContactsDirectoryPage implements OnInit {
       user.fullname = fullname;
       this.contacts.push(user);
     });
+    this.isLoading = false;
   }
 
   /** */
