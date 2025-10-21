@@ -8,6 +8,10 @@
 ### **Copyrigth**: 
 *Tiledesk SRL*
 
+
+# 3.4.27-rc11
+- **bug-fixed**: fixed infinite loading in contact list
+
 # 3.4.27-rc10
 - **added**: ability to manage header-conversation-list with roles
 - **bug-fixed**: members in group list not loaded
