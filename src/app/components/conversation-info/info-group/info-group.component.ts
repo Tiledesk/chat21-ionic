@@ -151,27 +151,29 @@ export class InfoGroupComponent implements OnInit, AfterViewInit, OnChanges {
             });
 
           this.contactsService.loadContactDetail(key).pipe(takeUntil(this.unsubscribe$)).subscribe(user => {
-              this.logger.log('InfoGroupComponent group detail loadContactDetail RES', user);
-              // this.logger.log('InfoGroupComponent group detail this.presenceService.BSIsOnline.value()', this.presenceService.BSIsOnline.getValue);
+              if(user){
+                this.logger.log('InfoGroupComponent group detail loadContactDetail RES', user);
+                // this.logger.log('InfoGroupComponent group detail this.presenceService.BSIsOnline.value()', this.presenceService.BSIsOnline.getValue);
 
-              user.imageurl = this.imageRepoService.getImagePhotoUrl(key)
-              // this.member_array.push({ userid: user.uid, avatar: user.avatar, color: user.color, email: user.email, fullname: user.fullname, imageurl: user.imageurl, userOnline: isOnline })
-              var index = this.member_array.findIndex(m => m.userid === user.uid);
-              this.logger.log('InfoGroupComponent member_array first of push index', index);
-              this.logger.log('InfoGroupComponent member_array first of push', this.member_array);
-              if (index === -1) {
-                this.member_array.push(
-                  {
-                    userid: user.uid,
-                    avatar: user.avatar,
-                    color: user.color,
-                    email: user.email,
-                    fullname: user.fullname,
-                    imageurl: user.imageurl,
-                    userOnline: members_isonline_array[user.uid]['isSignin']
-                  })
-              } else {
-                this.logger.log('InfoGroupComponent member already exist in member_array');
+                user.imageurl = this.imageRepoService.getImagePhotoUrl(key)
+                // this.member_array.push({ userid: user.uid, avatar: user.avatar, color: user.color, email: user.email, fullname: user.fullname, imageurl: user.imageurl, userOnline: isOnline })
+                var index = this.member_array.findIndex(m => m.userid === user.uid);
+                this.logger.log('InfoGroupComponent member_array first of push index', index);
+                this.logger.log('InfoGroupComponent member_array first of push', this.member_array);
+                if (index === -1) {
+                  this.member_array.push(
+                    {
+                      userid: user.uid,
+                      avatar: user.avatar,
+                      color: user.color,
+                      email: user.email,
+                      fullname: user.fullname,
+                      imageurl: user.imageurl,
+                      userOnline: members_isonline_array[user.uid]['isSignin']
+                    })
+                } else {
+                  this.logger.log('InfoGroupComponent member already exist in member_array');
+                }
               }
             }, (error) => {
               this.logger.error('InfoGroupComponent group detail loadContactDetail - ERROR  ', error);
