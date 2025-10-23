@@ -25,6 +25,7 @@ export class SidebarUserDetailsComponent implements OnInit, OnChanges {
   // HAS_CLICKED_OPEN_USER_DETAIL: boolean = false;
   // @Output() onCloseUserDetailsSidebar = new EventEmitter();
 
+  @Input() logOut: boolean;
 
   public browserLang: string;
   private logger: LoggerService = LoggerInstance.getInstance()

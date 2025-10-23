@@ -765,6 +765,12 @@ export function isOnMobileDevice() {
   return IS_ON_MOBILE_DEVICE;
 }
 
+
+export function checkIfIsInIframe(){
+  const isInIframe = window.self !== window.top;
+  return isInIframe;
+}
+
 export function checkWindowWidthIsLessThan991px() {
   // console.log('UTILS - checkWindowWidthIsLessThan991px:: ', window.innerWidth);
   if (window.innerWidth < 991) {

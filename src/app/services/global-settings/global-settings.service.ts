@@ -95,7 +95,7 @@ export class GlobalSettingsService {
             globals[key] = stringToBoolean(val);
         }
         // this.logger.debug('[GLOBAL-SET] setVariableFromStorage SET globals == ---------->', globals);
-    } 
+    }
   }
 
   /**
@@ -138,6 +138,12 @@ export class GlobalSettingsService {
     TEMP = getParameterByName(windowContext, 'tiledesk_projectID');
     if (TEMP) {
         globals.projectID = TEMP;
+    }
+
+    TEMP = getParameterByName(windowContext, 'tiledesk_logOut');
+    if (TEMP) {
+        globals.logOut = stringToBoolean(TEMP);
+        this.appStorageService.setItem('logOut', TEMP)
     }
 
 }

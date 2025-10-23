@@ -44,6 +44,8 @@ import { conversationToMessage } from 'src/chat21-core/utils/utils-message';
 import { ProjectService } from './services/projects/project.service';
 import { ContactsService } from './services/contacts/contacts.service';
 import { TiledeskService } from './services/tiledesk/tiledesk.service';
+import { Project } from 'src/chat21-core/models/projects';
+import { BRAND_BASE_INFO } from './utils/utils-resources';
 
 @Component({
   selector: 'app-root',
@@ -296,6 +298,10 @@ export class AppComponent implements OnInit {
         this.zone = new NgZone({}); // a cosa serve?
 
         this.SUPPORT_MODE = this.g.supportMode
+        this.logger.info('[APP-COMP] this.SUPPORT_MODE', this.SUPPORT_MODE)
+
+        BRAND_BASE_INFO['LOGOUT_ENABLED'] = this.g.logOut
+        this.logger.info('[APP-COMP] this.logOut', BRAND_BASE_INFO['LOGOUT_ENABLED'])
       }
 
     });
