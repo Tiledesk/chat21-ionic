@@ -243,9 +243,9 @@ export class SidebarUserDetailsComponent implements OnInit, OnChanges {
                           .set('SubscriptionPaymentProblem', text['SubscriptionPaymentProblem'])
                           .set('ThePlanHasExpired', text['ThePlanHasExpired'])
 
-      this.teammateStatus.forEach(element => {
-        element.label = this.translationsMap.get(element.label)
-      });
+      // this.teammateStatus.forEach(element => {
+      //   element.label = this.translationsMap.get(element.label)
+      // });
       
     });
   }
@@ -262,7 +262,7 @@ export class SidebarUserDetailsComponent implements OnInit, OnChanges {
   listenToCurrentStoredProject() {
     this.events.subscribe('storage:last_project', projectObjct => {
       if (projectObjct && projectObjct !== 'undefined') {
-        // this.logger.log('[SIDEBAR-USER-DETAILS] - GET STORED PROJECT ', projectObjct)
+        this.logger.log('[SIDEBAR-USER-DETAILS] - GET STORED PROJECT ', projectObjct)
 
         //TODO: recuperare info da root e non da id_project
         this.project = {
@@ -285,6 +285,8 @@ export class SidebarUserDetailsComponent implements OnInit, OnChanges {
         } else if (this.project.profile.type === 'payment' && this.project.profile.name === 'enterprise') {
           this.getEnterprisePlanTranslation();
         }
+
+        this.wsService.subscriptionToWsCurrentProjectUserAvailability(this.project._id, projectObjct._id);
       }
     })
 
@@ -330,14 +332,14 @@ export class SidebarUserDetailsComponent implements OnInit, OnChanges {
             // this.logger.log('teammateStatus ', this.teammateStatus) 
             this.selectedStatus = this.teammateStatus[2].id;
             this.logger.debug('[SIDEBAR-USER-DETAILS] - PROFILE_STATUS selected option', this.teammateStatus[2].name);
-            this.teammateStatus = this.teammateStatus.slice(0)
+            // this.teammateStatus = this.teammateStatus.slice(0)
           } else if (projectUser['user_available'] === false && (projectUser['profileStatus'] === '' || !projectUser['profileStatus'])) {
             this.selectedStatus = this.teammateStatus[1].id;
             this.logger.debug('[SIDEBAR-USER-DETAILS] - PROFILE_STATUS selected option', this.teammateStatus[1].name);
-            this.teammateStatus = this.teammateStatus.slice(0)
+            // this.teammateStatus = this.teammateStatus.slice(0)
           } else if (projectUser['user_available'] === true && (projectUser['profileStatus'] === '' || !projectUser['profileStatus'])) {
             this.selectedStatus = this.teammateStatus[0].id
-            this.teammateStatus = this.teammateStatus.slice(0)
+            // this.teammateStatus = this.teammateStatus.slice(0)
             this.logger.debug('[SIDEBAR-USER-DETAILS] - PROFILE_STATUS selected option', this.teammateStatus[0].name);
           }
           this.IS_BUSY = projectUser['isBusy']

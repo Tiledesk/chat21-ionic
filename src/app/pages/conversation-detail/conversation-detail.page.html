@@ -173,7 +173,7 @@
             <!-- ----------------------------------------------------------- -->
             <app-canned-response *ngIf="SHOW_CANNED_RESPONSES"
               id="canned"
-              [canShowCanned]="canShowCanned"
+              [roles]="rolesCanned"
               [conversationWith]="conversationWith"
               [conversationWithFullname]="conversationWithFullname"
               [currentString]="messageStr"
@@ -201,7 +201,8 @@
             <!-- [tagsCannedFilter]="tagsCannedFilter" -->
             <!-- openInfoConversation   {{openInfoConversation}} - isMobile {{isMobile}} -->
             <app-message-text-area *ngIf="(openInfoConversation === false && isMobile === true) || (openInfoConversation === true && isMobile === false) || (openInfoConversation === false && isMobile === false)"
-              [loggedUser]="loggedUser" 
+              [loggedUser]="loggedUser"
+              [projectUser]="projectUser"
               [conversationWith]="conversationWith" 
               [channelType]="channelType"
               [channel]="conversation?.attributes?.request_channel"
@@ -213,8 +214,10 @@
               [fileUploadAccept]="fileUploadAccept"
               [emailSection]="isEmailEnabled"
               [offlineMsgEmail]="offlineMsgEmail"
+              [cannedSection]="canShowCanned"
               [whatsappTemplatesSection]="isWhatsappTemplatesEnabled"
               [isOpenInfoConversation]="openInfoConversation" 
+              [ticketSection]="isTicketEnabled"
               [stylesMap]="styleMap"
               [translationMap]="translationsMap"
               [dropEvent]="dropEvent"
@@ -223,7 +226,8 @@
               (onClickOpenCannedResponses)="onClickOpenCannedResponses($event)"
               (eventSendMessage)="returnSendMessage($event)" 
               (onPresentModalScrollToBottom)="onPresentModalScrollToBottom($event)"
-              (onOpenFooterSection)="onOpenFooterSection($event)">
+              (onOpenFooterSection)="onOpenFooterSection($event)"
+              (onOpenTicket)="onOpenTicket($event)">
             </app-message-text-area>
             <!-- [events]="eventsReplaceTexareaText.asObservable()" -->
           </ion-row>

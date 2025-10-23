@@ -8,6 +8,47 @@
 ### **Copyrigth**: 
 *Tiledesk SRL*
 
+
+# 3.4.27-rc11
+- **bug-fixed**: fixed infinite loading in contact list
+
+# 3.4.27-rc10
+- **added**: ability to manage header-conversation-list with roles
+- **bug-fixed**: members in group list not loaded
+
+# 3.4.27-rc9
+- **bug-fixed**: Scrolling to the last message when opening a conversation
+- **bug-fixed**: Loading in the conversation list disabled when removing the last conversation
+
+# 3.4.27-rc8
+- **added**: ability to open ticket to external service
+- **added**: ticketSection env var
+
+# 3.4.27-rc7
+- **bug-fixed**: Scrolling to the last message when opening a conversation
+- **bug-fixed**: Loading in the conversation list disabled when removing the last conversation
+
+# 3.4.27-rc6
+- **bug-fixed**: user for dashboard app is incorrect
+
+# 3.4.27-rc5
+- **added**: managed roles in sidebar e navbar
+- **bug-fixed**: projectId and supportMode url is not saved in localstorage
+
+# 3.4.27-rc4
+- **bug-fixed**: extractUrls function is not able to detect url start with www or without https/http
+- **bug-fixed**: if message is sent with keydown, error on domain check is not showed
+
+# 3.4.27-rc3
+- **bug-fixed**: cannot set user availability if supportMode is enabled and tiledesk_projectID url params is set
+
+# 3.4.27-rc2
+- **bug-fixed**: cannede responses role
+
+# 3.4.27-rc1
+- **added**: managed canned responses with roles
+- **changed**: name in info mesage 
+
 # 3.4.26 in PROD
 
 # 3.4.26-rc2
@@ -16,6 +57,7 @@
 # 3.4.26-rc1
 - **added**: tiledesk_projectID query param to manage user status
 - **added**: token to managane ticket feature
+- **added**: getOsCode login into utils.ts
 
 # 3.4.25 in PROD
 - **changed**: pipe marked to support malicious text input
@@ -38,6 +80,24 @@
 # 3.4.22 in PROD
 - **added**: managed allowed_upload_extentions from project settings
 
+# 3.4.21-rc6
+- **added**: managed allowed_upload_extentions from project settings
+
+# 3.4.21-rc5
+- **added**: setConversation as read when agent click on it
+
+# 3.4.21-rc4
+- **added**: ability to init and decrement new conversation count badge
+
+# 3.4.21-rc3
+- **changed**: badge notification for agentDesktop
+
+# 3.4.21-rc2
+- **added**: count in newConversation handler event
+
+# 3.4.21-rc1
+- **added**:  implement badge notification for agentDesktop sw when new conversation is assigned to logged agent
+
 # 3.4.21 in PROD
 
 # 3.4.20 in PROD
@@ -51,8 +111,8 @@
 - **bug-fixed**: minor fix on ion-texarea element with allowed url domain
 
 # 3.4.19-rc1
-- added: ability to check for if emoji is allowd to be sent in message textarea
-- added: ability to check for if url domain  is allowd to be sent in message textarea
+- **added**: ability to check for if emoji is allowd to be sent in message textarea
+- **added**: ability to check for if url domain  is allowd to be sent in message textarea
 
 # 3.4.18 in PROD
 

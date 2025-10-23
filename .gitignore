@@ -24,3 +24,5 @@ chat-config-pre*
 src/environments/environment.pre.ts
 src/environments/environment.prod.ts
 .gitignore
+chat21-ionic_environments (6).zip
+env-chat-ionic.zip
