@@ -8,6 +8,8 @@
 ### **Copyrigth**: 
 *Tiledesk SRL*
 
+# 3.4.27-rc12
+- **added**: ability to manage logOut option in sidebar-user-detail with tiledesk_logOut url query params
 
 # 3.4.27-rc11
 - **bug-fixed**: fixed infinite loading in contact list
