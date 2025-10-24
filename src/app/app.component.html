@@ -21,7 +21,9 @@
     </div> -->
     
     <div class="user-details-sidebar" [ngClass]="{'hide-sidebar': IS_ONLINE === false || IS_ON_MOBILE_DEVICE || SUPPORT_MODE === false}">
-      <app-sidebar-user-details> </app-sidebar-user-details>
+      <app-sidebar-user-details
+        [logOut]="g?.logOut">
+      </app-sidebar-user-details>
     </div>
  
     <ion-split-pane when="md" contentId="main" [ngClass]="{'mobile': IS_ON_MOBILE_DEVICE, 'sidebar-hidden': IS_ON_MOBILE_DEVICE || SUPPORT_MODE === false}">

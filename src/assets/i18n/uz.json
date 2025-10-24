@@ -310,5 +310,12 @@
     "SEND_EMAIL_SUCCESS_OFFLINE_MESSAGE":"Xabar elektron pochta orqali ham yuborildi 📩"
   },
   "EMOJI_NOT_ELLOWED": "Emoji'ga ruxsat berilmagan",
-  "DOMAIN_NOT_ALLOWED": "URL ruxsat etilmagan domenni o'z ichiga oladi"
+  "DOMAIN_NOT_ALLOWED": "URL ruxsat etilmagan domenni o'z ichiga oladi",
+  "TICKET": {
+    "OPEN_TICKET": "Chiptani ochish",
+    "DESCRIPTION": "Ushbu suhbat uchun chipta ochmoqchi ekanligingizni tasdiqlaysizmi?",
+    "CONFIRM": "Tasdiqlash",
+    "CLOSE": "Yopish"
+  }
+  
 }

@@ -63,17 +63,20 @@ export class MessageTextAreaComponent implements OnInit, AfterViewInit, OnChange
   @Input() emailSection: boolean;
   @Input() offlineMsgEmail: boolean;
   @Input() whatsappTemplatesSection: boolean;
+  @Input() ticketSection: boolean
   @Input() isOpenInfoConversation: boolean;
   @Input() cannedSection: boolean;
   @Input() stylesMap: Map<string, string>;
   @Input() translationMap: Map<string, string>;
   @Input() dropEvent: any;
   @Input() disableTextarea: boolean;
+  @Input() roles: Array<string>;
   @Output() eventChangeTextArea = new EventEmitter<{msg: string, offsetHeight: number}>();
   @Output() eventSendMessage = new EventEmitter<{msg: string, type: string, metadata?: Object, attributes?: Object}>();
   @Output() onClickOpenCannedResponses = new EventEmitter<boolean>();
   @Output() onPresentModalScrollToBottom = new EventEmitter<boolean>();
   @Output() onOpenFooterSection = new EventEmitter<string>();
+  @Output() onOpenTicket = new EventEmitter<boolean>();
 
   public project: Project;
   public conversationEnabled = false;
@@ -289,6 +292,17 @@ export class MessageTextAreaComponent implements OnInit, AfterViewInit, OnChange
     this.logger.log('[CONVS-DETAIL][MSG-TEXT-AREA] - onOpenTemplateModal');
     this.showEmojiPicker = false
     this.prensentTemplateModal();
+  }
+
+  onClickTicket(option: "open" | "close"){
+    this.logger.log('[CONVS-DETAIL][MSG-TEXT-AREA] - onClickTicket', option);
+    switch(option){
+      case "open":
+        this.onOpenTicket.emit();
+      case "close":   
+        this.section = 'chat'
+    }
+
   }
 
 

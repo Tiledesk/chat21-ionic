@@ -32,6 +32,7 @@
               "src/chat-config-template.json",
               "src/chat-config.json",
               "src/chat-config-dev.json",
+              "src/chat-config-native-ar.json",
               {
                 "glob": "**/*",
                 "input": "src/assets",
