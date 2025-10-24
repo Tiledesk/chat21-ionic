@@ -123,7 +123,25 @@ export class SidebarComponent implements OnInit {
       TILEDESK: 'https://www.tiledesk.com'
     };
 
+    this.setQueryParamsForAll({ tiledesk_logOut: BRAND_BASE_INFO['LOGOUT_ENABLED'] });
+
   }
+
+  // Funzione helper per aggiungere query params a tutte le URL
+setQueryParamsForAll(queryParams: any) {
+  if (!queryParams) return;
+
+  const queryString = new URLSearchParams(queryParams).toString();
+
+  // Cicla tutte le chiavi di URLS
+  Object.keys(this.URLS).forEach(key => {
+    if (this.URLS[key]) {
+      // Controlla se già ci sono query params
+      const separator = this.URLS[key].includes('?') ? '&' : '?';
+      this.URLS[key] = `${this.URLS[key]}${queryString ? separator + queryString : ''}`;
+    }
+  });
+}
 
   subcribeToAuthStateChanged() {
     this.messagingAuthService.BSAuthStateChanged.subscribe((state) => {
