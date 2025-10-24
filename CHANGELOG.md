@@ -8,6 +8,9 @@
 ### **Copyrigth**: 
 *Tiledesk SRL*
 
+# 3.4.27-rc13
+- **added**: ability to mantain logout parameter when redirect to dashboard urls from sidebar component
+
 # 3.4.27-rc12
 - **added**: ability to manage logOut option in sidebar-user-detail with tiledesk_logOut url query params
 
