@@ -8,6 +8,9 @@
 ### **Copyrigth**: 
 *Tiledesk SRL*
 
+# 3.4.27-rc15
+- **changed**: /images with /img in assets folder
+
 # 3.4.27-rc14
 - **added**: DISPLAY_EDIT_PROFILE brand variable
 - **bug-fixed**: emojii is sent also if is not allowed
