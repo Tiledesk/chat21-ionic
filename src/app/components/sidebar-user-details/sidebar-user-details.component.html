@@ -51,7 +51,7 @@
     <div class="user-details-role">
         <h3>{{ USER_ROLE_LABEL }} </h3>
 
-        <div class="user-details-view-profile" (click)="goToUserProfile()"> 
+        <div *ngIf="BRAND_BASE_INFO['DISPLAY_EDIT_PROFILE']" class="user-details-view-profile" (click)="goToUserProfile()"> 
             {{translationsMap.get('EditProfile')}}
         </div>
 

@@ -7,7 +7,8 @@ export const BRAND_BASE_INFO: { [key: string] : string | boolean} ={
     FAVICON: "https://tiledesk.com/wp-content/uploads/2022/07/tiledesk_v13-300x300.png",
     META_TITLE:"Tiledesk - Open Source Live Chat",
     DOCS: true,
-    LOGOUT_ENABLED: true
+    LOGOUT_ENABLED: true,
+    DISPLAY_EDIT_PROFILE: true
 }
 
 export var LOGOS_ITEMS: { [key: string] : { label: string | boolean, icon: string }} ={
