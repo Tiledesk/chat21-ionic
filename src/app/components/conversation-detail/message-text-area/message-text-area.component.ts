@@ -531,6 +531,10 @@ export class MessageTextAreaComponent implements OnInit, AfterViewInit, OnChange
     e.preventDefault(); // Prevent press enter from creating new line 
     // console.log("[CONVS-DETAIL] replaceTagInMessage onKeydown in msg-texarea * event: ", e);
 
+    if(this.showAlertEmoji || this.showAlertUrl){
+      return; 
+    }
+
     this.countClicks++;
     this.logger.log('[CONVS-DETAIL][MSG-TEXT-AREA] onKeydown - countClicks: ', this.countClicks);
     this.logger.log('[CONVS-DETAIL][MSG-TEXT-AREA] onKeydown - event: ', e);
@@ -628,6 +632,11 @@ export class MessageTextAreaComponent implements OnInit, AfterViewInit, OnChange
     let checkUrlDomain = this.checkForUrlDomain(text)
     if(!checkUrlDomain){
       return
+    }
+
+    let check = this.checkForEmojii(text)
+    if(!check){
+      return;
     }
 
     this.messageString = '';
