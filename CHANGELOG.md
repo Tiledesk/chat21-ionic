@@ -8,6 +8,10 @@
 ### **Copyrigth**: 
 *Tiledesk SRL*
 
+# 3.4.27-rc14
+- **added**: DISPLAY_EDIT_PROFILE brand variable
+- **bug-fixed**: emojii is sent also if is not allowed
+
 # 3.4.27-rc13
 - **added**: ability to mantain logout parameter when redirect to dashboard urls from sidebar component
 
