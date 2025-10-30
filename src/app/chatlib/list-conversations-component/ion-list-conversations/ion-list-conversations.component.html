@@ -96,23 +96,23 @@
       <div class="conversation_project truncate">
         <!-- DIRECT CONV -->
         <div *ngIf="conversation.channel_type === CHANNEL_TYPE.DIRECT">
-          <img class="channel-icon" src="assets/images/channel_icons/direct.svg">
+          <img class="channel-icon" src="assets/img/channel_icons/direct.svg">
           <span  class="truncate">{{translationsMap.get('DIRECT_CHAT')}}</span>
         </div>
         <!-- GROUP CONV -->
         <div *ngIf="conversation.uid.startsWith(CHANNEL_TYPE.GROUP)">
-          <img class="channel-icon" src="assets/images/channel_icons/group.svg">
+          <img class="channel-icon" src="assets/img/channel_icons/group.svg">
           <span class="truncate">{{translationsMap.get('GROUP_CHAT')}}</span>
         </div>
         <!-- SUPPORT-GROUP CONV -->
         <div  *ngIf="conversation.uid.startsWith(CHANNEL_TYPE.SUPPORT_GROUP) && !IS_ON_MOBILE_DEVICE">
-          <img class="channel-icon" src="assets/images/channel_icons/chat21.svg" *ngIf="conversation?.attributes && ( (conversation?.attributes?.request_channel && conversation?.attributes?.request_channel === CHANNEL_TYPE.CHAT21) ||  !conversation?.attributes?.request_channel) " >
-          <img class="channel-icon" src="assets/images/channel_icons/email-logo.svg" *ngIf="conversation?.attributes && conversation?.attributes?.request_channel && conversation?.attributes?.request_channel === CHANNEL_TYPE.EMAIL" >
-          <img class="channel-icon" src="assets/images/channel_icons/form-logo_v2.svg" *ngIf="conversation?.attributes && conversation?.attributes?.request_channel && conversation?.attributes?.request_channel === CHANNEL_TYPE.FORM" >
-          <img class="channel-icon" src="assets/images/channel_icons/messenger-logo.svg" *ngIf="conversation?.attributes && conversation?.attributes?.request_channel && conversation?.attributes?.request_channel === CHANNEL_TYPE.MESSENGER" >
-          <img class="channel-icon" src="assets/images/channel_icons/whatsapp-logo.svg" *ngIf="conversation?.attributes && conversation?.attributes?.request_channel && conversation?.attributes?.request_channel === CHANNEL_TYPE.WHATSAPP" >
-          <img class="channel-icon" src="assets/images/channel_icons/telegram-logo.svg" *ngIf="conversation?.attributes && conversation?.attributes?.request_channel && conversation?.attributes?.request_channel === CHANNEL_TYPE.TELEGRAM" >
-          <img class="channel-icon" src="assets/images/channel_icons/voice.svg" *ngIf="conversation?.attributes && conversation?.attributes?.request_channel && conversation?.attributes?.request_channel.startsWith(CHANNEL_TYPE.VOICE)" >
+          <img class="channel-icon" src="assets/img/channel_icons/chat21.svg" *ngIf="conversation?.attributes && ( (conversation?.attributes?.request_channel && conversation?.attributes?.request_channel === CHANNEL_TYPE.CHAT21) ||  !conversation?.attributes?.request_channel) " >
+          <img class="channel-icon" src="assets/img/channel_icons/email-logo.svg" *ngIf="conversation?.attributes && conversation?.attributes?.request_channel && conversation?.attributes?.request_channel === CHANNEL_TYPE.EMAIL" >
+          <img class="channel-icon" src="assets/img/channel_icons/form-logo_v2.svg" *ngIf="conversation?.attributes && conversation?.attributes?.request_channel && conversation?.attributes?.request_channel === CHANNEL_TYPE.FORM" >
+          <img class="channel-icon" src="assets/img/channel_icons/messenger-logo.svg" *ngIf="conversation?.attributes && conversation?.attributes?.request_channel && conversation?.attributes?.request_channel === CHANNEL_TYPE.MESSENGER" >
+          <img class="channel-icon" src="assets/img/channel_icons/whatsapp-logo.svg" *ngIf="conversation?.attributes && conversation?.attributes?.request_channel && conversation?.attributes?.request_channel === CHANNEL_TYPE.WHATSAPP" >
+          <img class="channel-icon" src="assets/img/channel_icons/telegram-logo.svg" *ngIf="conversation?.attributes && conversation?.attributes?.request_channel && conversation?.attributes?.request_channel === CHANNEL_TYPE.TELEGRAM" >
+          <img class="channel-icon" src="assets/img/channel_icons/voice.svg" *ngIf="conversation?.attributes && conversation?.attributes?.request_channel && conversation?.attributes?.request_channel.startsWith(CHANNEL_TYPE.VOICE)" >
           <span *ngIf="conversation?.attributes?.project_name" class="truncate">{{conversation?.attributes?.project_name}}</span>
           <span *ngIf="!conversation?.attributes?.project_name" class="truncate">{{conversation?.attributes?.projectId}}</span>
         </div>

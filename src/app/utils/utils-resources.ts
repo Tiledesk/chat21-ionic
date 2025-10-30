@@ -12,12 +12,12 @@ export const BRAND_BASE_INFO: { [key: string] : string | boolean} ={
 }
 
 export var LOGOS_ITEMS: { [key: string] : { label: string | boolean, icon: string }} ={
-    COMPANY_LOGO: {label: BRAND_BASE_INFO.COMPANY_NAME,  icon: 'assets/logos/tiledesk_logo.svg'},
-    COMPANY_LOGO_NO_TEXT: {label: BRAND_BASE_INFO.COMPANY_NAME, icon: 'assets/logos/tiledesk_logo_no_text.svg'},
-    BASE_LOGO: {label: BRAND_BASE_INFO.BRAND_NAME,  icon: 'assets/logos/tiledesk_logo.svg'},
-    BASE_LOGO_NO_TEXT: {label: BRAND_BASE_INFO.BRAND_NAME, icon: 'assets/logos/tiledesk_logo_no_text.svg'},
-    BASE_LOGO_WHITE: { label: BRAND_BASE_INFO.BRAND_NAME, icon: '"assets/logos/tiledesk-logo_new_white.svg'},
-    BASE_LOGO_WHITE_NO_TEXT: { label: BRAND_BASE_INFO.BRAND_NAME, icon: '"assets/logos/tiledesk-logo_new_white.svg'},
+    COMPANY_LOGO: {label: BRAND_BASE_INFO.COMPANY_NAME,  icon: 'assets/img/logos/tiledesk_logo.svg'},
+    COMPANY_LOGO_NO_TEXT: {label: BRAND_BASE_INFO.COMPANY_NAME, icon: 'assets/img/logos/tiledesk_logo_no_text.svg'},
+    BASE_LOGO: {label: BRAND_BASE_INFO.BRAND_NAME,  icon: 'assets/img/logos/tiledesk_logo.svg'},
+    BASE_LOGO_NO_TEXT: {label: BRAND_BASE_INFO.BRAND_NAME, icon: 'assets/img/logos/tiledesk_logo_no_text.svg'},
+    BASE_LOGO_WHITE: { label: BRAND_BASE_INFO.BRAND_NAME, icon: '"assets/img/logos/tiledesk-logo_new_white.svg'},
+    BASE_LOGO_WHITE_NO_TEXT: { label: BRAND_BASE_INFO.BRAND_NAME, icon: '"assets/img/logos/tiledesk-logo_new_white.svg'},
     BASE_LOGO_GRAY: { label: BRAND_BASE_INFO.BRAND_NAME, icon: 'https://support-pre.tiledesk.com/dashboard/assets/img/logos/tiledesk-logo_new_gray.svg'}
 }
 
