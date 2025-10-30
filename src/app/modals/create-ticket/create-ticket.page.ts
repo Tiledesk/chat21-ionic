@@ -42,22 +42,22 @@ export class CreateTicketPage implements OnInit {
       {
         id: 1,
         name: 'urgent',
-        avatar: 'assets/images/priority_icons/urgent_v2.svg'
+        avatar: 'assets/img/priority_icons/urgent_v2.svg'
       },
       {
         id: 2,
         name: 'high',
-        avatar: 'assets/images/priority_icons/high_v2.svg '
+        avatar: 'assets/img/priority_icons/high_v2.svg '
       },
       {
         id: 3,
         name: 'medium',
-        avatar: 'assets/images/priority_icons/medium_v2.svg'
+        avatar: 'assets/img/priority_icons/medium_v2.svg'
       },
       {
         id: 4,
         name: 'low',
-        avatar: 'assets/images/priority_icons/low_v2.svg'
+        avatar: 'assets/img/priority_icons/low_v2.svg'
       },
     ];
 

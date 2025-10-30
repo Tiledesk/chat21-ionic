@@ -1104,7 +1104,7 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
         //   ${metadata.name}
         // </a>`
 
-        // msg = ![file-image-placehoder](./assets/images/file-alt-solid.png) + [${metadata.name}](${metadata.src})
+        // msg = ![file-image-placehoder](./assets/img/file-alt-solid.png) + [${metadata.name}](${metadata.src})
         msg = `[${metadata.name}](${metadata.src})`
       }
     }

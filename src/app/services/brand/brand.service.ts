@@ -67,11 +67,11 @@ export class BrandService {
       ]
     },
     COMMON: {
-      COMPANY_LOGO:"assets/logos/tiledesk_logo.svg",
-      COMPANY_LOGO_NO_TEXT:"assets/logos/tiledesk_logo.svg",
-      BASE_LOGO: "assets/logos/tiledesk_logo.svg",
-      BASE_LOGO_NO_TEXT: "assets/logos/tiledesk_logo.svg",
-      BASE_LOGO_WHITE: "assets/logos/tiledesk-logo_new_white.svg",
+      COMPANY_LOGO:"assets/img/logos/tiledesk_logo.svg",
+      COMPANY_LOGO_NO_TEXT:"assets/img/logos/tiledesk_logo.svg",
+      BASE_LOGO: "assets/img/logos/tiledesk_logo.svg",
+      BASE_LOGO_NO_TEXT: "assets/img/logos/tiledesk_logo.svg",
+      BASE_LOGO_WHITE: "assets/img/logos/tiledesk-logo_new_white.svg",
       BASE_LOGO_WHITE_NO_TEXT:"",
       COMPANY_NAME: "Tiledesk",
       BRAND_NAME: "Tiledesk",

@@ -2,7 +2,7 @@
 <div class="logo">
   <!-- <a class="logo-img-wpr" [ngClass]="{'small-sidebar-logo-img-wpr' : SIDEBAR_IS_SMALL === true }">
     <div class="logo-img" (click)="goToHome()" style="cursor: pointer;">
-      <img class="small-sidebar__logo" src="assets/logos/tiledesk-solo-logo.svg" />
+      <img class="small-sidebar__logo" src="assets/img/logos/tiledesk-solo-logo.svg" />
     </div>
   </a> -->
 
@@ -12,7 +12,7 @@
     style="cursor: pointer;" [ngClass]="{'small-sidebar-avatar' : SIDEBAR_IS_SMALL === true,  'small-sidebar-avatar-with-avatar': SIDEBAR_IS_SMALL === true && !USER_PHOTO_PROFILE_EXIST}">
 
     <img *ngIf="USER_PHOTO_PROFILE_EXIST" id="sidebaravatar-img" class="sidebar-avatar" [src]="photo_profile_URL"
-      onerror="this.src='assets/images/no_image_user.png'" />
+      onerror="this.src='assets/img/no_image_user.png'" />
 
     <div *ngIf="!USER_PHOTO_PROFILE_EXIST" id="sidebaravatar-no-img" class="sidebar-avatar"
       [ngStyle]="{'background':  'linear-gradient(rgb(255,255,255) -125%,' + currentUser?.fillColour + ')'}">
