@@ -34,7 +34,7 @@
       <!-- <ion-icon name="file-tray-full-outline"></ion-icon> -->
     </ion-button>
 
-    <ion-button *ngIf="writeto_btn" ion-button fill="clear" (click)="onOpenContactsDirectory($event)"
+    <ion-button *ngIf="writeto_btn && isVisibleCNT && roles?.[PERMISSIONS.LEADS_READ]" ion-button fill="clear" (click)="onOpenContactsDirectory($event)"
       tooltip="{{translationMap?.get('ViewContactsList')}}" placement="bottom">
       <ion-icon slot="icon-only" name="create-outline"></ion-icon>
       <!-- <ion-icon slot="icon-only" name="people-outline"></ion-icon> -->

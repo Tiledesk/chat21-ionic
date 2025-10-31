@@ -8,6 +8,33 @@
 ### **Copyrigth**: 
 *Tiledesk SRL*
 
+# 3.4.27-rc15
+- **changed**: /images with /img in assets folder
+
+# 3.4.27-rc14
+- **added**: DISPLAY_EDIT_PROFILE brand variable
+- **bug-fixed**: emojii is sent also if is not allowed
+
+# 3.4.27-rc13
+- **added**: ability to mantain logout parameter when redirect to dashboard urls from sidebar component
+
+# 3.4.27-rc12
+- **added**: ability to manage logOut option in sidebar-user-detail with tiledesk_logOut url query params
+
+# 3.4.27-rc11
+- **bug-fixed**: fixed infinite loading in contact list
+
+# 3.4.27-rc10
+- **added**: ability to manage header-conversation-list with roles
+- **bug-fixed**: members in group list not loaded
+
+# 3.4.27-rc9
+- **bug-fixed**: Scrolling to the last message when opening a conversation
+- **bug-fixed**: Loading in the conversation list disabled when removing the last conversation
+
+# 3.4.27-rc8
+- **added**: ability to open ticket to external service
+- **added**: ticketSection env var
 
 # 3.4.27-rc7
 - **bug-fixed**: Scrolling to the last message when opening a conversation

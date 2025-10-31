@@ -25,6 +25,7 @@ export class SidebarUserDetailsComponent implements OnInit, OnChanges {
   // HAS_CLICKED_OPEN_USER_DETAIL: boolean = false;
   // @Output() onCloseUserDetailsSidebar = new EventEmitter();
 
+  @Input() logOut: boolean;
 
   public browserLang: string;
   private logger: LoggerService = LoggerInstance.getInstance()
@@ -52,9 +53,9 @@ export class SidebarUserDetailsComponent implements OnInit, OnChanges {
 
   selectedStatus: any;
   teammateStatus = [
-    { id: 1, name: 'Available', avatar: 'assets/images/teammate-status/avaible.svg', label: "LABEL_AVAILABLE" },
-    { id: 2, name: 'Unavailable', avatar: 'assets/images/teammate-status/unavaible.svg', label: "LABEL_NOT_AVAILABLE" },
-    { id: 3, name: 'Inactive', avatar: 'assets/images/teammate-status/inactive.svg', label: "LABEL_INACTIVE" },
+    { id: 1, name: 'Available', avatar: 'assets/img/teammate-status/avaible.svg', label: "LABEL_AVAILABLE" },
+    { id: 2, name: 'Unavailable', avatar: 'assets/img/teammate-status/unavaible.svg', label: "LABEL_NOT_AVAILABLE" },
+    { id: 3, name: 'Inactive', avatar: 'assets/img/teammate-status/inactive.svg', label: "LABEL_INACTIVE" },
   ];
 
   translationsMap: Map<string, string> = new Map();
@@ -194,13 +195,13 @@ export class SidebarUserDetailsComponent implements OnInit, OnChanges {
     this.chat_lang = ''
     if (this.browserLang && !stored_preferred_lang) {
       this.chat_lang = this.browserLang
-      // this.flag_url = "assets/images/language_flag/" + this.chat_lang + ".png"
+      // this.flag_url = "assets/img/language_flag/" + this.chat_lang + ".png"
 
       this.logger.log('[SIDEBAR-USER-DETAILS] flag_url: ', this.flag_url);
       this.logger.log('[SIDEBAR-USER-DETAILS] chat_lang: ', this.chat_lang);
     } else if (this.browserLang && stored_preferred_lang) {
       this.chat_lang = stored_preferred_lang
-      // this.flag_url = "assets/images/language_flag/" + this.chat_lang + ".png"
+      // this.flag_url = "assets/img/language_flag/" + this.chat_lang + ".png"
       this.logger.log('[SIDEBAR-USER-DETAILS] flag_url: ', this.flag_url);
       this.logger.log('[SIDEBAR-USER-DETAILS] chat_lang: ', this.chat_lang);
     }
@@ -208,11 +209,11 @@ export class SidebarUserDetailsComponent implements OnInit, OnChanges {
     if (tranlatedLanguage.includes(this.chat_lang)) {
       this.logger.log('[SIDEBAR-USER-DETAILS] tranlatedLanguage includes', this.chat_lang, ': ', tranlatedLanguage.includes(this.chat_lang))
       this.translate.use(this.chat_lang);
-      this.flag_url = "assets/images/language_flag/" + this.chat_lang + ".png"
+      this.flag_url = "assets/img/language_flag/" + this.chat_lang + ".png"
     } else {
       this.logger.log('[SIDEBAR-USER-DETAILS] tranlatedLanguage includes', this.chat_lang, ': ', tranlatedLanguage.includes(this.chat_lang))
       this.translate.use('en');
-      this.flag_url = "assets/images/language_flag/en.png"
+      this.flag_url = "assets/img/language_flag/en.png"
       this.chat_lang = 'en'
     }
 

@@ -53,7 +53,10 @@ import { Globals } from 'src/app/utils/globals';
 import { TriggerEvents } from 'src/app/services/triggerEvents/triggerEvents';
 import { MessageModel } from 'src/chat21-core/models/message';
 import { Project } from 'src/chat21-core/models/projects';
-import { getOSCode } from 'src/app/utils/utils';
+import { getOSCode, hasRole } from 'src/app/utils/utils';
+import { PERMISSIONS } from 'src/app/utils/permissions.constants';
+import { ProjectUser } from 'src/chat21-core/models/projectUsers';
+import { ProjectUsersService } from 'src/app/services/project_users/project-users.service';
 
 @Component({
   selector: 'app-conversations-list',
@@ -82,6 +85,7 @@ export class ConversationListPage implements OnInit {
   public archived_btn: boolean
   public sound_btn: string
   public isVisibleTKT: boolean = true;
+  public isVisibleCNT: boolean = true;;
   public convertMessage = convertMessage
   private isShowMenuPage = false
   private logger: LoggerService = LoggerInstance.getInstance()
@@ -104,14 +108,17 @@ export class ConversationListPage implements OnInit {
   public isMobile: boolean = false;
   public isInitialized: boolean = false;
 
+  public projectUser: ProjectUser;
+  public rolesHeader: { [key: string]: boolean }
+
   // PROJECT AVAILABILITY INFO: start
   project: Project
   profile_name_translated: string;
   selectedStatus: any;
   teammateStatus = [
-    { id: 1, name: 'Available', avatar: 'assets/images/teammate-status/avaible.svg', label: "LABEL_AVAILABLE" },
-    { id: 2, name: 'Unavailable', avatar: 'assets/images/teammate-status/unavaible.svg', label: "LABEL_NOT_AVAILABLE" },
-    { id: 3, name: 'Inactive', avatar: 'assets/images/teammate-status/inactive.svg', label: "LABEL_INACTIVE" },
+    { id: 1, name: 'Available', avatar: 'assets/img/teammate-status/avaible.svg', label: "LABEL_AVAILABLE" },
+    { id: 2, name: 'Unavailable', avatar: 'assets/img/teammate-status/unavaible.svg', label: "LABEL_NOT_AVAILABLE" },
+    { id: 3, name: 'Inactive', avatar: 'assets/img/teammate-status/inactive.svg', label: "LABEL_INACTIVE" },
   ];
   // PROJECT AVAILABILITY INFO: end
 
@@ -130,6 +137,7 @@ export class ConversationListPage implements OnInit {
     private translateService: CustomTranslateService,
     public tiledeskService: TiledeskService,
     public tiledeskAuthService: TiledeskAuthService,
+    public projectUsersService: ProjectUsersService,
     public appConfigProvider: AppConfigProvider,
     public platform: Platform,
     public wsService: WebsocketService,
@@ -371,6 +379,11 @@ export class ConversationListPage implements OnInit {
     // save conversationHandler in chatManager
     this.chatManager.setConversationsHandler(this.conversationsHandlerService)
     this.showPlaceholder = false
+    
+    // Hide loading spinner if there are no conversations
+    if (this.conversations.length === 0) {
+      this.loadingIsActive = false
+    }
   }
 
   // private manageStoredConversations() {
@@ -471,9 +484,9 @@ export class ConversationListPage implements OnInit {
   }
 
   listenToCurrentStoredProject() {
-    this.events.subscribe('storage:last_project', projectObjct => {
+    this.events.subscribe('storage:last_project', async(projectObjct) => {
       if (projectObjct && projectObjct !== 'undefined') {
-        // console.log('[CONVS-LIST-PAGE] - GET STORED PROJECT ', projectObjct)
+        console.log('[CONVS-LIST-PAGE] - GET STORED PROJECT ', projectObjct)
 
         //TODO: recuperare info da root e non da id_project
         this.project = {
@@ -496,6 +509,10 @@ export class ConversationListPage implements OnInit {
         } else if (this.project.profile.type === 'payment' && this.project.profile.name === 'enterprise') {
           this.profile_name_translated = this.translationMapHeader.get('PaydPlanNameEnterprise');
         }
+
+        this.projectUser = await this.projectUsersService.getProjectUserByProjectId(this.project._id)
+        this.rolesHeader = this.checkCannedResponsesRoles();
+        this.logger.log('[CONVS-LIST-PAGE] - GET PROJECT USER ROLES ', this.rolesHeader)
       }
     })
   }
@@ -631,7 +648,23 @@ export class ConversationListPage implements OnInit {
     const public_Key = this.appConfigProvider.getConfig().t2y12PruGU9wUtEGzBJfolMIgK
     this.logger.log('[CONVS-LIST-PAGE] AppConfigService getAppConfig public_Key', public_Key)
     this.isVisibleTKT = getOSCode("TKT", public_Key);
+    this.isVisibleCNT = getOSCode("CNT", public_Key);
   }
+
+  checkCannedResponsesRoles(): { [key: string]: boolean } {
+      const permissionKeys = [
+        'LEADS_READ',
+      ] as const;
+  
+      const roles: { [key: string]: boolean } = {};
+      for (const key of permissionKeys) {
+        const permission = PERMISSIONS[key];
+        roles[permission] = hasRole(this.projectUser, permission);
+      }
+  
+      return roles;
+  
+    }
 
   onBackButtonFN(event) {
     this.conversationType = 'active'
@@ -883,12 +916,17 @@ export class ConversationListPage implements OnInit {
 
     this.logger.log('[CONVS-LIST-PAGE] navigateByUrl this.uidConvSelected ', this.uidConvSelected)
 
+    const queryParams = this.route.snapshot.queryParams;
+    const queryString = new URLSearchParams(queryParams).toString();
+    
+
     this.setUidConvSelected(uidConvSelected, converationType)
     if (checkPlatformIsMobile()) {
       this.logger.log('[CONVS-LIST-PAGE] checkPlatformIsMobile(): ', checkPlatformIsMobile())
       this.logger.log('[CONVS-LIST-PAGE] DESKTOP (window < 768)', this.navService)
       this.logger.log('[CONVS-LIST-PAGE] navigateByUrl this.conversationSelected conversation_with_fullname ', this.conversationSelected)
       let pageUrl = 'conversation-detail/' + this.uidConvSelected + '/' + this.conversationSelected.conversation_with_fullname + '/' + converationType
+      pageUrl += queryString ? `?${queryString}` : '';
       this.logger.log('[CONVS-LIST-PAGE] pageURL', pageUrl)
         // replace(/\(/g, '%28').replace(/\)/g, '%29') -> used for the encoder of any round brackets
       this.router.navigateByUrl(pageUrl.replace(/\(/g, '%28').replace(/\)/g, '%29').replace( /#/g, "%23" ), {replaceUrl: true})
@@ -900,8 +938,10 @@ export class ConversationListPage implements OnInit {
       if (this.conversationSelected && this.conversationSelected.conversation_with_fullname) {
         pageUrl = 'conversation-detail/' + this.uidConvSelected + '/' + this.conversationSelected.conversation_with_fullname + '/' + converationType
       }
+      pageUrl += queryString ? `?${queryString}` : '';
       this.logger.log('[CONVS-LIST-PAGE] setUidConvSelected navigateByUrl--->: ', pageUrl)
       // replace(/\(/g, '%28').replace(/\)/g, '%29') -> used for the encoder of any round brackets
+      
       this.router.navigateByUrl(pageUrl.replace(/\(/g, '%28').replace(/\)/g, '%29').replace( /#/g, "%23" ), {replaceUrl: true})
     }
   }

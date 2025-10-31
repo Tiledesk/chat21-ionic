@@ -428,6 +428,8 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
   ionViewDidEnter() {
     this.logger.log('[CONVS-DETAIL] > ionViewDidEnter')
     // this.info_content_child_enabled = true;
+    // Scroll to bottom to show the last message without animation
+    this.scrollToLastMessage()
   }
 
   // Unsubscibe when new page transition end
@@ -559,7 +561,7 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
         this.offlineMsgEmail = this.checkOfflineMsgEmailIsEnabled(project)
         this.isCopilotEnabled = this.projectPlanUtils.checkProjectProfileFeature(project, 'copilot');
         this.fileUploadAccept = this.checkAcceptedUploadFile(project)
-        this.rolesCanned = this.checkCannedResponsesRoles(project)
+        this.rolesCanned = this.checkCannedResponsesRoles()
         this.canShowCanned = this.checkCannedResponses(project)
         this.logger.log('[CONVS-DETAIL] this.rolesCanned ', this.canShowCanned)
       }
@@ -615,7 +617,7 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
     return true
   }
 
-  checkCannedResponsesRoles(project: Project): { [key: string]: boolean } {
+  checkCannedResponsesRoles(): { [key: string]: boolean } {
     const permissionKeys = [
       'CANNED_RESPONSES_CREATE',
       'CANNED_RESPONSES_READ',
@@ -1156,7 +1158,7 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
         //   ${metadata.name}
         // </a>`
 
-        // msg = ![file-image-placehoder](./assets/images/file-alt-solid.png) + [${metadata.name}](${metadata.src})
+        // msg = ![file-image-placehoder](./assets/img/file-alt-solid.png) + [${metadata.name}](${metadata.src})
         msg = `[${metadata.name}](${metadata.src})`
       }
     }
@@ -1983,6 +1985,29 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
         this.ionContentChatArea.scrollToBottom(time)
       }, 0)
       // nota: se elimino il settimeout lo scrollToBottom non viene richiamato!!!!!
+    }
+  }
+
+  /**
+   * Scroll to last message without animation using requestAnimationFrame
+   * This is a best practice alternative to setTimeout
+   */
+  private scrollToLastMessage() {
+    this.showIonContent = true
+    if (this.ionContentChatArea) {
+      // Use requestAnimationFrame for better performance
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          // Double RAF ensures DOM is fully rendered
+          this.ionContentChatArea.scrollToBottom(0).then(() => {
+            this.logger.log('[CONVS-DETAIL] scroll posizionato all\'ultimo messaggio')
+          }).catch((error) => {
+            this.logger.error('[CONVS-DETAIL] errore durante lo scroll:', error)
+          })
+        })
+      })
+    } else {
+      this.logger.warn('[CONVS-DETAIL] ionContentChatArea non disponibile')
     }
   }
 
