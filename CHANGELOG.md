@@ -8,6 +8,9 @@
 ### **Copyrigth**: 
 *Tiledesk SRL*
 
+# 3.4.27-rc18
+- **added**: triggerOnUpdateNewConversationBadge to update conversation badge count in parent component
+
 # 3.4.27-rc17
 - **bug-fixed**: setNotification not called when click on a conversation
 
