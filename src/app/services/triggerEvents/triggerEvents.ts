@@ -102,5 +102,19 @@ export class TriggerEvents {
         }
     }
 
+    public triggerOnUpdateNewConversationBadge(detailObj: {}) {
+        this.logger.debug(' ---------------- triggerOnInitEvent ---------------- ', detailObj);
+        try {
+            const onBeforeInit = new CustomEvent('onUpdateNewConversationBadge', { detail: detailObj });
+            const windowContext = this.windowContext;
+            if (windowContext){
+                // windowContext.document.dispatchEvent(onNewConversation);
+                windowContext.postMessage({type: "onUpdateNewConversationBadge", detail: detailObj }, '*')
+            }
+        } catch (e) {
+            this.logger.error('[TRIGGER-HANDLER] > Error:' + e);
+        }
+    }
+
     
 }
