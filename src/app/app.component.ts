@@ -1112,7 +1112,7 @@ export class AppComponent implements OnInit {
         this.manageTabNotification('conv_added', conversation.sound)
         this.manageEventNewConversation(conversation)
         //UPDATE NOTIFICATION FOR NEW CONVERSATION COUNT 
-        this.setNotification();
+        this.triggerOnUpdateNewConversationBadge(this.conversationsHandlerService.countIsNew());
       }
       if(conversation) this.updateConversationsOnStorage()
     });
@@ -1122,7 +1122,7 @@ export class AppComponent implements OnInit {
       if(conversation){
         this.updateConversationsOnStorage();
         //UPDATE NOTIFICATION FOR NEW CONVERSATION COUNT 
-        this.setNotification();
+        this.triggerOnUpdateNewConversationBadge(this.conversationsHandlerService.countIsNew());
       }  
     });
 
@@ -1148,7 +1148,7 @@ export class AppComponent implements OnInit {
         this.updateConversationsOnStorage();
         this.segmentResolved(conversation);
         //UPDATE NOTIFICATION FOR NEW CONVERSATION COUNT 
-        this.setNotification();
+        this.triggerOnUpdateNewConversationBadge(this.conversationsHandlerService.countIsNew());
         this.router.navigateByUrl('conversation-detail/'); //redirect to basePage
       }
     });
@@ -1431,7 +1431,7 @@ export class AppComponent implements OnInit {
       }
 
       //INIT NOTIFICATION FOR NEW CONVERSATION COUNT 
-      this.setNotification();
+      this.triggerOnUpdateNewConversationBadge(this.conversationsHandlerService.countIsNew());
     });
 
   }
@@ -1648,14 +1648,6 @@ export class AppComponent implements OnInit {
     this.triggerEvents.triggerOnNewConversationInit(conversation)
   }
 
-  private setNotification() {
-    this.logger.log('[APP-COMP] setNotification for NEW CONVERSATION', this.conversationsHandlerService.countIsNew().toString());
-    if(window['AGENTDESKTOP']){
-      this.logger.log('[APP-COMP] manageNotification AGENTDESKTOP exist', window['AGENTDESKTOP'], this.conversationsHandlerService.countIsNew().toString());
-      window['AGENTDESKTOP']['TAB'].Badge(this.conversationsHandlerService.countIsNew().toString())
-    }
-  }
-
 
   @HostListener('document:visibilitychange', [])
   visibilitychange() {
@@ -1720,6 +1712,11 @@ export class AppComponent implements OnInit {
   private triggerOnInit(event){
     const detailOBJ = { event: event, isLogged: true, user: this.tiledeskAuthService.getCurrentUser() }
     this.triggerEvents.triggerOnInit(detailOBJ)
+  }
+
+  private triggerOnUpdateNewConversationBadge(count: number){
+    const detailOBJ = { event: 'onUpdateNewConversationBadge', count: count.toString() }
+    this.triggerEvents.triggerOnUpdateNewConversationBadge(detailOBJ)
   }
 
 
