@@ -1125,6 +1125,7 @@ export class AppComponent implements OnInit {
       if (conversation && conversation.is_new === true && this.isInitialized) {
         this.manageTabNotification('conv_added', conversation.sound)
         this.manageEventNewConversation(conversation)
+        //UPDATE NOTIFICATION FOR NEW CONVERSATION COUNT 
         this.setNotification();
       }
       if(conversation) this.updateConversationsOnStorage()
@@ -1132,7 +1133,11 @@ export class AppComponent implements OnInit {
 
     this.conversationsHandlerService.conversationChanged.subscribe((conversation: ConversationModel) => {
       // console.log('[APP-COMP] ***** subscribeConversationChanged conversation: ', conversation);
-      if(conversation)  this.updateConversationsOnStorage();
+      if(conversation){
+        this.updateConversationsOnStorage();
+        //UPDATE NOTIFICATION FOR NEW CONVERSATION COUNT 
+        this.setNotification();
+      }  
     });
 
     this.conversationsHandlerService.conversationChangedDetailed.subscribe((changes: {value: ConversationModel, previousValue: ConversationModel}) => {
@@ -1156,6 +1161,7 @@ export class AppComponent implements OnInit {
       if(conversation) { 
         this.updateConversationsOnStorage();
         this.segmentResolved(conversation);
+        //UPDATE NOTIFICATION FOR NEW CONVERSATION COUNT 
         this.setNotification();
         this.router.navigateByUrl('conversation-detail/'); //redirect to basePage
       }
@@ -1282,9 +1288,9 @@ export class AppComponent implements OnInit {
   }
 
   goToDashboardLogin(){
-    let DASHBOARD_URL = this.appConfigProvider.getConfig().dashboardUrl + '#/login'
-    const myWindow = window.open(DASHBOARD_URL, '_self');
-    myWindow.focus();
+    // let DASHBOARD_URL = this.appConfigProvider.getConfig().dashboardUrl + '#/login'
+    // const myWindow = window.open(DASHBOARD_URL, '_self');
+    // myWindow.focus();
   }
 
   connetWebsocket(tiledeskToken) {
@@ -1400,8 +1406,6 @@ export class AppComponent implements OnInit {
     if(conversation && conversation.is_new){
       this.audio_NewConv.pause();
       this.conversationsHandlerService.setConversationRead(conversation.uid)
-      //UPDATE NOTIFICATION FOR NEW CONVERSATION COUNT 
-      this.setNotification();
     }
   }
 
@@ -1697,7 +1701,7 @@ export class AppComponent implements OnInit {
   }
 
   private setNotification() {
-    this.logger.log('[APP-COMP] setNotification for NEW CONVERSATION');
+    this.logger.log('[APP-COMP] setNotification for NEW CONVERSATION', this.conversationsHandlerService.countIsNew().toString());
     if(window['AGENTDESKTOP']){
       this.logger.log('[APP-COMP] manageNotification AGENTDESKTOP exist', window['AGENTDESKTOP'], this.conversationsHandlerService.countIsNew().toString());
       window['AGENTDESKTOP']['TAB'].Badge(this.conversationsHandlerService.countIsNew().toString())
