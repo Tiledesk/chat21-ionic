@@ -8,8 +8,12 @@
 ### **Copyrigth**: 
 *Tiledesk SRL*
 
+# 3.4.27-rc17
+- **bug-fixed**: setNotification not called when click on a conversation
+
 # 3.4.27-rc16
- 
+- **bug-fixed**: setNotification not called when resolve a conversation
+
 # 3.4.27-rc15
 - **changed**: /images with /img in assets folder
 
