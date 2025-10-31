@@ -1142,6 +1142,7 @@ export class AppComponent implements OnInit {
       if(conversation) { 
         this.updateConversationsOnStorage();
         this.segmentResolved(conversation);
+        this.setNotification();
         this.router.navigateByUrl('conversation-detail/'); //redirect to basePage
       }
     });
@@ -1646,7 +1647,7 @@ export class AppComponent implements OnInit {
   private setNotification() {
     this.logger.log('[APP-COMP] setNotification for NEW CONVERSATION');
     if(window['AGENTDESKTOP']){
-      this.logger.log('[APP-COMP] manageNotification AGENTDESKTOP exist', window['AGENTDESKTOP']);
+      this.logger.log('[APP-COMP] manageNotification AGENTDESKTOP exist', window['AGENTDESKTOP'], this.conversationsHandlerService.countIsNew().toString());
       window['AGENTDESKTOP']['TAB'].Badge(this.conversationsHandlerService.countIsNew().toString())
     }
   }
