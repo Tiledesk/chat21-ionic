@@ -1940,8 +1940,8 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
 
   onOpenTicket() {
     this.logger.debug('[CONVS-DETAIL] openTicketOnExternalService - conversationWith ', this.conversationWith)
-    if(window['openTicketOnHDA']){
-      window['openTicketOnHDA'](this.conversationWith)
+    if(window.parent['openTicketOnHDA']){
+      window.parent['openTicketOnHDA'](this.conversationWith)
     }
 
   }
