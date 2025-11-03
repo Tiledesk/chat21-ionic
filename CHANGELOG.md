@@ -8,6 +8,9 @@
 ### **Copyrigth**: 
 *Tiledesk SRL*
 
+# 3.4.27-rc19
+- **added**: window.parent['openTicketOnHDA']
+
 # 3.4.27-rc18
 - **added**: triggerOnUpdateNewConversationBadge to update conversation badge count in parent component
 
