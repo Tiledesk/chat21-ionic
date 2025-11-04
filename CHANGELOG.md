@@ -8,6 +8,9 @@
 ### **Copyrigth**: 
 *Tiledesk SRL*
 
+# 3.4.27-rc20
+- **added**: onOpenTicketExternally event in triggerEvents service
+
 # 3.4.27-rc19
 - **added**: window.parent['openTicketOnHDA']
 
