@@ -103,13 +103,27 @@ export class TriggerEvents {
     }
 
     public triggerOnUpdateNewConversationBadge(detailObj: {}) {
-        this.logger.debug(' ---------------- triggerOnInitEvent ---------------- ', detailObj);
+        this.logger.debug(' ---------------- triggerOnUpdateNewConversationBadge ---------------- ', detailObj);
         try {
             const onBeforeInit = new CustomEvent('onUpdateNewConversationBadge', { detail: detailObj });
             const windowContext = this.windowContext;
             if (windowContext){
                 // windowContext.document.dispatchEvent(onNewConversation);
                 windowContext.postMessage({type: "onUpdateNewConversationBadge", detail: detailObj }, '*')
+            }
+        } catch (e) {
+            this.logger.error('[TRIGGER-HANDLER] > Error:' + e);
+        }
+    }
+
+    public triggerOnOpenTicketExternally(detailObj: {}) {
+        this.logger.debug(' ---------------- triggerOnOpenTicketExternally ---------------- ', detailObj);
+        try {
+            const onBeforeInit = new CustomEvent('onOpenTicketExternally', { detail: detailObj });
+            const windowContext = this.windowContext;
+            if (windowContext){
+                // windowContext.document.dispatchEvent(onNewConversation);
+                windowContext.postMessage({type: "onOpenTicketExternally", detail: detailObj }, '*')
             }
         } catch (e) {
             this.logger.error('[TRIGGER-HANDLER] > Error:' + e);

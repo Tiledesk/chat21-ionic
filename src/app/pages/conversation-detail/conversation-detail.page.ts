@@ -87,6 +87,7 @@ import { ProjectUsersService } from 'src/app/services/project_users/project-user
 import { ProjectUser } from 'src/chat21-core/models/projectUsers';
 import { getOSCode, hasRole } from 'src/app/utils/utils';
 import { PERMISSIONS } from 'src/app/utils/permissions.constants';
+import { TriggerEvents } from 'src/app/services/triggerEvents/triggerEvents';
 
 @Component({
   selector: 'app-conversation-detail',
@@ -254,6 +255,7 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
     private events: EventsService,
     private webSocketService: WebsocketService,
     public projectPlanUtils: ProjectPlanUtils,
+    public triggerEvents: TriggerEvents,
     private g: Globals,
   ) {
     // Change list on date change
@@ -1940,10 +1942,8 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
 
   onOpenTicket(event) {
     this.logger.debug('[CONVS-DETAIL] openTicketOnExternalService - conversationWith ', this.conversationWith)
-    if(window.parent['openTicketOnHDA']){
-      window.parent['openTicketOnHDA'](this.conversationWith)
-    }
-
+    const detailOBJ = { event: 'onOpenTicketExternally', request_id: this.conversationWith, conversation: this.conversation }
+    this.triggerEvents.triggerOnOpenTicketExternally(detailOBJ)
   }
   // -------------- START SCROLL/RESIZE  -------------- //
   /** */
