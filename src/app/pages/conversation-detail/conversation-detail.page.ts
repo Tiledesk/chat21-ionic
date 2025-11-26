@@ -250,8 +250,8 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
     this.route.paramMap.subscribe((params) => {
       this.logger.log('[CONVS-DETAIL] - constructor -> params: ', params)
       this.conversationWith = params.get('IDConv')
-      this.conversationWithFullname = params.get('FullNameConv')
-      this.conv_type = params.get('Convtype')
+      this.conversationWithFullname = decodeURIComponent(params.get('FullNameConv'))
+      this.conv_type = decodeURIComponent(params.get('Convtype'))
 
       this.events.publish('supportconvid:haschanged', this.conversationWith)
     })

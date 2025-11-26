@@ -70,8 +70,8 @@ export class InfoContentComponent implements OnInit {
     this.route.paramMap.subscribe(params => {
       this.logger.log('[INFO-CONTENT-COMP] initialize params: ', params);
       this.conversationWith = params.get('IDConv');
-      this.conversationWithFullname = params.get('FullNameConv');
-      this.conv_type = params.get('Convtype');
+      this.conversationWithFullname = decodeURIComponent(params.get('FullNameConv'));
+      this.conv_type = decodeURIComponent(params.get('Convtype'));
 
       const conversationWith_segments = this.conversationWith.split('-');
 
