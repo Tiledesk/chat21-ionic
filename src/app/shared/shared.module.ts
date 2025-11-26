@@ -23,8 +23,6 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { SafeHtmlPipe } from '../directives/safe-html.pipe';
 
-// import { MessageTextAreaComponent } from '../components/conversation-detail/message-text-area/message-text-area.component'; // MessageTextAreaComponent is part of the declarations ConversationDetailPageModule
-
 @NgModule({
   declarations: [
      //CONVERSATION_LIST

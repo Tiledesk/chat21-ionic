@@ -888,21 +888,21 @@ export class ConversationListPage implements OnInit {
       this.logger.log('[CONVS-LIST-PAGE] checkPlatformIsMobile(): ', checkPlatformIsMobile())
       this.logger.log('[CONVS-LIST-PAGE] DESKTOP (window < 768)', this.navService)
       this.logger.log('[CONVS-LIST-PAGE] navigateByUrl this.conversationSelected conversation_with_fullname ', this.conversationSelected)
-      let pageUrl = 'conversation-detail/' + this.uidConvSelected + '/' + this.conversationSelected.conversation_with_fullname + '/' + converationType
+      let pageUrl = 'conversation-detail/' + this.uidConvSelected + '/' + encodeURIComponent(this.conversationSelected.conversation_with_fullname) + '/' + converationType
       this.logger.log('[CONVS-LIST-PAGE] pageURL', pageUrl)
         // replace(/\(/g, '%28').replace(/\)/g, '%29') -> used for the encoder of any round brackets
-      this.router.navigateByUrl(pageUrl.replace(/\(/g, '%28').replace(/\)/g, '%29').replace( /#/g, "%23" ), {replaceUrl: true})
+      this.router.navigateByUrl(pageUrl.replace(/\(/g, '%28').replace(/\)/g, '%29'), {replaceUrl: true})
     } else {
       this.logger.log('[CONVS-LIST-PAGE] navigateByUrl this.conversationSelected conversation_with_fullname ', this.conversationSelected)
       this.logger.log('[CONVS-LIST-PAGE] checkPlatformIsMobile(): ', checkPlatformIsMobile())
       this.logger.log('[CONVS-LIST-PAGE] MOBILE (window >= 768) ', this.navService)
       let pageUrl = 'conversation-detail/' + this.uidConvSelected
       if (this.conversationSelected && this.conversationSelected.conversation_with_fullname) {
-        pageUrl = 'conversation-detail/' + this.uidConvSelected + '/' + this.conversationSelected.conversation_with_fullname + '/' + converationType
+        pageUrl = 'conversation-detail/' + this.uidConvSelected + '/' + encodeURIComponent(this.conversationSelected.conversation_with_fullname) + '/' + converationType
       }
       this.logger.log('[CONVS-LIST-PAGE] setUidConvSelected navigateByUrl--->: ', pageUrl)
       // replace(/\(/g, '%28').replace(/\)/g, '%29') -> used for the encoder of any round brackets
-      this.router.navigateByUrl(pageUrl.replace(/\(/g, '%28').replace(/\)/g, '%29').replace( /#/g, "%23" ), {replaceUrl: true})
+      this.router.navigateByUrl(pageUrl.replace(/\(/g, '%28').replace(/\)/g, '%29'), {replaceUrl: true})
     }
   }
 
