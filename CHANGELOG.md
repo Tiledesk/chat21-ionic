@@ -8,6 +8,10 @@
 ### **Copyrigth**: 
 *Tiledesk SRL*
 
+# 3.4.27-rc21
+- **changed**: new wss reconnect and timeout keepalive 
+- **bug-fixed**: cannot route if senderFullaname contains /
+
 # 3.4.27-rc20
 - **added**: onOpenTicketExternally event in triggerEvents service
 
