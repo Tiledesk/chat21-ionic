@@ -225,6 +225,10 @@
   "admin": "Administrator",
   "agent": "Agent",
   "Conversations": "Conversations",
+  "Monitor":"Monitor",
+  "Flows": "Flows",
+  "Knowledgebases": "Knowledge Bases",
+  "Whatsappbroadcasts": "WhatsApp Broadcasts",
   "Apps": "Apps",
   "Analytics": "Analytics",
   "Activities": "Activities",
@@ -314,5 +318,11 @@
     "HOW_CAN_I_HELP_YOU":"How can i help you?"
   },
   "EMOJI_NOT_ELLOWED":"Emoji not allowed",
-  "DOMAIN_NOT_ALLOWED":"URL contains a non-allowed domain"
+  "DOMAIN_NOT_ALLOWED":"URL contains a non-allowed domain",
+  "TICKET": {
+    "OPEN_TICKET": "Open Ticket",
+    "DESCRIPTION": "Do you confirm you want to open a ticket for this conversation?",
+    "CONFIRM": "Confirm",
+    "CLOSE": "Close"
+  }
 }

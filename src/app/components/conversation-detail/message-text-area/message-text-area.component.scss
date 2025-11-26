@@ -183,6 +183,36 @@
     }
 }
 
+#ticket{
+    text-align: center;
+    font-size: 12px;
+
+    .buttons-container{
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+
+        ion-button{
+            font-size: 12px;
+            --padding-top: 4px;
+            --padding-bottom: 4px;
+            --padding-start: 6px;
+            --padding-end: 6px;
+            --ripple-color: transparent;
+            text-transform: unset;
+            height: auto;
+
+            ion-icon{
+                margin-right: 4px;
+            }
+
+            &[name="add"]{
+                --background: var(--basic-blue);
+            }
+        }
+    }
+}
+
 #fileInput {
     position: absolute;
     opacity: 0;

@@ -15,6 +15,7 @@ export class Globals {
   jwt: string;
   fileUploadAccept: string;
   projectID: string;
+  logOut: boolean
 
   constructor(
   ) { }
@@ -36,6 +37,7 @@ export class Globals {
     this.lang = 'en'
     this.fileUploadAccept = 'image/*,.pdf,.txt'
     this.projectID = null;
+    this.logOut = true;
 
   }
 

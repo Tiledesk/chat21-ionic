@@ -93,22 +93,6 @@ export class TiledeskService {
     }))
   }
 
-  public getProjectUsersByProjectId(project_id: string) {
-    const url = this.SERVER_BASE_URL + project_id + '/project_users/';
-    this.logger.log('[TILEDESK-SERVICE] - GET PROJECT-USER URL', url);
-    
-    const httpOptions = {
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Authorization: this.tiledeskToken
-      })
-    };
-    return this.http.get(url, httpOptions).pipe(map((res: any) => {
-      this.logger.log('[TILEDESK-SERVICE] - GET PROJECT-USER RES ', res);
-      return res
-    }))
-  }
-
   public getAllLeadsActiveWithLimit(project_id: string, limit: number) {
     const url = this.SERVER_BASE_URL + project_id + '/leads?limit=' + limit + '&with_fullname=true';
     this.logger.log('[TILEDESK-SERVICE] - GET ALL ACTIVE LEADS (LIMIT 10000) -  URL', url);

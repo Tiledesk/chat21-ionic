@@ -22,6 +22,13 @@
           {{translationMap?.get('WHATSAPP.LABEL_TEMPLATES')}}
         </ion-button>
       </div>
+      <!-- OPEN TICKET -->
+      <div *ngIf="ticketSection" class="section-option" id="template" tooltip="{{translationMap?.get('TICKET.OPEN_TICKET')}}" placement="top">
+        <ion-button fill="clear" [class.active]="section==='ticket'" (click)="onOpenSection('ticket')" [disabled]="channelType === 'direct'">
+          <ion-icon name="ticket"></ion-icon>
+          {{translationMap?.get('TICKET.OPEN_TICKET')}}
+        </ion-button>
+      </div>
     </div>
 
     <div class="footerContainerAlert">
@@ -50,6 +57,22 @@
     </ion-col>
   </ion-row>
 
+  <ion-row id="ticket" [style.display]="section==='ticket'? 'flex': 'none'">
+    <ion-col col-auto>
+      <div class="placeholder">{{translationMap.get('TICKET.DESCRIPTION')}}</div>
+      <div class="buttons-container">
+          <ion-button name="add" size="small" (click)="onClickTicket('open')">
+            <ion-icon name="add"></ion-icon>
+            {{translationMap?.get('TICKET.CONFIRM')}}
+          </ion-button>
+          <ion-button size="small" color="danger" (click)="onClickTicket('close')">
+            <ion-icon name="close"></ion-icon>
+            {{translationMap?.get('TICKET.CLOSE')}}
+          </ion-button>
+      </div>
+    </ion-col>
+  </ion-row>
+
   <ion-row id="message-text-area" [style.display]="section==='chat' || section ==='templates' || section ==='copilot'? 'flex': 'none'">
 
     <ion-col col-auto style="display: flex;">
@@ -57,7 +80,7 @@
       <div class="buttons-left">
 
         <!-- CANNED RESPONSES -->
-        <ng-container *ngIf="areVisibleCAR && supportMode">
+        <ng-container *ngIf="areVisibleCAR && supportMode && cannedSection">
           <div class="canned-responses-btn-wpr" tooltip="{{translationMap?.get('CANNED_RESPONSES')}}" placement="top">
             <ion-button ion-button fill="clear" class="canned-responses-btn" (click)="openCannedResponses()"
               [disabled]="!conversationWith?.startsWith(CHANNEL_TYPE.SUPPORT_GROUP) || disableTextarea">
