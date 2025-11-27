@@ -1301,10 +1301,7 @@ export class AppComponent implements OnInit {
     const WS_URL = appconfig.wsUrl + '?token=' + tiledeskToken
     this.logger.log('[WEBSOCKET-JS] connetWebsocket called in [PROJECT-ITEM] wsUrl ', WS_URL)
     this.webSocketJs.init(
-      WS_URL,
-      undefined,
-      undefined,
-      undefined
+      WS_URL
     );
   }
 
