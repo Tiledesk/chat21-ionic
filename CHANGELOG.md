@@ -8,6 +8,9 @@
 ### **Copyrigth**: 
 *Tiledesk SRL*
 
+# 3.4.27-rc22
+- **added**: new WsWorker to manage iframe chrome throttling while tab is in background or hidden
+
 # 3.4.27-rc21
 - **changed**: new wss reconnect and timeout keepalive 
 - **bug-fixed**: cannot route if senderFullaname contains /
