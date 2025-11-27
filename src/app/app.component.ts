@@ -1248,6 +1248,18 @@ export class AppComponent implements OnInit {
     myWindow.focus();
   }
 
+  connetWebsocket(tiledeskToken) {
+
+    this.logger.log('[WEBSOCKET-JS] connetWebsocket called in [PROJECT-ITEM] tiledeskToken ', tiledeskToken)
+    const appconfig = this.appConfigProvider.getConfig();
+    this.logger.log('[WEBSOCKET-JS] connetWebsocket called in [PROJECT-ITEM] wsUrl ', appconfig.wsUrl)
+    const WS_URL = appconfig.wsUrl + '?token=' + tiledeskToken
+    this.logger.log('[WEBSOCKET-JS] connetWebsocket called in [PROJECT-ITEM] wsUrl ', WS_URL)
+    this.webSocketJs.init(
+      WS_URL
+    );
+  }
+
 
   webSocketClose() {
     this.logger.log('[APP-COMP] - GO-OFFLINE - webSocketClose');
