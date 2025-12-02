@@ -5,9 +5,9 @@ import { LoggerInstance } from 'src/chat21-core/providers/logger/loggerInstance'
 interface Subscription {
   topic: string;
   label?: string;
-  onCreate?: (msg: any) => void;
-  onUpdate?: (msg: any) => void;
-  onData?: (msg: any) => void;
+  onCreate?: (msg: any, notification: any) => void;
+  onUpdate?: (msg: any, notification: any) => void;
+  onData?: (msg: any, notification: any) => void;
 }
 
 @Injectable({
@@ -22,6 +22,14 @@ export class WebSocketJs {
   constructor() {
     this.worker = new Worker(new URL('./websocket.worker', import.meta.url));
     
+    // ➤ AGGIUNTA: notifica al worker quando la tab va in background
+    document.addEventListener("visibilitychange", () => {
+      this.worker.postMessage({
+        action: "visibility",
+        data: { hidden: document.hidden }
+      });
+    });
+
     // ricezione dei messaggi dal worker
     this.worker.onmessage = (event) => {
       const msg = event.data;
@@ -30,28 +38,21 @@ export class WebSocketJs {
       const sub = this.subscriptions.get(msg.topic);
       if (!sub) return;
 
+      let object = { event: msg.payload, data: msg };
       switch (msg.method) {
-        case 'CREATE': sub.onCreate?.(msg.payload); break;
-        case 'UPDATE': sub.onUpdate?.(msg.payload); break;
-        case 'DATA':   sub.onData?.(msg.payload);   break;
+        case 'CREATE': sub.onCreate?.(msg.payload, object); break;
+        case 'UPDATE': sub.onUpdate?.(msg.payload, object); break;
+        case 'DATA':   sub.onData?.(msg.payload, object);   break;
       }
-
-      // ➤ AGGIUNTA: notifica al worker quando la tab va in background
-      document.addEventListener("visibilitychange", () => {
-        this.worker.postMessage({
-          action: "visibility",
-          data: { hidden: document.hidden }
-        });
-      });
-
     };
   }
 
   init(url: string) {
     this.worker.postMessage({ action: 'init', data: { url } });
+    this.worker.postMessage({ action: 'visibility', data: { hidden: document.hidden } });
   }
 
-  ref(topic: string, calledby?: string, onCreate?: (msg:any)=>void, onUpdate?: (msg:any)=>void, onData?: (msg:any)=>void) {
+  ref(topic: string, calledby?: string, onCreate?: (msg:any, notification: any)=>void, onUpdate?: (msg:any, notification: any)=>void, onData?: (msg:any, notification: any)=>void) {
     this.logger.log('[WEBSOCKET-JS] - REF - calledby ', calledby);
     this.logger.log('[WEBSOCKET-JS] - REF - TOPIC ', topic);
 

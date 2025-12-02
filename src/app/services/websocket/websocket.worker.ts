@@ -154,7 +154,7 @@ function handleMessage(msg: WSMessage) {
   // Notifica solo le subscription che matchano
   subscriptions.forEach(sub => {
     if (sub.topic === topic) {
-      postMessage({ topic, method, payload }, undefined);
+      postMessage({ topic, method, payload, msg }, undefined);
     }
   });
 }
@@ -200,7 +200,7 @@ function heartStart() {
       // se onclose Si esibirà reconnect，Eseguiamo ws.close() Bene, se lo esegui direttamente reconnect Si innescherà onclose Causa riconnessione due volte
       ws.close();
     }, pongTimeout) as unknown as number;
-  }, adaptivePing);
+  }, pingTimeout);
 
 }
 

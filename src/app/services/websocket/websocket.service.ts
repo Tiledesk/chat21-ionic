@@ -41,18 +41,18 @@ export class WebsocketService {
     return new Promise(function (resolve, reject) {
 
       self.webSocketJs.ref(path, 'subscriptionToWsCurrentUser_allProject',
-        function (data) {
+        function (data, notification) {
           // console.log("[WS-SERV] SUBSCR TO WS CURRENT PROJECT-USER AVAILABILITY - CREATE - data ", data);
           resolve(data)
           // self.currentUserWsAvailability$.next(data.user_available);
           self.currentProjectUserAvailability$.next(data)
 
-        }, function (data) {
+        }, function (data, notification) {
           resolve(data)
           // console.log("[WS-SERV] SUBSCR TO WS CURRENT PROJECT-USER AVAILABILITY - UPDATE - data ", data);
           self.currentProjectUserAvailability$.next(data)
 
-        }, function (data) {
+        }, function (data, notification) {
           resolve(data)
           if (data) {
             // console.log("[WS-SERV] SUBSCR TO WS CURRENT PROJECT-USER AVAILABILITY - UPDATE - data", data);
@@ -94,7 +94,7 @@ export class WebsocketService {
 
     this.webSocketJs.ref('/' + project_id + '/requests', 'getCurrentProjectAndSubscribeTo_WsRequests',
 
-      function (data) {
+      function (data, notification) {
         // console.log("[WS-SERV] - CONVS - CREATE DATA ", data);
         if (data) {
           // ------------------------------------------------
@@ -183,7 +183,7 @@ export class WebsocketService {
           // }
         }
 
-      }, function (data) {
+      }, function (data, notification) {
 
         // console.log("[WS-SERV] - CONVS - UPDATE DATA ", data);
 
@@ -201,7 +201,7 @@ export class WebsocketService {
         self.updateWsRequests(data)
 
 
-      }, function (data) {
+      }, function (data, notification) {
         self.logger.log("[WS-SERV] CHAT - CONVS  - ON-DATA - DATA ", data);
 
         // console.log("[WS-SERV] CHAT - CONVS  - ON-DATA - DATA notification > event > method ", notification.event.method);
