@@ -216,7 +216,7 @@ function heartStart() {
       // se onclose Si esibirà reconnect，Eseguiamo ws.close() Bene, se lo esegui direttamente reconnect Si innescherà onclose Causa riconnessione due volte
       ws.close();
     }, pongTimeout) as unknown as number;
-  }, pingTimeout);
+  }, adaptivePing);
 
 }
 
