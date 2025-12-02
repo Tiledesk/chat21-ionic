@@ -8,6 +8,9 @@
 ### **Copyrigth**: 
 *Tiledesk SRL*
 
+# 3.4.27-rc23
+- **added**: keepAlive worker for MQTT connection
+
 # 3.4.27-rc22
 - **added**: new WsWorker to manage iframe chrome throttling while tab is in background or hidden
 

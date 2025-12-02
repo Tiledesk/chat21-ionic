@@ -154,7 +154,7 @@ function handleMessage(msg: WSMessage) {
   // Notifica solo le subscription che matchano
   subscriptions.forEach(sub => {
     if (sub.topic === topic) {
-      postMessage({ topic, method, payload }, undefined);
+      postMessage({ topic, method, payload, msg }, undefined);
     }
   });
 }
