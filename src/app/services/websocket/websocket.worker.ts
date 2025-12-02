@@ -151,7 +151,23 @@ function handleMessage(msg: WSMessage) {
 
   if (!topic) return;
   
+  // --- GESTIONE ARRAY DI MESSAGGI ---
+  const messages = Array.isArray(msg.payload.message) ? msg.payload.message : [msg.payload.message];
   // Notifica solo le subscription che matchano
+  subscriptions.forEach(sub => {
+    if (sub.topic === topic) {
+      messages.forEach(element => {
+        postMessage({
+          topic,
+          method,
+          payload: element,  // singolo elemento
+          data: msg   // payload completo per eventuali onData globali
+        }, undefined);
+      });
+    }
+  });
+
+  
   subscriptions.forEach(sub => {
     if (sub.topic === topic) {
       postMessage({ topic, method, payload, msg }, undefined);
