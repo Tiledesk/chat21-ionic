@@ -543,10 +543,13 @@ export class AppComponent implements OnInit {
       this.statusBar.styleLightContent();
       this.navService.init(this.sidebarNav, this.detailNav);
       this.tiledeskAuthService.initialize(this.appConfigProvider.getConfig().apiUrl);
-      this.messagingAuthService.initialize();
-
+      this.tiledeskService.initialize(this.appConfigProvider.getConfig().apiUrl)
+      this.projectService.initialize(this.appConfigProvider.getConfig().apiUrl);
+      this.contactsService.initialize(this.appConfigProvider.getConfig().apiUrl)
+      
       // this.currentUserService.initialize();
       this.chatManager.initialize();
+      this.messagingAuthService.initialize();
       this.presenceService.initialize(this.tenant);
       this.typingService.initialize(this.tenant);
 
@@ -1181,7 +1184,6 @@ export class AppComponent implements OnInit {
     // this.logger.info('initialize FROM [APP-COMP] - [APP-COMP] - GO-ONLINE isOnline ', this.isOnline);
     // clearTimeout(this.timeModalLogin);
     const tiledeskToken = this.tiledeskAuthService.getTiledeskToken();
-    const serverBaseURL = this.appConfigProvider.getConfig().apiUrl 
     // const supportmode = this.appConfigProvider.getConfig().supportMode;
     // this.logger.log('[APP-COMP] - GO-ONLINE - supportmode ', supportmode);
     // if (supportmode === true) {
@@ -1195,10 +1197,6 @@ export class AppComponent implements OnInit {
     this.chatManager.setTiledeskToken(tiledeskToken);
     this.chatManager.setCurrentUser(currentUser);
 
-    this.tiledeskService.initialize(serverBaseURL)
-    this.projectService.initialize(serverBaseURL)
-    this.projectUsersService.initialize(serverBaseURL)
-    this.contactsService.initialize(serverBaseURL)
     // this.chatManager.startApp();
 
 
