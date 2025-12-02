@@ -38,7 +38,7 @@ export class WebSocketJs {
       const sub = this.subscriptions.get(msg.topic);
       if (!sub) return;
 
-      let object = { event: msg.payload, data: msg };
+      let object = { event: msg.payload, data: msg.data };
       switch (msg.method) {
         case 'CREATE': sub.onCreate?.(msg.payload, object); break;
         case 'UPDATE': sub.onUpdate?.(msg.payload, object); break;
