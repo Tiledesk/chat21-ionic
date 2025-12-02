@@ -8,6 +8,9 @@
 ### **Copyrigth**: 
 *Tiledesk SRL*
 
+# 3.4.27-rc21
+- **added**: keepAlive worker for MQTT connection
+
 # 3.4.27-rc20
 - **added**: onOpenTicketExternally event in triggerEvents service
 
