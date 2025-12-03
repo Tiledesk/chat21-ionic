@@ -8,6 +8,9 @@
 ### **Copyrigth**: 
 *Tiledesk SRL*
 
+# 3.4.27-rc26
+- **bug-fixed**: wss push requests twice 
+
 # 3.4.27-rc25
 - **bug-fixed**: projectUserService is not initialized
 
