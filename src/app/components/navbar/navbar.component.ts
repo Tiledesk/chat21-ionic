@@ -111,7 +111,7 @@ export class NavbarComponent implements OnInit {
         this.USER_ROLE = project.role;
         this.projectUser = await this.projectUsersService.getProjectUserByProjectId(project.id_project.id)
         this.roles = this.checkRoles()
-        console.log('[SIDEBAR] roles ', this.roles)
+        this.logger.log('[SIDEBAR] roles ', this.roles)
       }
     })
   }

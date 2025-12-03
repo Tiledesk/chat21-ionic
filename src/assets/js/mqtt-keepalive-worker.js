@@ -6,7 +6,7 @@ let pingIntervalId = null;
 self.onmessage = function(event) {
     const data = event.data;
 
-    console.log('MQTT KEEPALIVE WORKER - received message ', data);
+    // console.log('MQTT KEEPALIVE WORKER - received message ', data);
     if (data.action === 'start') {
         user_id = data.user_id;
         const endpoint = data.endpoint;
@@ -27,7 +27,7 @@ self.onmessage = function(event) {
             // start ping
             pingIntervalId = setInterval(() => {
                 if (client && client.connected) {
-                    console.log('MQTT KEEPALIVE WORKER - sending keepalive ping for user ', user_id);
+                    // console.log('MQTT KEEPALIVE WORKER - sending keepalive ping for user ', user_id);
                     client.publish(`apps/tilechat/users/${user_id}/keepalive`,
                         JSON.stringify({ ts: new Date().getTime() }));
                 }
@@ -40,6 +40,7 @@ self.onmessage = function(event) {
         });
     }else if (data.action === 'ping') {
         if (self.timer) return;
+        
         self.timer = setInterval(() => {
             postMessage({ action: 'ping' });
         }, 3000);
