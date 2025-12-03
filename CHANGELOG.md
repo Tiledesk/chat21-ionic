@@ -8,6 +8,9 @@
 ### **Copyrigth**: 
 *Tiledesk SRL*
 
+# 3.4.27-rc25
+- **bug-fixed**: projectUserService is not initialized
+
 # 3.4.27-rc24
 - **added**: implementation of multiple message in wss onmessage
 
