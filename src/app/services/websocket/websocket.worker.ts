@@ -167,12 +167,6 @@ function handleMessage(msg: WSMessage) {
     }
   });
 
-  
-  subscriptions.forEach(sub => {
-    if (sub.topic === topic) {
-      postMessage({ topic, method, payload, msg }, undefined);
-    }
-  });
 }
 
 function sendMessage(message: any) {
