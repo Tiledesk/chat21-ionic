@@ -1164,7 +1164,7 @@ export class AppComponent implements OnInit {
     // if (supportmode === true) {
     //   this.connetWebsocket() // moved in the comp project-item
     // }
-    this.events.publish('go:online', true);
+    
     const currentUser = this.tiledeskAuthService.getCurrentUser();
     this.setLanguage(currentUser);
     // this.logger.printDebug('APP-COMP - goOnLine****', currentUser);
@@ -1175,6 +1175,9 @@ export class AppComponent implements OnInit {
     this.tiledeskService.initialize(serverBaseURL)
     this.projectService.initialize(serverBaseURL)
     this.contactsService.initialize(serverBaseURL)
+
+
+    this.events.publish('go:online', true);
     // this.chatManager.startApp();
 
     // ----------------------------------------------
