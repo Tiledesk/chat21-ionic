@@ -543,9 +543,6 @@ export class AppComponent implements OnInit {
       this.statusBar.styleLightContent();
       this.navService.init(this.sidebarNav, this.detailNav);
       this.tiledeskAuthService.initialize(this.appConfigProvider.getConfig().apiUrl);
-      this.tiledeskService.initialize(this.appConfigProvider.getConfig().apiUrl)
-      this.projectService.initialize(this.appConfigProvider.getConfig().apiUrl);
-      this.contactsService.initialize(this.appConfigProvider.getConfig().apiUrl)
       
       // this.currentUserService.initialize();
       this.chatManager.initialize();
@@ -1184,12 +1181,13 @@ export class AppComponent implements OnInit {
     // this.logger.info('initialize FROM [APP-COMP] - [APP-COMP] - GO-ONLINE isOnline ', this.isOnline);
     // clearTimeout(this.timeModalLogin);
     const tiledeskToken = this.tiledeskAuthService.getTiledeskToken();
+    const serverBaseURL = this.appConfigProvider.getConfig().apiUrl 
     // const supportmode = this.appConfigProvider.getConfig().supportMode;
     // this.logger.log('[APP-COMP] - GO-ONLINE - supportmode ', supportmode);
     // if (supportmode === true) {
     //   this.connetWebsocket() // moved in the comp project-item
     // }
-    this.events.publish('go:online', true);
+    
     const currentUser = this.tiledeskAuthService.getCurrentUser();
     this.setLanguage(currentUser);
     // this.logger.printDebug('APP-COMP - goOnLine****', currentUser);
@@ -1197,6 +1195,13 @@ export class AppComponent implements OnInit {
     this.chatManager.setTiledeskToken(tiledeskToken);
     this.chatManager.setCurrentUser(currentUser);
 
+    this.tiledeskService.initialize(serverBaseURL)
+    this.projectUsersService.initialize(serverBaseURL)
+    this.projectService.initialize(serverBaseURL)
+    this.contactsService.initialize(serverBaseURL)
+
+
+    this.events.publish('go:online', true);
     // this.chatManager.startApp();
 
 

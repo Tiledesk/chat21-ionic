@@ -486,7 +486,7 @@ export class ConversationListPage implements OnInit {
   listenToCurrentStoredProject() {
     this.events.subscribe('storage:last_project', async(projectObjct) => {
       if (projectObjct && projectObjct !== 'undefined') {
-        console.log('[CONVS-LIST-PAGE] - GET STORED PROJECT ', projectObjct)
+        this.logger.log('[CONVS-LIST-PAGE] - GET STORED PROJECT ', projectObjct)
 
         //TODO: recuperare info da root e non da id_project
         this.project = {
