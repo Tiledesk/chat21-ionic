@@ -886,10 +886,15 @@ export class AppComponent implements OnInit {
 
       let pageUrl = 'conversation-detail/'
       if (IDConv && FullNameConv) {
-        pageUrl += IDConv + '/' + FullNameConv + '/' + Convtype
+        pageUrl += IDConv + '/' + encodeURIComponent(FullNameConv) + '/' + Convtype
       }
+
+      const queryParams = this.route.snapshot.queryParams;
+      const queryString = new URLSearchParams(queryParams).toString();
+      pageUrl += queryString ? `?${queryString}` : '';
+
       // replace(/\(/g, '%28').replace(/\)/g, '%29') -> used for the encoder of any round brackets
-      this.router.navigateByUrl(pageUrl.replace(/\(/g, '%28').replace(/\)/g, '%29').replace( /#/g, "%23" ));
+      this.router.navigateByUrl(pageUrl.replace(/\(/g, '%28').replace(/\)/g, '%29'));
 
 
       // const DASHBOARD_URL = this.appConfigProvider.getConfig().DASHBOARD_URL;
@@ -1299,7 +1304,7 @@ export class AppComponent implements OnInit {
   subscribeChangedConversationSelected = (user: UserModel, type: string) => {
     this.logger.log('[APP-COMP] subscribeUidConvSelectedChanged navigateByUrl', user, type);
     // this.router.navigateByUrl('conversation-detail/' + user.uid + '?conversationWithFullname=' + user.fullname);
-    this.router.navigateByUrl('conversation-detail/' + user.uid + '/' + user.fullname + '/' + type);
+    this.router.navigateByUrl('conversation-detail/' + user.uid + '/' + encodeURIComponent(user.fullname) + '/' + type);
   }
 
   subscribeProfileInfoButtonLogOut = (hasClickedLogout) => {
@@ -1471,10 +1476,10 @@ export class AppComponent implements OnInit {
             let Convtype = 'active'
             
             if (IDConv && FullNameConv) {
-              pageUrl += IDConv + '/' + FullNameConv + '/' + Convtype
+              pageUrl += IDConv + '/' + encodeURIComponent(FullNameConv) + '/' + Convtype
             }
             // replace(/\(/g, '%28').replace(/\)/g, '%29') -> used for the encoder of any round brackets
-            this.router.navigateByUrl(pageUrl.replace(/\(/g, '%28').replace(/\)/g, '%29').replace( /#/g, "%23" ));
+            this.router.navigateByUrl(pageUrl.replace(/\(/g, '%28').replace(/\)/g, '%29'));
           } else {
             console.log("FCM: Received in foreground", JSON.stringify(data));
             // let IDConv = data.recipient
@@ -1485,7 +1490,7 @@ export class AppComponent implements OnInit {
             //   pageUrl += IDConv + '/' + FullNameConv + '/' + Convtype
             // }
             // // replace(/\(/g, '%28').replace(/\)/g, '%29') -> used for the encoder of any round brackets
-            // this.router.navigateByUrl(pageUrl.replace(/\(/g, '%28').replace(/\)/g, '%29').replace( /#/g, "%23" ));
+            // this.router.navigateByUrl(pageUrl.replace(/\(/g, '%28').replace(/\)/g, '%29'));
           };
         });
     }
