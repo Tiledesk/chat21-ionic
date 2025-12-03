@@ -1035,7 +1035,9 @@ class Chat21Client {
 
     initKeepAliveWorker(){
         this.worker= new Worker('assets/js/mqtt-keepalive-worker.js');
-        console.log("Chat21Client - initKeepAliveWorker() - worker created", this.worker);
+        if (this.log) {
+            console.log("Chat21Client - initKeepAliveWorker() - worker created", this.worker);
+        }
         // this.worker.postMessage({
         //     action: 'start',
         //     user_id: this.user_id,
