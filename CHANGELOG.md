@@ -8,6 +8,9 @@
 ### **Copyrigth**: 
 *Tiledesk SRL*
 
+# 3.4.27 in PROD
+- **bug-fixed**: cannot find route if userFullname contains /
+
 # 3.4.26 in PROD
 
 # 3.4.26-rc2
