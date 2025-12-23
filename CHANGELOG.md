@@ -8,7 +8,7 @@
 ### **Copyrigth**: 
 *Tiledesk SRL*
 
-# 3.4.27-rc27
+# 3.4.28-rc1
 - **bug-fixed**: cannot do project subscription if last_project object is not a project_user obj
 
 # 3.4.27-rc26
