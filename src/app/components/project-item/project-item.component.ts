@@ -15,6 +15,8 @@ import { AppConfigProvider } from 'src/app/services/app-config';
 import { ConvertRequestToConversation } from 'src/chat21-core/utils/convertRequestToConversation';
 import { compareValues } from 'src/chat21-core/utils/utils';
 import { ProjectService } from 'src/app/services/projects/project.service';
+import { ProjectUser } from 'src/chat21-core/models/project_user';
+import { Project } from 'src/chat21-core/models/projects';
 
 @Component({
   selector: 'app-project-item',
@@ -164,63 +166,68 @@ export class ProjectItemComponent implements OnInit {
     }
   }
 
-  getLastProjectStoredAndSubscToWSAvailabilityAndConversations() {
-    let stored_project = ''
+  getStoredProject(): ProjectUser | null {
     try {
-      stored_project = localStorage.getItem('last_project')
-      this.logger.log('PROJECT-ITEM - THERE IS A STORED PROJECT ', stored_project)
-    } catch (err) {
-      this.logger.error('Get local storage LAST PROJECT ', err)
-    }
+      const raw = localStorage.getItem('last_project');
 
-
-    if (!stored_project || stored_project === 'undefined') {
-      this.logger.log('PROJECT-ITEM - THERE IS NOT STORED LAST PROJECT OR IS UNDEFINED ', stored_project)
-      this.projectService.getProjects().subscribe(projects => {
-        this.logger.log('[PROJECT-ITEM - GET PROJECTS - RES', projects);
-
-        this.logger.log('[INFO-CONTENT-COMP] - GET PROJECTS - RES this.project', this.project);
-
-        if(this.projectID){
-          const project = projects.find(prjct => prjct.id_project._id === this.projectID)
-          if(project){
-            this.project = project
-            this.logger.log('[PROJECT-ITEM] - GET PROJECTS - project found with this.projectID', this.project);
-            localStorage.setItem('last_project', JSON.stringify(this.project))
-            this.doProjectSubscriptions(this.project)
-            return
-          }else{
-            this.logger.log('[PROJECT-ITEM] - GET PROJECTS - project NOT found with this.projectID', this.projectID);
-          }
-        }
-
-        if (projects[0]) {
-          localStorage.setItem('last_project', JSON.stringify(projects[0]))
-          this.project = projects[0];
-          this.doProjectSubscriptions(this.project)
-        }
-
-      }, (error) => {
-        this.logger.error('[PROJECT-ITEM] - GET PROJECTS - ERROR  ', error);
-
-      }, () => {
-        this.logger.log('[INFO-CONTENT-COMP] - GET PROJECTS * COMPLETE *');
-
-      });
-    }
-
-
-    if (stored_project && stored_project !== 'undefined') {
-      this.logger.log('PROJECT-ITEM - THERE IS STORED LAST PROJECT ', stored_project)
-      if (stored_project) {
-        this.project = JSON.parse(stored_project)
+      if (!raw) {
+        return null;
       }
-      this.doProjectSubscriptions(this.project)
-      this.logger.log('[PROJECT-ITEM] - LAST PROJECT PARSED ', this.project)
+
+      const parsed = JSON.parse(raw);
+
+      if (this.isValidStoredProject(parsed)) {
+        return parsed;
+      }
+
+      // modello sbagliato → pulizia
+      this.logger.warn('[PROJECT-ITEM] Invalid stored project schema, clearing storage');
+      localStorage.removeItem('last_project');
+      return null;
+
+    } catch (err) {
+      this.logger.error('[PROJECT-ITEM] Error parsing stored project', err);
+      localStorage.removeItem('last_project');
+      return null;
+    }
+  }
+
+  getLastProjectStoredAndSubscToWSAvailabilityAndConversations() {
+
+    let stored_project = this.getStoredProject();
+
+    if (!stored_project) {
+      this.logger.log('[PROJECT-ITEM] No valid stored project, fetching remote');
+      this.projectService.getProjects().subscribe(projects => {
+        let project: Project | undefined;
+
+        if (this.projectID) {
+          project = projects.find( p => p.id_project?._id === this.projectID );
+        }
+
+        if (!project) {
+          project = projects[0];
+        }
+
+        if (!project) {
+          this.logger.warn('[PROJECT-ITEM] No projects returned from API');
+          return;
+        }
+
+        this.project = project;
+        localStorage.setItem('last_project', JSON.stringify(project));
+        this.doProjectSubscriptions(project);
+
+      }, error => {
+        this.logger.error('[PROJECT-ITEM] GET PROJECTS ERROR', error);
+      });
+
+      return;
     }
 
-    
-
+    // ✅ stored project valido
+    this.project = stored_project;
+    this.doProjectSubscriptions(stored_project);
 
   }
 
@@ -345,6 +352,17 @@ export class ProjectItemComponent implements OnInit {
     }
   }
 
+  isValidStoredProject(obj: any): obj is ProjectUser {
+    return (
+      obj &&
+      typeof obj === 'object' &&
+      obj.id_project &&
+      typeof obj.id_project === 'object' &&
+      typeof obj.id_project._id === 'string' &&
+      typeof obj._id === 'string' &&
+      typeof obj.role === 'string'
+    );
+  }
 
 
 
