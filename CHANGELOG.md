@@ -8,6 +8,9 @@
 ### **Copyrigth**: 
 *Tiledesk SRL*
 
+# 3.4.27-rc27
+- **bug-fixed**: cannot do project subscription if last_project object is not a project_user obj
+
 # 3.4.27-rc26
 - **bug-fixed**: wss push requests twice 
 
