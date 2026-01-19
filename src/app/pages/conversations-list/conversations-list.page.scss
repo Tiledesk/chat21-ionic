@@ -11,19 +11,30 @@ ion-header {
 
 ion-content {
   // overwrite inline styles
-  --offset-bottom: auto!important;
-  --overflow: hidden;
-  overflow: scroll;
+  // --offset-bottom: auto!important;
+  // Ionic scroll is handled by the internal scroll container (Shadow DOM).
+  // Forcing `--overflow: hidden` breaks scrolling (Chrome >= 144 is stricter here).
+  --overflow: auto;
 
   /* For Firefox */
   @-moz-document url-prefix() {
-    scrollbar-width: none;
+    // scrollbar styling must target the internal scroll element
   }
   
   
   &:not(.mobile){
     background: var(--list-bkg-color);
   }
+
+}
+
+// Target Ionic internal scroll container (Shadow DOM) for overflow + scrollbar styling
+ion-content::part(scroll) {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+
+  /* For Firefox */
+  scrollbar-width: none;
 
   &::-webkit-scrollbar {
     width: 6px;
