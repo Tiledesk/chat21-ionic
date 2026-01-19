@@ -8,6 +8,9 @@
 ### **Copyrigth**: 
 *Tiledesk SRL*
 
+# 3.4.29-rc1
+- **bug-fixed**: web (Chrome >= 144) `ion-content` stopped scrolling on some pages (conversation list / contacts directory / unassigned); removed the forced `--overflow: hidden` and handled scrolling on Ionic’s internal scroll container via `ion-content::part(scroll)`
+
 # 3.4.28-rc1
 - **bug-fixed**: cannot do project subscription if last_project object is not a project_user obj
 
