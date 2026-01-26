@@ -84,6 +84,7 @@ import { Project } from 'src/chat21-core/models/projects';
 import { Globals } from 'src/app/utils/globals';
 import { ProjectService } from 'src/app/services/projects/project.service';
 import { getOSCode } from 'src/app/utils/utils';
+import { UploadService } from 'src/chat21-core/providers/abstract/upload.service';
 
 @Component({
   selector: 'app-conversation-detail',
@@ -236,6 +237,7 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
     public conversationHandlerBuilderService: ConversationHandlerBuilderService,
     public cannedResponsesService: CannedResponsesService,
     public imageRepoService: ImageRepoService,
+    public uploadService: UploadService,
     public presenceService: PresenceService,
     public toastController: ToastController,
     public tiledeskService: TiledeskService,
@@ -478,7 +480,8 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
     this.isFileSelected = false // indicates if a file has been selected (image to upload)
     this.isEmailEnabled = (this.appConfigProvider.getConfig().emailSection === 'true' || this.appConfigProvider.getConfig().emailSection === true) ? true : false;
     this.isWhatsappTemplatesEnabled = (this.appConfigProvider.getConfig().whatsappTemplatesSection === 'true' || this.appConfigProvider.getConfig().whatsappTemplatesSection === true) ? true : false;
-
+    this.fileUploadAccept = this.appConfigProvider.getConfig().fileUploadAccept
+    
     this.cannedResponsesService.initialize(appconfig.apiUrl)
 
     if (checkPlatformIsMobile()) {
@@ -507,10 +510,10 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
     // this.initConversationsHandler(); // nk
     if (this.conversationWith) {
       this.disableTextarea = false
+      this.startConversation();
       this._getProjectIdByConversationWith(this.conversationWith)
       this.initConversationHandler()
       this.initGroupsHandler();
-      this.startConversation();
       this.initSubscriptions();
       this.getLeadDetail();
       this.initializeTyping();
@@ -521,6 +524,7 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
   }
 
   _getProjectIdByConversationWith(conversationWith: string) {
+    console.log('[CONVS-DETAIL] - _getProjectIdByConversationWith conversationWith', conversationWith, this.channelType)
     if (this.channelType !== TYPE_DIRECT && !this.conversationWith.startsWith('group-')) {
       this.tiledeskService.getProjectIdByConvRecipient(conversationWith).subscribe((res) => {
         this.logger.log('[CONVS-DETAIL] - GET PROJECTID BY CONV RECIPIENT RES + projectId', res, res.id_project)

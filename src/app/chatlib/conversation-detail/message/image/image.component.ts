@@ -15,6 +15,7 @@ export class ImageComponent implements OnInit {
   loading: boolean = true
   modal: any
   span: any
+  private readonly fallbackSrc = 'assets/img/no_data_found.png'
 
   constructor() { }
 
@@ -24,6 +25,24 @@ export class ImageComponent implements OnInit {
   onLoaded(event) {
     this.loading = false
     this.onElementRendered.emit({element: "image", status:true})
+  }
+
+  onError(event: Event) {
+    this.loading = false
+    const img = event?.target as HTMLImageElement | null
+    if (!img) {
+      return
+    }
+    // avoid infinite loop if fallback image fails too
+    if (img.src && img.src.includes(this.fallbackSrc)) {
+      return
+    }
+    img.src = this.fallbackSrc
+    // also update metadata so click-to-open uses the fallback consistently
+    if (this.metadata) {
+      this.metadata.src = this.fallbackSrc
+    }
+    this.onElementRendered.emit({ element: 'image', status: true })
   }
 
   _downloadImage(url: string, fileName: string) {

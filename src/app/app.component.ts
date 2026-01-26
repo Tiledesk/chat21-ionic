@@ -119,7 +119,6 @@ export class AppComponent implements OnInit {
     private navService: NavProxyService,
     // public chatPresenceHandler: ChatPresenceHandler,
     public typingService: TypingService,
-    public uploadService: UploadService,
     public appStorageService: AppStorageService,
 
     // public chatConversationsHandler: ChatConversationsHandler,
@@ -547,7 +546,6 @@ export class AppComponent implements OnInit {
       if (pushEngine && pushEngine !== 'none') {
         this.notificationsService.initialize(this.tenant, vap_id_Key, platform)
       }
-      this.uploadService.initialize();
 
       this.setLanguage(null)
       this.initAuthentication();
