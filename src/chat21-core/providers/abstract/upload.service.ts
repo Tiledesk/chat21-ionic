@@ -41,5 +41,6 @@ export abstract class UploadService {
   abstract uploadProfile(userId: string, upload: UploadModel): Promise<any>;
   abstract delete(userId: string, path: string): Promise<any>;
   abstract deleteFile(userId: string, path: string): Promise<any>;
+  abstract deleteAsset(userId: string, path: string): Promise<any>
   abstract deleteProfile(userId: string, path: string): Promise<any>
 }
