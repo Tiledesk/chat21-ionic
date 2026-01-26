@@ -9,6 +9,7 @@ import { TiledeskAuthService } from 'src/chat21-core/providers/tiledesk/tiledesk
 import { compareValues, htmlEntities } from 'src/chat21-core/utils/utils';
 import { getProjectIdSelectedConversation } from 'src/chat21-core/utils/utils-message';
 import { PLAN_NAME } from 'src/chat21-core/utils/constants';
+import { PERMISSIONS } from 'src/app/utils/permissions.constants';
 
 @Component({
   selector: 'app-canned-response',
@@ -21,7 +22,7 @@ export class CannedResponseComponent implements OnInit {
   @Input() conversationWith: string;
   @Input() conversationWithFullname: string;
   @Input() currentString: string;
-  @Input() canShowCanned: boolean = true;
+  @Input() roles: Array<string>;
   @Input() stylesMap: Map<string, string>;
   @Input() translationMap: Map<string, string>;
   @Output() onLoadedCannedResponses = new EventEmitter<[any]>();
@@ -36,6 +37,7 @@ export class CannedResponseComponent implements OnInit {
 
   public arrowkeyLocation = -1
 
+  PERMISSIONS = PERMISSIONS
   
   private logger: LoggerService = LoggerInstance.getInstance();
   constructor(

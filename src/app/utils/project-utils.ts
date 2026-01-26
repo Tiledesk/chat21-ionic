@@ -129,9 +129,9 @@ export class ProjectPlanUtils {
     
         //case PAYMENT plan
         if(project && project.isActiveSubscription && project.profile.type=== 'payment'){
-          check = true
-        }else if(project && !project.isActiveSubscription && project.profile.type=== 'payment'){
           check = false
+        }else if(project && !project.isActiveSubscription && project.profile.type=== 'payment'){
+          check = true
         }
     
         return check

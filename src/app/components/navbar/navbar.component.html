@@ -5,7 +5,7 @@
       </div>
       <div class="navbar-right">
         <!-- test site -->
-        <ng-container *ngIf="project">
+        <ng-container *ngIf="project && roles?.[PERMISSIONS.SIMULATE_CONV]">
           <button class="btn simulate-visitor-btn" (click)="testWidgetPage()">
             <i class="material-icons">play_arrow</i>
             <!-- {{translationsMap?.get('NAVBAR.SIMULATE_VISITOR')}} -->
@@ -23,7 +23,7 @@
         </ng-container>
 
         <!--  ------ PROJECTS  DROPDOWN ------ -->
-        <ng-container *ngIf="project">
+        <ng-container *ngIf="project && roles?.[PERMISSIONS.CHANGE_PROJECT]">
             <li>
               <button class="btn dropdown-toggle project-dropdown" (click)="openDropdownProjects = !openDropdownProjects">
                 <span class="project-dropdown" style="text-transform: none"> {{ project?.id_project?.name }} </span>
@@ -49,7 +49,7 @@
                 </li>
   
                 <!--  ADD PROJECT -->
-                <li id="navbar_create_prjct" *ngIf="MT === true" (click)="onClickDropdownOption('addProject')" class="add-project">
+                <li id="navbar_create_prjct" *ngIf="isVisibleMT" (click)="onClickDropdownOption('addProject')" class="add-project">
                   <a>
                     <i class="material-icons">add_circle_outline </i>
                     {{translationsMap?.get('NAVBAR.ADD_PROJECT')}}

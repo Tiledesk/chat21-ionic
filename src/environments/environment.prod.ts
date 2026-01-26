@@ -40,6 +40,7 @@ export const environment = {
     writeToButton: false,
     archivedButton: false,
     emailSection: true,
+    ticketSection: false,
     whatsappTemplatesSection: true,
     googleMapsApiKey:"CHANGEIT"
 };

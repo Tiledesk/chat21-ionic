@@ -765,6 +765,12 @@ export function isOnMobileDevice() {
   return IS_ON_MOBILE_DEVICE;
 }
 
+
+export function checkIfIsInIframe(){
+  const isInIframe = window.self !== window.top;
+  return isInIframe;
+}
+
 export function checkWindowWidthIsLessThan991px() {
   // console.log('UTILS - checkWindowWidthIsLessThan991px:: ', window.innerWidth);
   if (window.innerWidth < 991) {
@@ -1018,6 +1024,14 @@ export function isAllowedUrlInText(text: string, allowedUrls: string[]) {
 }
 
 function extractUrls(text: string): string[] {
-  const urlRegex = /https?:\/\/[^\s]+/g;
-  return text.match(urlRegex) || [];
+  // Rileva URL con o senza protocollo (http/https)
+  const urlRegex = /\b((https?:\/\/)?(www\.)?[a-z0-9.-]+\.[a-z]{2,})(\/[^\s]*)?/gi;
+  const matches = text.match(urlRegex) || [];
+  // Normalizza: aggiunge https:// se manca, così il parsing con new URL() funziona
+  return matches.map((url) => {
+    if (!/^https?:\/\//i.test(url)) {
+      return 'https://' + url;
+    }
+    return url;
+  });
 }
