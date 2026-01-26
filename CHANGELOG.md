@@ -8,6 +8,9 @@
 ### **Copyrigth**: 
 *Tiledesk SRL*
 
+# 3.4.29-rc2
+- **changed**: minor updates on API to upload file/image into chat
+
 # 3.4.29-rc1
 - **changed**: API for upload a file/image into chat
 
