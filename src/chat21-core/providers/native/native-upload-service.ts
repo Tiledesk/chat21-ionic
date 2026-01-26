@@ -51,26 +51,32 @@ export class NativeUploadService extends UploadService {
             //USE IMAGE API
             const url = this.URL_TILEDESK_UPLOAD + 'images/users'
             return new Promise((resolve, reject) => {
-                that.http.post(url, formData, requestOptions).subscribe(data => {
-                    const downloadURL = this.URL_TILEDESK_UPLOAD + 'images?path=' + encodeURIComponent(data?.['filename']);
-                    resolve({downloadURL : downloadURL, src: downloadURL})
-                    // that.BSStateUpload.next({upload: upload});
-                }, (error) => {
-                    reject(error)
+                that.http.post(url, formData, requestOptions).pipe(first()).subscribe({
+                    next: (data) => {
+                        const downloadURL = this.URL_TILEDESK_UPLOAD + 'images?path=' + encodeURIComponent(data?.['filename']);
+                        resolve({downloadURL : downloadURL, src: downloadURL})
+                        // that.BSStateUpload.next({upload: upload});
+                    },
+                    error: (error) => {
+                        reject(error)
+                    }
                 });
             });
         } else {
             //USE FILE API
             const url = this.URL_TILEDESK_UPLOAD + 'files/users'
             return new Promise((resolve, reject) => {
-                that.http.post(url, formData, requestOptions).subscribe(data => {
-                    const src = this.URL_TILEDESK_UPLOAD + 'files?path=' + encodeURI(data['filename']);
-                    const downloadURL = this.URL_TILEDESK_UPLOAD + 'files/download' + '?path=' + encodeURI(data['filename']);
-                    resolve({downloadURL : downloadURL, src: src})
-                    // that.BSStateUpload.next({upload: upload});
-                }, (error) => {
-                    this.logger.error('[NATIVE UPLOAD] - ERROR upload new file ', error)
-                    reject(error)
+                that.http.post(url, formData, requestOptions).pipe(first()).subscribe({
+                    next: (data) => {
+                        const src = this.URL_TILEDESK_UPLOAD + 'files?path=' + encodeURIComponent(data['filename']);
+                        const downloadURL = this.URL_TILEDESK_UPLOAD + 'files/download' + '?path=' + encodeURIComponent(data['filename']);
+                        resolve({downloadURL : downloadURL, src: src})
+                        // that.BSStateUpload.next({upload: upload});
+                    }, 
+                    error: (error) => {
+                        this.logger.error('[NATIVE UPLOAD] - ERROR upload new file ', error)
+                        reject(error)
+                    }
                 });
             });
         }
@@ -92,8 +98,9 @@ export class NativeUploadService extends UploadService {
         return new Promise((resolve, reject) => {
             that.http.post(url, formData, requestOptions).pipe(first()).subscribe({
                 next: (data) => {
-                    const downloadURL = this.getBaseUrl() + 'files' + '?path=' + encodeURIComponent(data['filename']);
-                    resolve({downloadURL : downloadURL, src: downloadURL})
+                    const src = this.URL_TILEDESK_UPLOAD + 'files?path=' + encodeURIComponent(data['filename']);
+                    const downloadURL = this.URL_TILEDESK_UPLOAD + 'files/download?path=' + encodeURIComponent(data['filename']);
+                    resolve({downloadURL : downloadURL, src: src})
                 },
                 error: (error) => {
                     reject(error)
@@ -112,19 +119,14 @@ export class NativeUploadService extends UploadService {
         formData.append('file', upload.file);
 
         const that = this;
-        const url = this.URL_TILEDESK_FILE + `/assets?expiration=${expiration}`
+        const queryString = expiration !== undefined ? `?expiration=${encodeURIComponent(String(expiration))}` : ''
+        const url = this.URL_TILEDESK_FILE + `/assets${queryString}`
         return new Promise((resolve, reject) => {
             that.http.post(url, formData, requestOptions).pipe(first()).subscribe({
                 next: (data) => {
-                    // API responses can vary; try common fields first, otherwise fallback to filename/path.
-                    const directUrl = data?.['downloadURL'] || data?.['url'] || data?.['src'];
-                    const filenameOrPath = data?.['filename'] || data?.['path'];
-                    const downloadURL = directUrl || (filenameOrPath ? (this.getBaseUrl() + 'files' + '?path=' + encodeURIComponent(filenameOrPath)) : null);
-                    if (!downloadURL) {
-                        reject(new Error('[NATIVE UPLOAD] uploadAsset: unexpected response payload'))
-                        return;
-                    }
-                    resolve({ downloadURL: downloadURL, src: downloadURL })
+                    const src = this.URL_TILEDESK_UPLOAD + 'files?path=' + data['filename'];
+                    const downloadURL = this.URL_TILEDESK_UPLOAD + 'files/download?path=' + encodeURIComponent(data['filename']);
+                    resolve({downloadURL : downloadURL, src: src})
                 },
                 error: (error) => {
                     reject(error)
@@ -145,8 +147,8 @@ export class NativeUploadService extends UploadService {
 
         // USE IMAGE API
         const that = this;
-        const botId = userId?.startsWith('bot_') ? userId.substring('bot_'.length) : userId
-        const url = this.URL_TILEDESK_FILE + `/users/photo?bot_id=${botId}`
+        const queryString = userId?.startsWith('bot_') ? `?bot_id=${encodeURIComponent(userId.substring('bot_'.length))}` : ''
+        const url = this.URL_TILEDESK_FILE + `/users/photo${queryString}`
         return new Promise((resolve, reject) => {
             that.http.put(url, formData, requestOptions).pipe(first()).subscribe({
                 next: (data) => {
@@ -173,12 +175,15 @@ export class NativeUploadService extends UploadService {
         const that = this;
         const url = this.URL_TILEDESK_UPLOAD + 'images/users' + '?path=' + path.split('path=')[1]
         return new Promise((resolve, reject) => {
-            that.http.delete(url, requestOptions).subscribe(data => {
-                // const downloadURL = this.URL_TILEDESK_IMAGES + '?path=' + data['filename'];
-                resolve(true)
-                // that.BSStateUpload.next({upload: upload});
-            }, (error) => {
-                reject(error)
+            that.http.delete(url, requestOptions).pipe(first()).subscribe({
+                next: (data) => {
+                    // const downloadURL = this.URL_TILEDESK_IMAGES + '?path=' + data['filename'];
+                    resolve(true)
+                    // that.BSStateUpload.next({upload: upload});
+                }, 
+                error: (error) => {
+                    reject(error)
+                }
             });
         });
     }
@@ -208,6 +213,10 @@ export class NativeUploadService extends UploadService {
         });
     }
 
+    deleteAsset(userId: string, path: string): Promise<any>{
+        return this.deleteFile(userId, path);
+    }
+    
     deleteProfile(userId: string, path: string): Promise<any>{
         this.logger.log('[NATIVE UPLOAD] - delete image ... upload', userId)
         const headers = new HttpHeaders({
