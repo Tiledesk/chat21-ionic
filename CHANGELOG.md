@@ -8,7 +8,7 @@
 ### **Copyrigth**: 
 *Tiledesk SRL*
 
-# 3.4.30-rc1
+# 3.4.30-rc3
 - **changed**: when the app is in background, play a sound whenever a new message arrives.
 
 # 3.4.29 in PROD
