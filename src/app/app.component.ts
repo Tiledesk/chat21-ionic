@@ -1132,6 +1132,10 @@ export class AppComponent implements OnInit {
         if (changes.value && changes.value.sender !== currentUser.uid) {
           let checkIfStatusChanged = changes.value.is_new === changes.previousValue.is_new? true: false
           let checkIfUidChanged = changes.value.uid === changes.previousValue.uid? true: false
+          if(!this.isTabVisible){
+            this.manageTabNotification('new_message', true);
+            return
+          }
           if(changes.value.is_new && checkIfStatusChanged && checkIfUidChanged){
             this.manageTabNotification('new_message', true);
           }
