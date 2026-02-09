@@ -8,6 +8,9 @@
 ### **Copyrigth**: 
 *Tiledesk SRL*
 
+# 3.4.30 in PROD
+- **changed**: when the app is in background, play a sound whenever a new message arrives.
+
 # 3.4.29 in PROD
 - **bug-fixed**: web (Chrome >= 144) `ion-content` stopped scrolling on some pages (conversation list / contacts directory / unassigned); removed the forced `--overflow: hidden` and handled scrolling on Ionic’s internal scroll container via `ion-content::part(scroll)`
 
