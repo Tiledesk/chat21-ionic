@@ -8,6 +8,10 @@
 ### **Copyrigth**: 
 *Tiledesk SRL*
 
+# 3.4.31 in PROD
+- **changed**: enhance HTML entities encoding by normalizing line breaks and handling null/undefined inputs
+- **changed**: API for upload a file/image into chat
+
 # 3.4.30 in PROD
 - **changed**: when the app is in background, play a sound whenever a new message arrives.
 
