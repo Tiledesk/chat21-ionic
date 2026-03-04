@@ -148,5 +148,10 @@ export enum PLAN_NAME {
 
 export const tranlatedLanguage = ['it', 'en', 'de', 'es', 'pt', 'fr', 'ru', 'tr', 'sr', 'ar', 'uk', 'sv', 'az', 'kk', 'uz']
 
+export const TEAMMATE_STATUS = [
+    { id: 1, name: 'Available', avatar: 'assets/img/teammate-status/avaible.svg', label: "LABEL_AVAILABLE" },
+    { id: 2, name: 'Unavailable', avatar: 'assets/img/teammate-status/unavaible.svg', label: "LABEL_NOT_AVAILABLE" },
+    { id: 3, name: 'Inactive', avatar: 'assets/img/teammate-status/inactive.svg', label: "LABEL_INACTIVE" },
+  ];
 
 

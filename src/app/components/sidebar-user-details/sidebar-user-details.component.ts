@@ -10,12 +10,13 @@ import { WebsocketService } from 'src/app/services/websocket/websocket.service';
 import { skip } from 'rxjs/operators';
 import { AppConfigProvider } from 'src/app/services/app-config';
 import { EventsService } from 'src/app/services/events-service';
-import { tranlatedLanguage } from '../../../chat21-core/utils/constants';
+import { TEAMMATE_STATUS, tranlatedLanguage } from '../../../chat21-core/utils/constants';
 import { avatarPlaceholder, getColorBck } from 'src/chat21-core/utils/utils-user';
 import { environment } from 'src/environments/environment';
 import { Project } from 'src/chat21-core/models/projects';
 import { BRAND_BASE_INFO } from 'src/app/utils/utils-resources';
 import { getOSCode } from 'src/app/utils/utils';
+import { getUserStatusFromProjectUser } from 'src/chat21-core/utils/utils';
 @Component({
   selector: 'app-sidebar-user-details',
   templateUrl: './sidebar-user-details.component.html',
@@ -51,14 +52,11 @@ export class SidebarUserDetailsComponent implements OnInit, OnChanges {
   DASHBOARD_URL: string;
 
   selectedStatus: any;
-  teammateStatus = [
-    { id: 1, name: 'Available', avatar: 'assets/img/teammate-status/avaible.svg', label: "LABEL_AVAILABLE" },
-    { id: 2, name: 'Unavailable', avatar: 'assets/img/teammate-status/unavaible.svg', label: "LABEL_NOT_AVAILABLE" },
-    { id: 3, name: 'Inactive', avatar: 'assets/img/teammate-status/inactive.svg', label: "LABEL_INACTIVE" },
-  ];
+  TEAMMATE_STATUS = TEAMMATE_STATUS;
+
 
   translationsMap: Map<string, string> = new Map();
-
+  
   docEnabled: boolean = true;
   BRAND_BASE_INFO = BRAND_BASE_INFO;
   
@@ -242,7 +240,7 @@ export class SidebarUserDetailsComponent implements OnInit, OnChanges {
                           .set('SubscriptionPaymentProblem', text['SubscriptionPaymentProblem'])
                           .set('ThePlanHasExpired', text['ThePlanHasExpired'])
 
-      this.teammateStatus.forEach(element => {
+      this.TEAMMATE_STATUS.forEach(element => {
         element.label = this.translationsMap.get(element.label)
       });
       
@@ -325,19 +323,11 @@ export class SidebarUserDetailsComponent implements OnInit, OnChanges {
         this.logger.log('[SIDEBAR-USER-DETAILS] - $UBSC TO WS USER AVAILABILITY & BUSY STATUS RES ', projectUser);
 
         if (projectUser) {
-          if (projectUser['user_available'] === false && projectUser['profileStatus'] === 'inactive') {
-            // this.logger.log('teammateStatus ', this.teammateStatus) 
-            this.selectedStatus = this.teammateStatus[2].id;
-            this.logger.debug('[SIDEBAR-USER-DETAILS] - PROFILE_STATUS selected option', this.teammateStatus[2].name);
-            this.teammateStatus = this.teammateStatus.slice(0)
-          } else if (projectUser['user_available'] === false && (projectUser['profileStatus'] === '' || !projectUser['profileStatus'])) {
-            this.selectedStatus = this.teammateStatus[1].id;
-            this.logger.debug('[SIDEBAR-USER-DETAILS] - PROFILE_STATUS selected option', this.teammateStatus[1].name);
-            this.teammateStatus = this.teammateStatus.slice(0)
-          } else if (projectUser['user_available'] === true && (projectUser['profileStatus'] === '' || !projectUser['profileStatus'])) {
-            this.selectedStatus = this.teammateStatus[0].id
-            this.teammateStatus = this.teammateStatus.slice(0)
-            this.logger.debug('[SIDEBAR-USER-DETAILS] - PROFILE_STATUS selected option', this.teammateStatus[0].name);
+          const status = getUserStatusFromProjectUser(projectUser as any);
+          if (status) {
+            this.selectedStatus = status.id;
+            this.logger.debug('[SIDEBAR-USER-DETAILS] - PROFILE_STATUS selected option', status.name);
+            this.TEAMMATE_STATUS = this.TEAMMATE_STATUS.slice(0);
           }
           this.IS_BUSY = projectUser['isBusy']
           this.USER_ROLE = projectUser['role']

@@ -199,7 +199,7 @@ export class ProjectItemComponent implements OnInit {
     if (!stored_project) {
       this.logger.log('[PROJECT-ITEM] No valid stored project, fetching remote');
       this.projectService.getProjects().subscribe(projects => {
-        let project: Project | undefined;
+        let project: ProjectUser | undefined;
 
         if (this.projectID) {
           project = projects.find( p => p.id_project?._id === this.projectID );

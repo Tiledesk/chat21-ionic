@@ -7,6 +7,10 @@ import { LoggerService } from 'src/chat21-core/providers/abstract/logger.service
 import { LoggerInstance } from 'src/chat21-core/providers/logger/loggerInstance';
 import { Project } from 'src/chat21-core/models/projects';
 import { CustomTranslateService } from 'src/chat21-core/providers/custom-translate.service';
+import { getUserStatusFromProjectUser } from 'src/chat21-core/utils/utils';
+import { TEAMMATE_STATUS } from 'src/chat21-core/utils/constants';
+import { WebsocketService } from 'src/app/services/websocket/websocket.service';
+import { ProjectUser } from 'src/chat21-core/models/project_user';
 
 @Component({
   selector: 'app-navbar',
@@ -21,13 +25,15 @@ export class NavbarComponent implements OnInit {
   private logger: LoggerService = LoggerInstance.getInstance();
   private tiledeskToken: string;
 
-  public projects: Project[] = [];
+  public projects: ProjectUser[] = [];
   public project: any = [];
   private USER_ROLE: string;
 
   public translationsMap: Map<string, string> = new Map();
 
   public openDropdownProjects: boolean = false
+  public openStatusDropdownProjectId: string | null = null
+  public TEAMMATE_STATUS = TEAMMATE_STATUS
   private public_Key: string;
   public isVisible: boolean;
   public MT: boolean;
@@ -39,6 +45,7 @@ export class NavbarComponent implements OnInit {
     private translateService: CustomTranslateService, 
     private events: EventsService,
     private cdref: ChangeDetectorRef, 
+    private wsService: WebsocketService,
   ) { }
 
   ngOnInit() {
@@ -60,7 +67,10 @@ export class NavbarComponent implements OnInit {
       "NAVBAR.ADD_PROJECT",
       "NAVBAR.RECENT_PROJECTS",
       "NAVBAR.OTHER_PROJECTS",
-      "LABEL_CHAT"
+      "LABEL_CHAT",
+      "LABEL_AVAILABLE",
+      "LABEL_NOT_AVAILABLE",
+      "LABEL_INACTIVE"
     ]
 
     this.translationsMap = this.translateService.translateLanguage(keys)
@@ -78,13 +88,16 @@ export class NavbarComponent implements OnInit {
 
   getProjects() {
     this.logger.log('[NAVBAR] calling getProjects ... ');
-    this.projectService.getProjects().subscribe((projects: any) => {
+    this.projectService.getProjects().subscribe((projects: ProjectUser[]) => {
       this.logger.log('[NAVBAR] getProjects PROJECTS ', projects);
       if (projects) {
           // this.projects = projects;
-          this.projects = projects.filter((project: any) => {
+          this.projects = projects.filter((project: ProjectUser) => {
               // this.logger.log('[NAVBAR] getProjects PROJECTS status ', project.id_project.status);
               return project.id_project.status === 100;
+          });
+          this.projects.forEach((project: ProjectUser) => {
+            project.teammateStatus = getUserStatusFromProjectUser(project as any);
           });
           this.logger.log('[NAVBAR] getProjects this.projects ', this.projects);
       }
@@ -175,6 +188,50 @@ export class NavbarComponent implements OnInit {
     }
     console.log('onClickDropdownOption-->', url)
     window.open(url, '_blank');
+  }
+
+  toggleProjectsDropdown() {
+    this.openDropdownProjects = !this.openDropdownProjects
+    if (!this.openDropdownProjects) {
+      this.openStatusDropdownProjectId = null
+    }
+  }
+
+  toggleStatusDropdown(event: Event, prjct: any) {
+    event.stopPropagation()
+    event.preventDefault()
+    const projectId = prjct?.id_project?._id
+    this.openStatusDropdownProjectId = this.openStatusDropdownProjectId === projectId ? null : projectId
+  }
+
+  onChangeProjectStatus(projectUser: ProjectUser, selectedStatusID: any) {
+    // TODO: implementare aggiornamento status progetto
+    this.logger.log('[NAVBAR] onChangeProjectStatus placeholder', projectUser, selectedStatusID)
+    this.openStatusDropdownProjectId = null
+
+    let IS_AVAILABLE = null
+    let profilestatus = ''
+    if (selectedStatusID === 1) {
+      IS_AVAILABLE = true
+    } else if (selectedStatusID === 2) {
+      IS_AVAILABLE = false
+    } else if (selectedStatusID === 3) {
+      IS_AVAILABLE = false
+      profilestatus = 'inactive'
+    }
+
+    this.wsService.updateCurrentUserAvailability(this.tiledeskToken, projectUser.id_project._id, IS_AVAILABLE, profilestatus).subscribe((projectUserUpdated: any) => {
+
+        this.logger.log('[NAVBAR] - PROJECT-USER UPDATED ', projectUser)
+        this.projects.find(p => p.id_project._id === projectUser.id_project._id).teammateStatus = getUserStatusFromProjectUser(projectUserUpdated as any);
+
+      }, (error) => {
+        this.logger.error('[NAVBAR] - PROJECT-USER UPDATED - ERROR  ', error);
+
+      }, () => {
+        this.logger.log('[NAVBAR] - PROJECT-USER UPDATED  * COMPLETE *');
+
+      });
   }
 
   goToHome(id_project: string, project_name: string,) {
