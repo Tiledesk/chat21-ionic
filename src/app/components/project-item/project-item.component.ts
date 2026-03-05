@@ -13,7 +13,7 @@ import { TiledeskService } from 'src/app/services/tiledesk/tiledesk.service';
 import { WebSocketJs } from 'src/app/services/websocket/websocket-js';
 import { AppConfigProvider } from 'src/app/services/app-config';
 import { ConvertRequestToConversation } from 'src/chat21-core/utils/convertRequestToConversation';
-import { compareValues } from 'src/chat21-core/utils/utils';
+import { compareValues, getUserStatusFromProjectUser } from 'src/chat21-core/utils/utils';
 import { ProjectService } from 'src/app/services/projects/project.service';
 import { ProjectUser } from 'src/chat21-core/models/project_user';
 import { Project } from 'src/chat21-core/models/projects';
@@ -31,6 +31,8 @@ export class ProjectItemComponent implements OnInit {
   @Output() openUnsevedConvsEvent = new EventEmitter<any>()
 
   private unsubscribe$: Subject<any> = new Subject<any>();
+  /** ID progetti in cui l'utente è Available (per filtrare il count unserved) */
+  private availableProjectIds: Set<string> = new Set();
   project: any;
   tiledeskToken: string;
 
@@ -67,6 +69,7 @@ export class ProjectItemComponent implements OnInit {
 
   ngOnDestroy() {
     this.logger.log('[PROJECT-ITEM] > ngOnDestroy')
+    this.wsService.unsubscribeFromAllProjectConversations();
     this.unsubscribe$.next()
     this.unsubscribe$.complete()
 
@@ -107,9 +110,7 @@ export class ProjectItemComponent implements OnInit {
       if (event && event.data) {
         if (event.data === 'hasChangedProject') {
           this.unservedRequestCount = 0;
-          if (this.project) {
-            this.wsService.unsubscribeToWsConversations(this.project.id_project._id)
-          }
+          this.wsService.unsubscribeFromAllProjectConversations();
           this.getLastProjectStoredAndSubscToWSAvailabilityAndConversations();
         }
       }
@@ -196,6 +197,17 @@ export class ProjectItemComponent implements OnInit {
 
     let stored_project = this.getStoredProject();
 
+    const applySubscriptions = (projects: ProjectUser[], currentProject: ProjectUser) => {
+      this.project = currentProject;
+      if (!stored_project) {
+        localStorage.setItem('last_project', JSON.stringify(currentProject));
+      }
+      projects.forEach((p) => (p.teammateStatus = getUserStatusFromProjectUser(p as any)));
+      const ids = this.wsService.subscriptionToWsConversationsForOnlineProjects(projects);
+      this.availableProjectIds = new Set(ids || []);
+      this.doProjectSubscriptions(currentProject);
+    };
+
     if (!stored_project) {
       this.logger.log('[PROJECT-ITEM] No valid stored project, fetching remote');
       this.projectService.getProjects().subscribe(projects => {
@@ -214,9 +226,7 @@ export class ProjectItemComponent implements OnInit {
           return;
         }
 
-        this.project = project;
-        localStorage.setItem('last_project', JSON.stringify(project));
-        this.doProjectSubscriptions(project);
+        applySubscriptions(projects, project);
 
       }, error => {
         this.logger.error('[PROJECT-ITEM] GET PROJECTS ERROR', error);
@@ -225,10 +235,14 @@ export class ProjectItemComponent implements OnInit {
       return;
     }
 
-    // ✅ stored project valido
-    this.project = stored_project;
-    this.doProjectSubscriptions(stored_project);
-
+    this.projectService.getProjects().subscribe(projects => {
+      const currentProject = projects.find(p => p.id_project?._id === stored_project.id_project?._id) || stored_project;
+      applySubscriptions(projects, currentProject);
+    }, error => {
+      this.logger.error('[PROJECT-ITEM] GET PROJECTS ERROR (stored)', error);
+      this.project = stored_project;
+      this.doProjectSubscriptions(stored_project);
+    });
   }
 
   doProjectSubscriptions(project) {
@@ -253,7 +267,7 @@ export class ProjectItemComponent implements OnInit {
       this.wsService.subscriptionToWsCurrentProjectUserAvailability(project.id_project._id, this.project._id);
       this.listenTocurrentProjectUserUserAvailability$(project)
 
-      this.wsService.subscriptionToWsConversations(project.id_project._id)
+      // Le conversations sono già sottoscritte per tutti i progetti online in subscriptionToWsConversationsForOnlineProjects
       this.updateUnservedRequestCount();
 
     }
@@ -273,6 +287,13 @@ export class ProjectItemComponent implements OnInit {
               this.avaialble_status_for_tooltip = this.translationMap.get('CHANGE_TO_YOUR_STATUS_TO_AVAILABLE')
             }
           }
+          const projectId = projectUser['id_project'];
+          if (projectUser['user_available'] === true) {
+            this.availableProjectIds.add(projectId);
+          } else {
+            this.availableProjectIds.delete(projectId);
+          }
+          this.recalculateUnservedCount(this.wsService.wsRequestsList);
         }
 
       }, (error) => {
@@ -308,36 +329,43 @@ export class ProjectItemComponent implements OnInit {
       });
   }
 
-  updateUnservedRequestCount() {
+  private getRequestProjectId(r: any): string | undefined {
+    if (!r?.id_project) return undefined;
+    return typeof r.id_project === 'string' ? r.id_project : r.id_project?._id;
+  }
 
-    this.wsService.wsRequestsList$.pipe(takeUntil(this.unsubscribe$)).pipe(skip(1)).subscribe((requests) => {
-      if (requests) {
-        let count = 0;
-        requests.forEach(r => {
-          if (r['status'] === 100) {
-            if (this.hasmeInAgents(r['agents']) === true) {
-              count = count + 1;
-              let conv = this.convertRequestToConversation.getConvFromRequest(r)
-              if(!this.unservedConversations.find((el) => {return el.uid === conv.uid})){
-                this.unservedConversations.push(conv)
-                this.unservedConversations.sort(compareValues('timestamp', 'desc'))
-              }
-            }
-          }
-        });
-        //not sound if unservedRequest is already chached and web-sk is closed and restart again
-        // this.logger.log('updateUnservedRequestCount::: count , unservedRequestCount ', count , this.unservedRequestCount)
-        if(count > this.unservedRequestCount ){  
-          this.events.publish('unservedRequest:count', count)
+  private recalculateUnservedCount(requests: any[]) {
+    if (!requests) return;
+    let count = 0;
+    this.unservedConversations = [];
+    requests.forEach((r) => {
+      const projectId = this.getRequestProjectId(r);
+      if (!projectId || !this.availableProjectIds.has(projectId)) return;
+      if (r['status'] === 100 && this.hasmeInAgents(r['agents']) === true) {
+        count += 1;
+        const conv = this.convertRequestToConversation.getConvFromRequest(r);
+        if (!this.unservedConversations.find((el) => el.uid === conv.uid)) {
+          this.unservedConversations.push(conv);
+          this.unservedConversations.sort(compareValues('timestamp', 'desc'));
         }
-        this.unservedRequestCount = count;
-
       }
-    }, error => {
-      this.logger.error('[PROJECT-ITEM] UNSERVED REQUEST COUNT * error * ', error)
-    }, () => {
-      this.logger.log('[PROJECT-ITEM] UNSERVED REQUEST COUNT */* COMPLETE */*')
-    })
+    });
+    if (count > this.unservedRequestCount) {
+      this.events.publish('unservedRequest:count', count);
+    }
+    console.log('unservedRequestCount', count);
+    this.unservedRequestCount = count;
+  }
+
+  updateUnservedRequestCount() {
+    this.wsService.wsRequestsList$
+      .pipe(takeUntil(this.unsubscribe$))
+      .pipe(skip(1))
+      .subscribe(
+        (requests) => this.recalculateUnservedCount(requests),
+        (error) => this.logger.error('[PROJECT-ITEM] UNSERVED REQUEST COUNT * error * ', error),
+        () => this.logger.log('[PROJECT-ITEM] UNSERVED REQUEST COUNT */* COMPLETE */*')
+      );
   }
 
   hasmeInAgents(agents) {

@@ -1,5 +1,6 @@
 ion-toolbar {
   height: var(--header-height);   
+  --background: transparent;
   &:not(.mobile){
       --background: var(--list-bkg-color);
       border: none;
@@ -20,7 +21,7 @@ ion-content {
   // Forcing `--overflow: hidden` breaks scrolling (Chrome >= 144 is stricter here).
   --overflow: auto;
   &:not(.mobile){
-    --background: var(--list-bkg-color);
+    --background: var(--bacis-white);
   }
 }
 
@@ -223,4 +224,12 @@ ion-content::part(scroll) {
 
 .hide-stretchspinner {
   display: none;
+}
+
+// -------------------------------------------------
+// List avatar page - full viewport height
+// -------------------------------------------------
+.list-avatar-page {
+  min-height: calc(100vh - var(--header-height, 56px));
+  height: 100%;
 }

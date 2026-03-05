@@ -77,6 +77,8 @@
 
 <ion-item button="true" lines="none" class="ion-no-padding" [class.ion-selected]="conversation?.uid === uidConvSelected"
   *ngFor="let conversation of listConversations; let index= index" (click)="openConversationByID(conversation)" detail=false>
+  <div class="conv-item-wrapper">
+    <div class="conv-item-top">
   <div tabindex="0"></div>
 
   <!-- <div [class.selected]="conversation.uid === uidConvSelected"></div> -->
@@ -170,9 +172,9 @@
       <div *ngIf="conversation?.recipient.startsWith('support-group')" tooltip="{{ translationsMap?.get('Archive')}}"></div> -->
     </ion-button>
 
-    <!-- <ion-button *ngIf="conversation?.recipient.startsWith('support-group') && !conversation.archived" [tooltip]="joinTooltip"  [options]="tooltip_options" placement="bottom"  content-type="template"
+    <!-- <ion-button *ngIf="conversation?.recipient.startsWith('support-group') && !conversation.archived" 
       [ngClass]="{'hide': !IS_ON_MOBILE_DEVICE, 'button-on-desktop': !IS_ON_MOBILE_DEVICE, 'button-on-mobile': IS_ON_MOBILE_DEVICE  }"
-      id="{{ 'join_conversation_button' + conversation.uid }}" class="close-conversation-button" ion-button clear
+      id="{{ 'join_conversation_button' + conversation.uid }}" class="join-conversation-button" ion-button clear
       item-end (click)="joinConversation(conversation);$event.stopPropagation();" padding>
       <ion-icon slot="icon-only" style="display:block;" id="{{ 'join_button_icon' + conversation.uid }}" name="link-outline" item-end></ion-icon>
 
@@ -195,6 +197,16 @@
   <div item-end class="notification_point"
     [ngClass]="{'notification_point-on-desktop': !IS_ON_MOBILE_DEVICE, 'notification_point-on-mobile': IS_ON_MOBILE_DEVICE }"
     *ngIf="conversation.is_new">
+  </div>
+    </div>
+    <div class="conv-item-actions" *ngIf="!conversation.archived && conversation.status ===100" (click)="$event.stopPropagation()">
+      <ion-button size="small" class="join-button" (click)="joinConversation(conversation)">
+        {{ translationsMap?.get('JOIN_CONVERSATION') || 'Join' }}
+      </ion-button>
+      <ion-button size="small" class="resolve-button" (click)="closeConversation(conversation)">
+        {{ translationsMap?.get('Resolve') || 'Resolve' }}
+      </ion-button>
+    </div>
   </div>
 
 </ion-item>

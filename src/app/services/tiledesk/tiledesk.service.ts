@@ -260,5 +260,26 @@ export class TiledeskService {
         return res
     }))
   }
+
+  // -----------------------------------------------------------------------------------------
+  // @ Add participant to request
+  // -----------------------------------------------------------------------------------------
+  public addParticipant(requestid: string, userid: string, project_id: string) {
+    const url = this.SERVER_BASE_URL + project_id + '/requests/' + requestid + '/participants';
+    this.logger.log('[TILEDESK-SERVICE] addParticipant - URL ', url)
+    const httpOptions = {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        'Authorization': this.tiledeskToken
+      })
+    };
+
+    const body = { 'member': userid };
+
+    return this.http.post(url, JSON.stringify(body), httpOptions).pipe(map((res: any) => {
+      this.logger.log('[TILEDESK-SERVICE] addParticipant - RES ', res);
+      return res
+    }))
+  }
   
 }

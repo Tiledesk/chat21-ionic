@@ -341,7 +341,7 @@ export class AppComponent implements OnInit {
 
       if (event && event.data && event.data.action && event.data.parameter) {
         if (event.data.action === 'resolveConversation') {
-          this.conversationsHandlerService.archiveConversation(event.data.patameter)
+          this.conversationsHandlerService.archiveConversation(event.data.parameter)
         }
       }
       // if (event && event.data && event.data.action && event.data.parameter) {

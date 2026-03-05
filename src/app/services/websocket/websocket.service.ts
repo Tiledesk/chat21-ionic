@@ -6,6 +6,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { map } from 'rxjs/operators';
 import { LoggerService } from 'src/chat21-core/providers/abstract/logger.service';
 import { LoggerInstance } from 'src/chat21-core/providers/logger/loggerInstance';
+import { getUserStatusFromProjectUser } from 'src/chat21-core/utils/utils';
 
 @Injectable({
   providedIn: 'root'
@@ -18,6 +19,8 @@ export class WebsocketService {
   public wsRequestsList$: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
   public currentProjectUserAvailability$: BehaviorSubject<[]> = new BehaviorSubject<[]>([])
   public wsRequesterStatus$: BehaviorSubject<any> = new BehaviorSubject<any>({});
+  /** Progetti attualmente sottoscritti per conversations (per gestire unsubscribe) */
+  private subscribedConversationProjectIds: string[] = [];
 
   private logger: LoggerService = LoggerInstance.getInstance();
 
@@ -87,6 +90,11 @@ export class WebsocketService {
       }))
   }
 
+  /**
+   * Sottoscrive alle conversations di un singolo progetto.
+   * Mantenuto per retrocompatibilità. Preferire subscriptionToWsConversationsForOnlineProjects
+   * per sottoscrivere ai progetti online con status Available.
+   */
   subscriptionToWsConversations(project_id) {
     // console.log("[WS-SERV] - CALLED SUBSC TO WS CONVS - PROJECT ID ", project_id);
     var self = this;
@@ -293,6 +301,36 @@ export class WebsocketService {
     }
   }
 
+  /**
+   * Sottoscrive alle conversations di tutti i progetti con status "online" (id_project.status === 100)
+   * E dove l'utente ha teammateStatus "Available".
+   * @param projects Array di ProjectUser con teammateStatus già calcolato (getUserStatusFromProjectUser)
+   */
+  subscriptionToWsConversationsForOnlineProjects(projects: any[]) {
+    const onlineProjects = (projects || []).filter((p) => {
+      const statusOk = p?.id_project?.status === 100;
+      const teammateStatus = p?.teammateStatus ?? getUserStatusFromProjectUser(p);
+      const isAvailable = teammateStatus?.name === 'Available';
+      return statusOk && isAvailable;
+    });
+    if (onlineProjects.length === 0) {
+      this.logger.log('[WS-SERV] - No online projects to subscribe');
+      return [];
+    }
+    this.unsubscribeFromAllProjectConversations();
+    this.wsRequestsList = [];
+    this.subscribedConversationProjectIds = onlineProjects.map(
+      (p) => p.id_project._id
+    );
+    this.logger.log(
+      '[WS-SERV] - SUBSCR TO WS CONVS FOR PROJECTS (status 100 + Available) ',
+      this.subscribedConversationProjectIds
+    );
+    this.subscribedConversationProjectIds.forEach((projectId) =>
+      this.subscriptionToWsConversations(projectId)
+    );
+    return this.subscribedConversationProjectIds;
+  }
 
   // -----------------------------------------------
   //  @ Subscribe to Requester Presence
@@ -341,6 +379,18 @@ export class WebsocketService {
     const path = '/' + project_id + '/requests';
     this.logger.log("[WS-REQUESTS-SERV] - UNSUBSCRIBE TO REQUESTS PATH", path);
     this.webSocketJs.unsubscribe(path);
+  }
+
+  /**
+   * Rimuove tutte le sottoscrizioni alle conversations dei progetti.
+   */
+  unsubscribeFromAllProjectConversations() {
+    if (this.subscribedConversationProjectIds.length === 0) return;
+    this.subscribedConversationProjectIds.forEach((projectId) =>
+      this.unsubscribeToWsConversations(projectId)
+    );
+    this.subscribedConversationProjectIds = [];
+    this.logger.log('[WS-SERV] - UNSUBSCR FROM ALL PROJECT CONVERSATIONS');
   }
 
 

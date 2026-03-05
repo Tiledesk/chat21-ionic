@@ -294,17 +294,19 @@ export class ConversationListPage implements OnInit {
   // ---------------------------------------------------------
   // Opens the Unassigned Conversations iframe
   // ---------------------------------------------------------
-  openUnassignedConversations(IFRAME_URL: string, event) {
+  openUnassignedConversations(IFRAME_URL: string, event: { event: string; data: ConversationModel[] }) {
+    const unassignedConversations = event?.data ?? [];
+    const params = {
+      iframe_URL: IFRAME_URL,
+      callerBtn: event.event,
+      unassignedConversations,
+      stylesMap: this.stylesMap,
+      translationMapConversation: this.translationMapConversation,
+    };
     if (checkPlatformIsMobile()) {
-      presentModal(this.modalController, UnassignedConversationsPage, {
-        iframe_URL: IFRAME_URL,
-        callerBtn: event,
-      })
+      presentModal(this.modalController, UnassignedConversationsPage, params);
     } else {
-      this.navService.push(UnassignedConversationsPage, {
-        iframe_URL: IFRAME_URL,
-        callerBtn: event,
-      })
+      this.navService.push(UnassignedConversationsPage, params);
     }
   }
 
