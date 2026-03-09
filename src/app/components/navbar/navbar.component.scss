@@ -243,6 +243,14 @@ li{
                 z-index: 1001;
                 list-style: none;
 
+                &.status-dropdown-fixed {
+                    position: fixed;
+                    right: auto;
+                    left: auto;
+                    margin-right: 0;
+                    transform: translateY(-50%);
+                }
+
                 .status-dropdown-option {
                     display: flex;
                     align-items: center;

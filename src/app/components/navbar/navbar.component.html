@@ -78,7 +78,8 @@
                       [attr.title]="translationsMap?.get(prjct?.teammateStatus?.label) || prjct?.teammateStatus?.name"
                       (click)="toggleStatusDropdown($event, prjct)">
                       <img style="width: 15px; height: 15px; position: relative; top: 1px; cursor: pointer;" height="15" width="15" [src]="prjct?.teammateStatus?.avatar" />
-                      <div class="status-dropdown" *ngIf="openStatusDropdownProjectId === prjct?.id_project?._id" (click)="$event.stopPropagation()">
+                      <div class="status-dropdown status-dropdown-fixed" *ngIf="openStatusDropdownProjectId === prjct?.id_project?._id" (click)="$event.stopPropagation()"
+                        [style.top.px]="statusDropdownPosition.top" [style.right.px]="statusDropdownPosition.right">
                         <div class="status-dropdown-option" *ngFor="let status of TEAMMATE_STATUS"
                           (click)="$event.stopPropagation(); onChangeProjectStatus(prjct, status.id)">
                           <img style="width: 15px; height: 15px; margin-right: 6px;" [src]="status.avatar" />
@@ -103,9 +104,10 @@
                         [attr.title]="translationsMap?.get(prjct?.teammateStatus?.label) || prjct?.teammateStatus?.name"
                         (click)="toggleStatusDropdown($event, prjct)">
                         <img style="width: 15px; height: 15px; position: relative; top: 1px; cursor: pointer;" height="15" width="15" [src]="prjct?.teammateStatus?.avatar" />
-                        <div class="status-dropdown" *ngIf="openStatusDropdownProjectId === prjct?.id_project?._id" (click)="$event.stopPropagation()">
+                        <div class="status-dropdown status-dropdown-fixed" *ngIf="openStatusDropdownProjectId === prjct?.id_project?._id" (click)="$event.stopPropagation()"
+                          [style.top.px]="statusDropdownPosition.top" [style.right.px]="statusDropdownPosition.right">
                           <div class="status-dropdown-option" *ngFor="let status of TEAMMATE_STATUS"
-                            (click)="$event.stopPropagation(); onChangeProjectStatus(prjct, status)">
+                            (click)="$event.stopPropagation(); onChangeProjectStatus(prjct, status.id)">
                             <img style="width: 15px; height: 15px; margin-right: 6px;" [src]="status.avatar" />
                             <span>{{ translationsMap?.get(status.label) || status.name }}</span>
                           </div>

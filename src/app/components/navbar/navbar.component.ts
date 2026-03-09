@@ -197,10 +197,21 @@ export class NavbarComponent implements OnInit {
     }
   }
 
+  statusDropdownPosition = { top: 0, right: 0 }
+
   toggleStatusDropdown(event: Event, prjct: any) {
     event.stopPropagation()
     event.preventDefault()
     const projectId = prjct?.id_project?._id
+    const isOpening = this.openStatusDropdownProjectId !== projectId
+    if (isOpening) {
+      const el = event.currentTarget as HTMLElement
+      const rect = el.getBoundingClientRect()
+      this.statusDropdownPosition = {
+        top: rect.top + rect.height / 2,
+        right: window.innerWidth - rect.left + 4
+      }
+    }
     this.openStatusDropdownProjectId = this.openStatusDropdownProjectId === projectId ? null : projectId
   }
 
