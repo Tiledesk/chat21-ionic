@@ -8,6 +8,10 @@
 ### **Copyrigth**: 
 *Tiledesk SRL*
 
+# 3.4.32-rc1
+- **added**: ability to change availability status for each project the logged-in user belongs to.
+- **changed**: unserved-request.page refactor html and ts refactor
+
 # 3.4.31 in PROD
 - **changed**: enhance HTML entities encoding by normalizing line breaks and handling null/undefined inputs
 - **changed**: API for upload a file/image into chat
