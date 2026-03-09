@@ -225,6 +225,10 @@
   "admin": "Administrator",
   "agent": "Agent",
   "Conversations": "Söhbətlər",
+  "Monitor": "Monitor",
+  "Flows": "Axınlar",
+  "Knowledgebases": "Bilik bazaları",
+  "Whatsappbroadcasts": "WhatsApp Yayınları",
   "Apps": "Proqramlar",
   "Analytics": "Analitika",
   "Activities": "Fəaliyyətlər",
@@ -306,5 +310,11 @@
     "SEND_EMAIL_SUCCESS_OFFLINE_MESSAGE":"Mesaj e-poçt vasitəsilə də göndərilib 📩"    
   },
   "EMOJI_NOT_ELLOWED": "Emoji icazə verilmir",
-  "DOMAIN_NOT_ALLOWED": "URL icazə verilməyən domeni ehtiva edir"
+  "DOMAIN_NOT_ALLOWED": "URL icazə verilməyən domeni ehtiva edir",
+  "TICKET": {
+    "OPEN_TICKET": "Bilet aç",
+    "DESCRIPTION": "Bu söhbət üçün bilet açmaq istədiyinizi təsdiqləyirsinizmi?",
+    "CONFIRM": "Təsdiqlə",
+    "CLOSE": "Bağla"
+  }
 }

@@ -83,8 +83,12 @@ import { WebsocketService } from 'src/app/services/websocket/websocket.service';
 import { Project } from 'src/chat21-core/models/projects';
 import { Globals } from 'src/app/utils/globals';
 import { ProjectService } from 'src/app/services/projects/project.service';
-import { getOSCode } from 'src/app/utils/utils';
 import { UploadService } from 'src/chat21-core/providers/abstract/upload.service';
+import { ProjectUsersService } from 'src/app/services/project_users/project-users.service';
+import { ProjectUser } from 'src/chat21-core/models/projectUsers';
+import { getOSCode, hasRole } from 'src/app/utils/utils';
+import { PERMISSIONS } from 'src/app/utils/permissions.constants';
+import { TriggerEvents } from 'src/app/services/triggerEvents/triggerEvents';
 
 @Component({
   selector: 'app-conversation-detail',
@@ -109,6 +113,7 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
   private subscriptions: Array<any>
   public tenant: string;
   public loggedUser: UserModel
+  public projectUser: ProjectUser;
   public conversationWith: string
   public conversationWithFullname: string
   public messages: Array<MessageModel> = []
@@ -138,6 +143,7 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
   public tagsCannedFilter: Array<any> = [];
   public SHOW_CANNED_RESPONSES: boolean = false
   public canShowCanned: boolean = true
+  public rolesCanned: { [key: string]: boolean }
 
   public SHOW_COPILOT_SUGGESTIONS: boolean = false;
 
@@ -171,6 +177,10 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
   /**COPILOT : start */
   copilotQuestion: string = '';
   /**COPILOT : end */
+
+  /** TICKET: start */
+  isTicketEnabled: boolean = false;
+  /** TICKET: end */
 
   isMine = isMine
   isInfo = isInfo
@@ -242,18 +252,20 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
     public toastController: ToastController,
     public tiledeskService: TiledeskService,
     public projectService: ProjectService,
+    public projectUsersService: ProjectUsersService,
     private networkService: NetworkService,
     private events: EventsService,
     private webSocketService: WebsocketService,
     public projectPlanUtils: ProjectPlanUtils,
+    public triggerEvents: TriggerEvents,
     private g: Globals,
   ) {
     // Change list on date change
     this.route.paramMap.subscribe((params) => {
       this.logger.log('[CONVS-DETAIL] - constructor -> params: ', params)
       this.conversationWith = params.get('IDConv')
-      this.conversationWithFullname = params.get('FullNameConv')
-      this.conv_type = params.get('Convtype')
+      this.conversationWithFullname = decodeURIComponent(params.get('FullNameConv'))
+      this.conv_type = decodeURIComponent(params.get('Convtype'))
 
       this.events.publish('supportconvid:haschanged', this.conversationWith)
     })
@@ -420,6 +432,8 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
   ionViewDidEnter() {
     this.logger.log('[CONVS-DETAIL] > ionViewDidEnter')
     // this.info_content_child_enabled = true;
+    // Scroll to bottom to show the last message without animation
+    this.scrollToLastMessage()
   }
 
   // Unsubscibe when new page transition end
@@ -479,6 +493,7 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
     this.messages = [] // list messages of conversation
     this.isFileSelected = false // indicates if a file has been selected (image to upload)
     this.isEmailEnabled = (this.appConfigProvider.getConfig().emailSection === 'true' || this.appConfigProvider.getConfig().emailSection === true) ? true : false;
+    this.isTicketEnabled = (this.appConfigProvider.getConfig().ticketSection === 'true' || this.appConfigProvider.getConfig().ticketSection === true) ? true : false;
     this.isWhatsappTemplatesEnabled = (this.appConfigProvider.getConfig().whatsappTemplatesSection === 'true' || this.appConfigProvider.getConfig().whatsappTemplatesSection === true) ? true : false;
     this.fileUploadAccept = this.appConfigProvider.getConfig().fileUploadAccept
     
@@ -538,7 +553,6 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
         this.logger.log('[CONVS-DETAIL] - GET PROJECTID BY CONV RECIPIENT * COMPLETE *',)
       })
     }else {
-      this.canShowCanned = false;
       this.offlineMsgEmail = false;
     }
     
@@ -549,10 +563,13 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
       this.logger.log('[CONVS-DETAIL] - GET PROJECTID BY CONV RECIPIENT RES', project)
       if (project) {
         const projectId = project.id_project
-        this.canShowCanned = this.projectPlanUtils.checkPlanIsExpired(project)
+        this.projectUser = await this.projectUsersService.getProjectUserByProjectId(project._id)
         this.offlineMsgEmail = this.checkOfflineMsgEmailIsEnabled(project)
         this.isCopilotEnabled = this.projectPlanUtils.checkProjectProfileFeature(project, 'copilot');
         this.fileUploadAccept = this.checkAcceptedUploadFile(project)
+        this.rolesCanned = this.checkCannedResponsesRoles()
+        this.canShowCanned = this.checkCannedResponses(project)
+        this.logger.log('[CONVS-DETAIL] this.rolesCanned ', this.canShowCanned)
       }
     }, (error) => {
       this.logger.error('[CONVS-DETAIL] - GET PROJECTID BY CONV RECIPIENT - ERROR  ', error)
@@ -588,6 +605,40 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
     }
 
     return this.appConfigProvider.getConfig().fileUploadAccept
+  }
+
+  checkCannedResponses(project: Project): boolean {
+    let expires = this.projectPlanUtils.checkPlanIsExpired(project)
+    this.logger.log('[CONVS-DETAIL] checkCannedResponses expires ', expires)
+    if(expires){
+      return false
+    }
+
+    let hasRoleToShowCanned = this.rolesCanned[PERMISSIONS.CANNED_RESPONSES_READ]
+    this.logger.log('[CONVS-DETAIL] checkCannedResponses hasRoleToShowCanned ', hasRoleToShowCanned)
+    if(!hasRoleToShowCanned){
+      return false
+    }
+
+    return true
+  }
+
+  checkCannedResponsesRoles(): { [key: string]: boolean } {
+    const permissionKeys = [
+      'CANNED_RESPONSES_CREATE',
+      'CANNED_RESPONSES_READ',
+      'CANNED_RESPONSES_UPDATE',
+      'CANNED_RESPONSES_DELETE',
+    ] as const;
+
+    const roles: { [key: string]: boolean } = {};
+    for (const key of permissionKeys) {
+      const permission = PERMISSIONS[key];
+      roles[permission] = hasRole(this.projectUser, permission);
+    }
+
+    return roles;
+
   }
 
   // getProjectIdSelectedConversation(conversationWith: string): string{
@@ -672,6 +723,11 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
       "WHATSAPP.SELECT_MESSAGE_TEMPLATE",
       "WHATSAPP.ERROR_WHATSAPP_NOT_INSTALLED",
       "WHATSAPP.ERROR_WHATSAPP_GENERIC_ERROR",
+
+      "TICKET.OPEN_TICKET",
+      "TICKET.DESCRIPTION",
+      "TICKET.CONFIRM",
+      "TICKET.CLOSE",
 
       "COPILOT.ASK_AI",
       "COPILOT.NO_SUGGESTIONS_PRESENT",
@@ -1888,6 +1944,11 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
   }
 
 
+  onOpenTicket(event) {
+    this.logger.debug('[CONVS-DETAIL] openTicketOnExternalService - conversationWith ', this.conversationWith)
+    const detailOBJ = { event: 'onOpenTicketExternally', request_id: this.conversationWith, conversation: this.conversation }
+    this.triggerEvents.triggerOnOpenTicketExternally(detailOBJ)
+  }
   // -------------- START SCROLL/RESIZE  -------------- //
   /** */
   resizeTextArea() {
@@ -1928,6 +1989,29 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
         this.ionContentChatArea.scrollToBottom(time)
       }, 0)
       // nota: se elimino il settimeout lo scrollToBottom non viene richiamato!!!!!
+    }
+  }
+
+  /**
+   * Scroll to last message without animation using requestAnimationFrame
+   * This is a best practice alternative to setTimeout
+   */
+  private scrollToLastMessage() {
+    this.showIonContent = true
+    if (this.ionContentChatArea) {
+      // Use requestAnimationFrame for better performance
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          // Double RAF ensures DOM is fully rendered
+          this.ionContentChatArea.scrollToBottom(0).then(() => {
+            this.logger.log('[CONVS-DETAIL] scroll posizionato all\'ultimo messaggio')
+          }).catch((error) => {
+            this.logger.error('[CONVS-DETAIL] errore durante lo scroll:', error)
+          })
+        })
+      })
+    } else {
+      this.logger.warn('[CONVS-DETAIL] ionContentChatArea non disponibile')
     }
   }
 
