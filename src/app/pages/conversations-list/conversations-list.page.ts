@@ -55,6 +55,8 @@ import { MessageModel } from 'src/chat21-core/models/message';
 import { Project } from 'src/chat21-core/models/projects';
 import { getOSCode } from 'src/app/utils/utils';
 
+const PROJECTS_STORAGE_KEY = 'all_projects';
+
 @Component({
   selector: 'app-conversations-list',
   templateUrl: './conversations-list.page.html',
@@ -134,6 +136,7 @@ export class ConversationListPage implements OnInit {
     public platform: Platform,
     public wsService: WebsocketService,
     public g: Globals,
+    public appStorageService: AppStorageService,
   ) {
     this.checkPlatform();
     this.translations();
@@ -207,8 +210,45 @@ export class ConversationListPage implements OnInit {
   // @ Lifehooks
   // -----------------------------------------------
   ngOnInit() {
-    this.getAppConfigToHideDiplayBtns()
+    this.getAppConfigToHideDiplayBtns();
     this.getOSCODE();
+    this.loadAndStoreProjects();
+  }
+
+  /**
+   * Recupera tutti i progetti con getProjects e li salva in AppStorage.
+   * Prima di salvare verifica che la chiave non esista già e che non contenga già ogni singolo progetto.
+   */
+  private loadAndStoreProjects() {
+    const token = this.tiledeskAuthService.getTiledeskToken();
+    if (!token) return;
+    this.tiledeskService.getProjects(token).subscribe((projects: Project[]) => {
+        if (!projects?.length) return;
+        let projectsMap: Record<string, Project> = {};
+        const stored = this.appStorageService.getItem(PROJECTS_STORAGE_KEY);
+        if (stored) {
+          try {
+            projectsMap = JSON.parse(stored) || {};
+          } catch (e) {
+            this.logger.warn('[CONVS-LIST-PAGE] loadAndStoreProjects - failed to parse stored projects', e);
+          }
+        }
+        let hasChanges = false;
+        projects.forEach((project) => {
+          const projectId =  project.id_project?._id || project.id_project?.id;
+          if (!projectId) return;
+          if (!projectsMap[projectId]) {
+            projectsMap[projectId] = project.id_project;
+            hasChanges = true;
+          }
+        });
+        if (hasChanges) {
+          this.appStorageService.setItem(PROJECTS_STORAGE_KEY, JSON.stringify(projectsMap));
+          this.logger.log('[CONVS-LIST-PAGE] loadAndStoreProjects - saved', Object.keys(projectsMap).length, 'projects');
+        }
+      },
+      (err) => this.logger.error('[CONVS-LIST-PAGE] loadAndStoreProjects - error', err)
+    );
   }
 
   ngOnChanges() {
@@ -829,22 +869,32 @@ export class ConversationListPage implements OnInit {
       }
     }
     
-    if(conversation.attributes && conversation.attributes['projectId']){
-      let project = localStorage.getItem(conversation.attributes['projectId'])
-      if(project){
-        project = JSON.parse(project)
-        conversation.attributes.project_name = project['name']
-      }
-    }else if(conversation.attributes){
-      const projectId = getProjectIdSelectedConversation(conversation.uid)
-      let project = localStorage.getItem(projectId)
-      if(project){
-        project = JSON.parse(project)
-        conversation.attributes.projectId = project['_id']
-        conversation.attributes.project_name = project['name']
-      }
+    const project = this.getProjectFromStorage(conversation);
+    if (project) {
+      if (!conversation.attributes) conversation.attributes = {};
+      conversation.attributes.projectId = project._id;
+      conversation.attributes.project_name = project.name;
     }
+  }
 
+  /** Recupera il progetto dalla chiave di storage (all_projects) */
+  private getProjectFromStorage(conversation: ConversationModel): Project | null {
+    let projectId: string | undefined;
+    if (conversation.attributes?.['projectId']) {
+      projectId = conversation.attributes['projectId'];
+    } else if (conversation.attributes) {
+      projectId = getProjectIdSelectedConversation(conversation.uid);
+    }
+    if (!projectId) return null;
+    const stored = this.appStorageService.getItem(PROJECTS_STORAGE_KEY);
+    this.logger.log('[CONVS-LIST-PAGE] getProjectFromStorage - stored', stored);
+    if (!stored) return null;
+    try {
+      const projectsMap: Record<string, Project> = JSON.parse(stored);
+      return projectsMap[projectId] || null;
+    } catch {
+      return null;
+    }
   }
 
   // isMarkdownLink(last_message_text) {
