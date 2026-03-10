@@ -13,6 +13,9 @@ import { TiledeskAuthService } from 'src/chat21-core/providers/tiledesk/tiledesk
 import { TiledeskService } from 'src/app/services/tiledesk/tiledesk.service';
 import { getProjectIdSelectedConversation, isGroup } from 'src/chat21-core/utils/utils';
 import { ImageRepoService } from 'src/chat21-core/providers/abstract/image-repo.service';
+import { Project } from 'src/chat21-core/models/projects';
+
+const PROJECTS_STORAGE_KEY = 'all_projects';
 
 
 @Component({
@@ -56,7 +59,8 @@ export class UnassignedConversationsPage implements OnInit, OnChanges {
     private events: EventsService,
     private tiledeskAuthService: TiledeskAuthService,
     private tiledeskService: TiledeskService,
-    public imageRepoService: ImageRepoService
+    public imageRepoService: ImageRepoService,
+    public appStorageService: AppStorageService,
   ) {
     if (this.tiledeskAuthService.getCurrentUser()) {
       this.loggedUserUid = this.tiledeskAuthService.getCurrentUser().uid;
@@ -81,6 +85,7 @@ export class UnassignedConversationsPage implements OnInit, OnChanges {
     }
     this.logger.log('[UNASSIGNED-CONVS-PAGE] unassignedConversationsList', this.unassignedConversationsList);
     this.processConversationsForDisplay();
+    this.loadAndStoreProjects();
     // this.buildIFRAME();
     this.listenToPostMsg();
     this.hideHotjarFeedbackBtn();
@@ -105,6 +110,72 @@ export class UnassignedConversationsPage implements OnInit, OnChanges {
       this.onImageLoaded(conv);
       this.onConversationLoaded(conv);
     });
+  }
+
+  /**
+   * Recupera tutti i progetti con getProjects e li salva in AppStorage.
+   * Se la chiave esiste già nello storage, salta la chiamata remota e usa i dati in cache.
+   * Al termine richiama processConversationsForDisplay per aggiornare i project_name.
+   */
+  private loadAndStoreProjects() {
+    const stored = this.appStorageService.getItem(PROJECTS_STORAGE_KEY);
+    if (stored) {
+      this.processConversationsForDisplay();
+      return;
+    }
+    const token = this.tiledeskAuthService.getTiledeskToken();
+    if (!token) return;
+    this.tiledeskService.getProjects(token).subscribe(
+      (projects: Project[]) => {
+        if (!projects?.length) return;
+        let projectsMap: Record<string, Project> = {};
+        const stored = this.appStorageService.getItem(PROJECTS_STORAGE_KEY);
+        if (stored) {
+          try {
+            projectsMap = JSON.parse(stored) || {};
+          } catch (e) {
+            this.logger.warn('[UNASSIGNED-CONVS-PAGE] loadAndStoreProjects - failed to parse stored projects', e);
+          }
+        }
+        let hasChanges = false;
+        projects.forEach((project) => {
+          const projectId = project.id_project?._id || project.id_project?.id || project._id;
+          if (!projectId) return;
+          if (!projectsMap[projectId]) {
+            projectsMap[projectId] = project.id_project || project;
+            hasChanges = true;
+          }
+        });
+        if (hasChanges) {
+          this.appStorageService.setItem(PROJECTS_STORAGE_KEY, JSON.stringify(projectsMap));
+          this.logger.log('[UNASSIGNED-CONVS-PAGE] loadAndStoreProjects - saved', Object.keys(projectsMap).length, 'projects');
+        }
+        this.processConversationsForDisplay();
+      },
+      (err) => {
+        this.logger.error('[UNASSIGNED-CONVS-PAGE] loadAndStoreProjects - error', err);
+        this.processConversationsForDisplay();
+      }
+    );
+  }
+
+  /** Recupera il progetto dalla chiave di storage (all_projects); se non trovato restituisce null */
+  private getProjectFromStorage(conversation: ConversationModel): Project | null {
+    let projectId: string | undefined;
+    if (conversation.attributes?.['projectId']) {
+      projectId = conversation.attributes['projectId'];
+    } else if (conversation.attributes) {
+      projectId = getProjectIdSelectedConversation(conversation.uid);
+    }
+    if (!projectId) return null;
+    const stored = this.appStorageService.getItem(PROJECTS_STORAGE_KEY);
+    if (!stored) return null;
+    try {
+      const projectsMap: Record<string, Project> = JSON.parse(stored);
+      return projectsMap[projectId] || null;
+    } catch {
+      return null;
+    }
   }
 
   hideHotjarFeedbackBtn() {
@@ -370,22 +441,12 @@ export class UnassignedConversationsPage implements OnInit, OnChanges {
       }
     }
     
-    if(conversation.attributes && conversation.attributes['projectId']){
-      let project = localStorage.getItem(conversation.attributes['projectId'])
-      if(project){
-        project = JSON.parse(project)
-        conversation.attributes.project_name = project['name']
-      }
-    }else if(conversation.attributes){
-      const projectId = getProjectIdSelectedConversation(conversation.uid)
-      let project = localStorage.getItem(projectId)
-      if(project){
-        project = JSON.parse(project)
-        conversation.attributes.projectId = project['_id']
-        conversation.attributes.project_name = project['name']
-      }
+    const project = this.getProjectFromStorage(conversation);
+    if (project) {
+      if (!conversation.attributes) conversation.attributes = {};
+      conversation.attributes.projectId = project._id;
+      conversation.attributes.project_name = project.name;
     }
-
   }
 
   async onClose(conversation?: ConversationModel) {
