@@ -8,6 +8,10 @@
 ### **Copyrigth**: 
 *Tiledesk SRL*
 
+# 3.4.32-rc5
+- **added**: conversations-list — on init, fetches all projects via `getProjects` and stores them in AppStorageService under `all_projects`; before saving, checks that the key does not already contain each project (avoids duplicates).
+- **changed**: conversations-list `onConversationLoaded` — project name and id are now resolved from the `all_projects` storage key instead of per-project localStorage entries.
+
 # 3.4.32-rc4
 - **changed**: unassigned conversations page — `onImageLoaded` and `onConversationLoaded` are now invoked for each conversation in the list (avatar URLs, last message formatting, project name).
 - **bug-fixed**: navbar project dropdown — descenders (letters like g, p, q) were being clipped; added `line-height: 1.4` and vertical padding to prevent clipping.
