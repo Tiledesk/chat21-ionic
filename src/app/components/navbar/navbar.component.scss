@@ -94,10 +94,16 @@ ion-navbar{
     overflow: hidden;
     text-overflow: ellipsis;
     font-family: var(--header-font-family);
-    
+    line-height: 1.4;
+
     .material-icons{
         font-size: 20px;
     }
+}
+
+button.btn.project-dropdown {
+    padding-top: 4px;
+    padding-bottom: 4px;
 }
 
 li{
