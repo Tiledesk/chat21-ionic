@@ -94,16 +94,20 @@ export class WebsocketService {
    * Sottoscrive alle conversations di un singolo progetto.
    * Mantenuto per retrocompatibilità. Preferire subscriptionToWsConversationsForOnlineProjects
    * per sottoscrivere ai progetti online con status Available.
+   * @param project_id ID del progetto
+   * @param skipClear Se true, non svuota wsRequestsList (usato quando si sottoscrivono più progetti in sequenza)
    */
-  subscriptionToWsConversations(project_id) {
+  subscriptionToWsConversations(project_id, skipClear = false) {
     // console.log("[WS-SERV] - CALLED SUBSC TO WS CONVS - PROJECT ID ", project_id);
     var self = this;
-    this.wsRequestsList = [];
+    if (!skipClear) {
+      this.wsRequestsList = [];
+    }
 
-    this.webSocketJs.ref('/' + project_id + '/requests', 'getCurrentProjectAndSubscribeTo_WsRequests',
+    this.webSocketJs.ref('/' + project_id + '/requests', 'getCurrentProjectAndSubscribeTo_WsRequests_' + project_id,
 
       function (data) {
-        // console.log("[WS-SERV] - CONVS - CREATE DATA ", data);
+        // console.log("[WS-SERV] - CONVS - CREATE DATA for project ", project_id, data);
         if (data) {
           // ------------------------------------------------
           // @ Agents - pass in data agents get from snapshot
@@ -326,7 +330,7 @@ export class WebsocketService {
       this.subscribedConversationProjectIds
     );
     this.subscribedConversationProjectIds.forEach((projectId) =>
-      this.subscriptionToWsConversations(projectId)
+      this.subscriptionToWsConversations(projectId, true)
     );
     return this.subscribedConversationProjectIds;
   }
