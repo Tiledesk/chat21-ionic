@@ -8,6 +8,10 @@
 ### **Copyrigth**: 
 *Tiledesk SRL*
 
+# 3.4.32-rc4
+- **changed**: unassigned conversations page — `onImageLoaded` and `onConversationLoaded` are now invoked for each conversation in the list (avatar URLs, last message formatting, project name).
+- **bug-fixed**: navbar project dropdown — descenders (letters like g, p, q) were being clipped; added `line-height: 1.4` and vertical padding to prevent clipping.
+
 # 3.4.32-rc3
 - **bug-fixed**: unassigned conversations list was reset on each WebSocket subscription; conversations from other projects were lost when subscribing to multiple online projects. Added `skipClear` parameter to `subscriptionToWsConversations` so the list is cleared only once when subscribing to all online projects.
 - **changed**: unassigned conversations empty state — centered the "no conversations" label both vertically and horizontally within the full viewport height.
