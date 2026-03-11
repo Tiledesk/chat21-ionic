@@ -8,6 +8,9 @@
 ### **Copyrigth**: 
 *Tiledesk SRL*
 
+# 3.4.32-rc6
+- **bug-fixed**: convertRequestToConversation timestamp wrong unit 
+
 # 3.4.32-rc5
 - **added**: conversations-list — on init, fetches all projects via `getProjects` and stores them in AppStorageService under `all_projects`; before saving, checks that the key does not already contain each project (avoids duplicates).
 - **changed**: conversations-list `onConversationLoaded` — project name and id are now resolved from the `all_projects` storage key instead of per-project localStorage entries.
