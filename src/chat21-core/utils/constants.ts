@@ -116,6 +116,7 @@ export const PLATFORM_DESKTOP = 'desktop';
 
 // STORAGE
 export const STORAGE_PREFIX = 'tiledesk_widget_';
+export const PROJECTS_STORAGE_KEY = 'all_projects';
 
 // links
 export const FIREBASESTORAGE_BASE_URL_IMAGE = 'https://firebasestorage.googleapis.com/v0/b/' //+ 'chat-v2-dev.appspot.com/o/';

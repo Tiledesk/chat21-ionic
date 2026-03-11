@@ -30,7 +30,7 @@ export class ConvertRequestToConversation {
             '',
             request.lead && request.lead.fullname ? request.lead.fullname: null,
             request.status || '0',
-            moment(request.createdAt).unix(),
+            moment(request.createdAt).valueOf(),
             getColorBck(request.lead.fullname),
             avatarPlaceholder(request.lead.fullname),
             false,

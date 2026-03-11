@@ -57,8 +57,9 @@ import { getOSCode, hasRole } from 'src/app/utils/utils';
 import { PERMISSIONS } from 'src/app/utils/permissions.constants';
 import { ProjectUser } from 'src/chat21-core/models/projectUsers';
 import { ProjectUsersService } from 'src/app/services/project_users/project-users.service';
+import { ProjectService } from 'src/app/services/projects/project.service';
 
-const PROJECTS_STORAGE_KEY = 'all_projects';
+import { PROJECTS_STORAGE_KEY } from 'src/chat21-core/utils/constants';
 
 @Component({
   selector: 'app-conversations-list',
@@ -140,6 +141,7 @@ export class ConversationListPage implements OnInit {
     public tiledeskService: TiledeskService,
     public tiledeskAuthService: TiledeskAuthService,
     public projectUsersService: ProjectUsersService,
+    public projectService: ProjectService,
     public appConfigProvider: AppConfigProvider,
     public platform: Platform,
     public wsService: WebsocketService,
@@ -230,7 +232,7 @@ export class ConversationListPage implements OnInit {
   private loadAndStoreProjects() {
     const token = this.tiledeskAuthService.getTiledeskToken();
     if (!token) return;
-    this.tiledeskService.getProjects(token).subscribe((projects: Project[]) => {
+    this.projectService.getProjects().subscribe((projects: Project[]) => {
         if (!projects?.length) return;
         let projectsMap: Record<string, Project> = {};
         const stored = this.appStorageService.getItem(PROJECTS_STORAGE_KEY);
