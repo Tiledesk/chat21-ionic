@@ -14,9 +14,8 @@ import { TiledeskService } from 'src/app/services/tiledesk/tiledesk.service';
 import { getProjectIdSelectedConversation, isGroup } from 'src/chat21-core/utils/utils';
 import { ImageRepoService } from 'src/chat21-core/providers/abstract/image-repo.service';
 import { Project } from 'src/chat21-core/models/projects';
-
-const PROJECTS_STORAGE_KEY = 'all_projects';
-
+import { ProjectService } from 'src/app/services/projects/project.service';
+import { PROJECTS_STORAGE_KEY } from 'src/chat21-core/utils/constants';
 
 @Component({
   selector: 'app-unassigned-conversations',
@@ -59,6 +58,7 @@ export class UnassignedConversationsPage implements OnInit, OnChanges {
     private events: EventsService,
     private tiledeskAuthService: TiledeskAuthService,
     private tiledeskService: TiledeskService,
+    private projectService: ProjectService,
     public imageRepoService: ImageRepoService,
     public appStorageService: AppStorageService,
   ) {
@@ -125,7 +125,7 @@ export class UnassignedConversationsPage implements OnInit, OnChanges {
     }
     const token = this.tiledeskAuthService.getTiledeskToken();
     if (!token) return;
-    this.tiledeskService.getProjects(token).subscribe(
+    this.projectService.getProjects().subscribe(
       (projects: Project[]) => {
         if (!projects?.length) return;
         let projectsMap: Record<string, Project> = {};
