@@ -8,6 +8,9 @@
 ### **Copyrigth**: 
 *Tiledesk SRL*
 
+# 3.4.32-rc7
+- **addded**: ability to change availability status for each project the logged-in user in sidebar-user-detail 
+
 # 3.4.32-rc6
 - **bug-fixed**: convertRequestToConversation timestamp wrong unit 
 
