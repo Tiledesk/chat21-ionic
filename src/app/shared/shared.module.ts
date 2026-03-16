@@ -25,6 +25,7 @@ import { SafeHtmlPipe } from '../directives/safe-html.pipe';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { createTranslateLoader } from 'src/chat21-core/utils/utils';
 import { HttpClient } from '@angular/common/http';
+import { RouterModule } from '@angular/router';
 
 @NgModule({
   declarations: [
@@ -124,6 +125,8 @@ import { HttpClient } from '@angular/common/http';
     HtmlEntitiesEncodePipe,
     SafeHtmlPipe,
 
+    RouterModule,
+
     //COMMON COMPONENTS
     AvatarProfileComponent,
     UserPresenceComponent,
@@ -140,16 +143,15 @@ import { HttpClient } from '@angular/common/http';
     MomentModule,
     NgSelectModule,
     FormsModule,
-
     TranslateModule.forChild({
-      loader: {
-        provide: TranslateLoader,
-        useFactory: (createTranslateLoader),
-        deps: [HttpClient]
-      }
-    })
-
-  ],
+        loader: {
+            provide: TranslateLoader,
+            useFactory: (createTranslateLoader),
+            deps: [HttpClient]
+        }
+    }),
+    RouterModule.forChild([])
+],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA,
     NO_ERRORS_SCHEMA
