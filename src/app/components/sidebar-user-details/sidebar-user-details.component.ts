@@ -17,6 +17,8 @@ import { Project } from 'src/chat21-core/models/projects';
 import { BRAND_BASE_INFO } from 'src/app/utils/utils-resources';
 import { getOSCode } from 'src/app/utils/utils';
 import { getUserStatusFromProjectUser } from 'src/chat21-core/utils/utils';
+import { ProjectService } from 'src/app/services/projects/project.service';
+import { ProjectUser } from 'src/chat21-core/models/project_user';
 @Component({
   selector: 'app-sidebar-user-details',
   templateUrl: './sidebar-user-details.component.html',
@@ -54,6 +56,13 @@ export class SidebarUserDetailsComponent implements OnInit, OnChanges {
   selectedStatus: any;
   TEAMMATE_STATUS = TEAMMATE_STATUS;
 
+  projects: ProjectUser[] = [];
+  selectedProjectForStatus: ProjectUser | null = null;
+  public openDropdownProjects: boolean = false
+  public openStatusDropdownProjectId: string | null = null
+  statusDropdownPosition = { top: 0, right: 0 };
+  isVisibleMT = false;
+  isVisibleMPA = false;
 
   translationsMap: Map<string, string> = new Map();
   
@@ -70,7 +79,7 @@ export class SidebarUserDetailsComponent implements OnInit, OnChanges {
     public appConfigProvider: AppConfigProvider,
     public events: EventsService,
     private eRef: ElementRef,
-
+    private projectService: ProjectService,
   ) { }
 
   ngOnInit() {
@@ -79,6 +88,7 @@ export class SidebarUserDetailsComponent implements OnInit, OnChanges {
     this.subcribeToAuthStateChanged();
     this.listenTocurrentProjectUserUserAvailability$();
     this.listenToCurrentStoredProject();
+    this.listenToUserGoOnline();
     this.getOSCODE();
   }
 
@@ -239,6 +249,8 @@ export class SidebarUserDetailsComponent implements OnInit, OnChanges {
                           .set('LABEL_LOGOUT', text['LABEL_LOGOUT'])
                           .set('SubscriptionPaymentProblem', text['SubscriptionPaymentProblem'])
                           .set('ThePlanHasExpired', text['ThePlanHasExpired'])
+                          .set('NAVBAR.RECENT_PROJECTS', text['NAVBAR.RECENT_PROJECTS'])
+                          .set('NAVBAR.OTHER_PROJECTS', text['NAVBAR.OTHER_PROJECTS'])
 
       this.TEAMMATE_STATUS.forEach(element => {
         element.label = this.translationsMap.get(element.label)
@@ -254,6 +266,36 @@ export class SidebarUserDetailsComponent implements OnInit, OnChanges {
     this.logger.log('[SIDEBAR-USER-DETAILS] AppConfigService getAppConfig', this.appConfigProvider.getConfig());
     
     this.isVisiblePAY = getOSCode("PAY", this.public_Key);
+    this.isVisibleMT = getOSCode("MTT", this.public_Key);
+    this.isVisibleMPA = getOSCode("MPA", this.public_Key);
+  }
+
+  listenToUserGoOnline() {
+    this.events.subscribe('go:online', (isOnline: boolean) => {
+      this.logger.log('[SIDEBAR-USER-DETAILS] listen to go:online --> ', isOnline);
+      if (isOnline) {
+        this.tiledeskToken = this.tiledeskAuthService.getTiledeskToken();
+        this.getProjects();
+      }
+    });
+  }
+
+  getProjects() {
+    this.logger.log('[SIDEBAR-USER-DETAILS] calling getProjects ... ');
+    this.projectService.getProjects().subscribe((projects: ProjectUser[]) => {
+      this.logger.log('[SIDEBAR-USER-DETAILS] getProjects PROJECTS ', projects);
+      if (projects) {
+        this.projects = projects.filter((prj: ProjectUser) => prj?.id_project?.status === 100);
+        this.projects.forEach((prj: ProjectUser) => {
+          prj.teammateStatus = getUserStatusFromProjectUser(prj as any);
+        });
+        this.logger.log('[SIDEBAR-USER-DETAILS] getProjects this.projects ', this.projects);
+      }
+    }, (error) => {
+      this.logger.error('[SIDEBAR-USER-DETAILS] getProjects - ERROR ', error);
+    }, () => {
+      this.logger.log('[SIDEBAR-USER-DETAILS] getProjects - COMPLETE');
+    });
   }
 
   listenToCurrentStoredProject() {
@@ -269,7 +311,6 @@ export class SidebarUserDetailsComponent implements OnInit, OnChanges {
           isActiveSubscription: projectObjct['id_project']['isActiveSubscription'],
           trialExpired: projectObjct['id_project']['trialExpired']
         }
-      
         if (this.project.profile.type === 'free') {
 
           if (this.project.trialExpired === false) {
@@ -282,11 +323,19 @@ export class SidebarUserDetailsComponent implements OnInit, OnChanges {
         } else if (this.project.profile.type === 'payment' && this.project.profile.name === 'enterprise') {
           this.getEnterprisePlanTranslation();
         }
+
+        this.wsService.subscriptionToWsCurrentProjectUserAvailability(this.project._id, projectObjct._id);
+        if (this.tiledeskToken) {
+          this.getProjects();
+        }
       }
     })
 
     try {
       this.tiledeskToken = this.appStorageService.getItem('tiledeskToken');
+      if (this.tiledeskToken) {
+        this.getProjects();
+      }
       // this.logger.log('[SIDEBAR-USER-DETAILS] - GET STORED TOKEN ', this.tiledeskToken)
     } catch (err) {
       this.logger.error('[SIDEBAR-USER-DETAILS] - GET STORED TOKEN ', err)
@@ -344,6 +393,106 @@ export class SidebarUserDetailsComponent implements OnInit, OnChanges {
   translateUserRole(role) {
     this.translate.get(role).subscribe((text: string) => {
         this.USER_ROLE_LABEL = text
+    });
+  }
+
+  getCurrentStatusAvatar(): string {
+    const status = this.TEAMMATE_STATUS?.find(s => s.id === this.selectedStatus);
+    return status?.avatar || 'assets/img/teammate-status/avaible.svg';
+  }
+
+  getCurrentStatusLabel(): string {
+    const status = this.TEAMMATE_STATUS?.find(s => s.id === this.selectedStatus);
+    return status?.label || status?.name || '';
+  }
+
+  toggleProjectsDropdown() {
+    this.openDropdownProjects = !this.openDropdownProjects;
+    if (!this.openDropdownProjects) {
+      this.openStatusDropdownProjectId = null;
+      this.selectedProjectForStatus = null;
+    }
+  }
+
+  toggleStatusDropdown(event: Event, prjct: any) {
+    event.stopPropagation()
+    event.preventDefault()
+    const projectId = prjct?.id_project?._id
+    const isOpening = this.openStatusDropdownProjectId !== projectId
+    if (isOpening) {
+      const el = event.currentTarget as HTMLElement
+      const rect = el.getBoundingClientRect()
+      this.statusDropdownPosition = {
+        top: rect.top + rect.height / 2,
+        right: window.innerWidth - rect.left + 4
+      }
+      this.selectedProjectForStatus = prjct
+    } else {
+      this.selectedProjectForStatus = null
+    }
+    this.openStatusDropdownProjectId = this.openStatusDropdownProjectId === projectId ? null : projectId
+  }
+
+  onChangeProjectStatus(projectUser: ProjectUser, selectedStatusID: any) {
+    this.logger.log('[SIDEBAR-USER-DETAILS] onChangeProjectStatus', projectUser, selectedStatusID)
+    this.openStatusDropdownProjectId = null
+    this.selectedProjectForStatus = null
+
+    let IS_AVAILABLE = null
+    let profilestatus = ''
+    if (selectedStatusID === 1) {
+      IS_AVAILABLE = true
+    } else if (selectedStatusID === 2) {
+      IS_AVAILABLE = false
+    } else if (selectedStatusID === 3) {
+      IS_AVAILABLE = false
+      profilestatus = 'inactive'
+    }
+
+    this.wsService.updateCurrentUserAvailability(this.tiledeskToken, projectUser.id_project._id, IS_AVAILABLE, profilestatus).subscribe((projectUserUpdated: any) => {
+
+        this.logger.log('[NAVBAR] - PROJECT-USER UPDATED ', projectUser)
+        this.projects.find(p => p.id_project._id === projectUser.id_project._id).teammateStatus = getUserStatusFromProjectUser(projectUserUpdated as any);
+
+      }, (error) => {
+        this.logger.error('[NAVBAR] - PROJECT-USER UPDATED - ERROR  ', error);
+
+      }, () => {
+        this.logger.log('[NAVBAR] - PROJECT-USER UPDATED  * COMPLETE *');
+
+      });
+  }
+
+  onStatusDropdownOptionClick(status: { id: number; name: string; avatar: string; label: string }, projectUser: ProjectUser | null) {
+    if (!projectUser) return;
+    this.changeProjectStatus(projectUser, status.id);
+    this.openStatusDropdownProjectId = null;
+    this.selectedProjectForStatus = null;
+    if (projectUser?.id_project?._id === this.project?._id) {
+      this.selectedStatus = status.id;
+    }
+  }
+
+  changeProjectStatus(projectUser: ProjectUser, selectedStatusID: number) {
+    this.logger.log('[SIDEBAR-USER-DETAILS] changeProjectStatus projectid', projectUser?.id_project?._id, ' status: ', selectedStatusID);
+    let IS_AVAILABLE: boolean | null = null;
+    let profilestatus = '';
+    if (selectedStatusID === 1) {
+      IS_AVAILABLE = true;
+    } else if (selectedStatusID === 2) {
+      IS_AVAILABLE = false;
+    } else if (selectedStatusID === 3) {
+      IS_AVAILABLE = false;
+      profilestatus = 'inactive';
+    }
+    this.wsService.updateCurrentUserAvailability(this.tiledeskToken, projectUser.id_project._id, IS_AVAILABLE, profilestatus).subscribe((updated: any) => {
+      this.logger.log('[SIDEBAR-USER-DETAILS] - PROJECT-USER UPDATED ', updated);
+      const p = this.projects.find(prj => prj?.id_project?._id === projectUser?.id_project?._id);
+      if (p) {
+        p.teammateStatus = getUserStatusFromProjectUser(updated as any);
+      }
+    }, (error) => {
+      this.logger.error('[SIDEBAR-USER-DETAILS] - PROJECT-USER UPDATED - ERROR ', error);
     });
   }
 

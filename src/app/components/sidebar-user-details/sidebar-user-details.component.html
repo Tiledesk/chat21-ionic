@@ -71,7 +71,8 @@
             </span>
         </mat-slide-toggle> -->
 
-        <ng-select style="text-align: left;" 
+        <ng-container *ngIf="!isVisibleMPA" id="availability_dropdown_container">
+            <ng-select style="text-align: left;" 
             (change)="changeAvailabilityStateInUserDetailsSidebar(selectedStatus)" 
             [(ngModel)]="selectedStatus" 
             class="teammate-status-in-drawer sidebar" 
@@ -88,6 +89,30 @@
                 <span id="sidebaravatar_{{item.name}}" style="text-transform: capitalize; margin-left:8px">  {{item.label}} </span>
             </ng-template>
         </ng-select>
+        </ng-container>
+
+        <ng-container *ngIf="isVisibleMPA && projects?.length > 0" id="projects_dropdown_container">
+            <div class="projects-dropdown-wrapper">
+                <button class="btn projects-dropdown-toggle" (click)="toggleProjectsDropdown()">
+                    <span class="projects-dropdown-toggle-label">{{ project?.name || 'Progetti' }}</span>
+                    <i class="material-icons" style="margin-left: 4px; font-size: 18px;">arrow_drop_down</i>
+                </button>
+                <div class="ripple-container"></div>
+                <div id="projects_dropdown" class="dropdown-menu" [ngClass]="{'open': openDropdownProjects}">
+                    <li *ngFor="let prjct of projects?.slice() | slice:0:5; let i=index" style="cursor: pointer">
+                        <a [ngClass]="{'li-selected' : prjct?.id_project?._id === project?.id_project?.id }"
+                          class="project-item-row">
+                          <span class="project-item-name">{{ prjct?.id_project?.name }}</span>
+                          <span class="project-item-status project-item-status-wrapper"
+                            [attr.title]="translationsMap?.get(prjct?.teammateStatus?.label) || prjct?.teammateStatus?.name"
+                            (click)="toggleStatusDropdown($event, prjct)">
+                            <img style="width: 15px; height: 15px; position: relative; top: 1px; cursor: pointer;" height="15" width="15" [src]="prjct?.teammateStatus?.avatar" />
+                          </span>
+                        </a>
+                      </li>
+                </div>
+            </div>
+        </ng-container>
     </section>
 
     <hr class="first-divider">
@@ -140,4 +165,14 @@
         <div class="chat-version"> ver {{version}}</div>
     </section>
 
+</div>
+
+<!-- Status dropdown fuori da #user-details per evitare clipping da overflow -->
+<div class="status-dropdown status-dropdown-fixed status-dropdown-outside" *ngIf="openStatusDropdownProjectId && selectedProjectForStatus" (click)="$event.stopPropagation()"
+  [style.top.px]="statusDropdownPosition.top" [style.right.px]="statusDropdownPosition.right">
+  <div class="status-dropdown-option" *ngFor="let status of TEAMMATE_STATUS"
+    (click)="$event.stopPropagation(); onChangeProjectStatus(selectedProjectForStatus, status.id)">
+    <img style="width: 15px; height: 15px; margin-right: 6px;" [src]="status.avatar" />
+    <span>{{ translationsMap?.get(status.label) || status.name }}</span>
+  </div>
 </div>
