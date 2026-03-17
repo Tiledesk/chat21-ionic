@@ -26,6 +26,8 @@ import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { createTranslateLoader } from 'src/chat21-core/utils/utils';
 import { HttpClient } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
+import { FindPipe } from '../pipe/find.pipe';
+import { FilterPipe } from '../pipe/filter.pipe';
 
 @NgModule({
   declarations: [
@@ -68,12 +70,13 @@ import { RouterModule } from '@angular/router';
      SidebarUserDetailsComponent,
     
      //DIRECTIVES
-     AutofocusDirective,
-     TooltipDirective,
-     MarkedPipe,
-     HtmlEntitiesEncodePipe,
-     SafeHtmlPipe,
- 
+    AutofocusDirective,
+    TooltipDirective,
+    MarkedPipe,
+    HtmlEntitiesEncodePipe,
+    SafeHtmlPipe,
+    FindPipe,
+    FilterPipe,
 
 
      AvatarProfileComponent,
@@ -124,6 +127,8 @@ import { RouterModule } from '@angular/router';
     MarkedPipe,
     HtmlEntitiesEncodePipe,
     SafeHtmlPipe,
+    FindPipe,
+    FilterPipe,
 
     RouterModule,
 
