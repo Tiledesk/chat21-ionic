@@ -139,6 +139,7 @@ export class ConversationListPage implements OnInit {
     public wsService: WebsocketService,
     public g: Globals,
     public appStorageService: AppStorageService,
+    private triggerEvents: TriggerEvents,
   ) {
     this.checkPlatform();
     this.translations();
@@ -804,6 +805,7 @@ export class ConversationListPage implements OnInit {
       this.logger.log('[CONVS-LIST-PAGE] onConversationSelected active conversation.uid ', conversation.uid)
       this.events.publish('convList:onConversationSelected', conversation)
     }
+    this.triggerEvents.triggerOnConversationChanged(conversation)
   }
 
   onImageLoaded(conversation: any) {
