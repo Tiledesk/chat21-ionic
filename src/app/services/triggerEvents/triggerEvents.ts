@@ -131,4 +131,16 @@ export class TriggerEvents {
     }
 
     
+    public triggerOnConversationChanged(conversation: ConversationModel) {
+        this.logger.debug(' ---------------- triggerOnConversationChanged ---------------- ', conversation);
+        try {
+            const windowContext = this.windowContext;
+            if (windowContext) {
+                windowContext.postMessage({ type: 'onConversationChanged', data: conversation }, '*');
+            }
+        } catch (e) {
+            this.logger.error('[TRIGGER-HANDLER] > Error triggerOnConversationChanged:' + e);
+        }
+    }
+
 }

@@ -310,7 +310,8 @@ export class SidebarUserDetailsComponent implements OnInit, OnChanges {
           name: projectObjct['id_project']['name'],
           profile: projectObjct['id_project']['profile'],
           isActiveSubscription: projectObjct['id_project']['isActiveSubscription'],
-          trialExpired: projectObjct['id_project']['trialExpired']
+          trialExpired: projectObjct['id_project']['trialExpired'],
+          teammateStatus: getUserStatusFromProjectUser(projectObjct as any)
         }
         if (this.project.profile.type === 'free') {
 
@@ -455,6 +456,9 @@ export class SidebarUserDetailsComponent implements OnInit, OnChanges {
         this.logger.log('[NAVBAR] - PROJECT-USER UPDATED ', projectUser)
         this.projects.find(p => p.id_project._id === projectUser.id_project._id).teammateStatus = getUserStatusFromProjectUser(projectUserUpdated as any);
 
+        if(projectUser.id_project._id === this.project._id) {
+          this.project.teammateStatus = getUserStatusFromProjectUser(projectUserUpdated as any);
+        }
       }, (error) => {
         this.logger.error('[NAVBAR] - PROJECT-USER UPDATED - ERROR  ', error);
 

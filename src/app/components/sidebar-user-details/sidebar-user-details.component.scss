@@ -164,7 +164,6 @@
     text-align: center;
     background-color: var(--sidebar-user-detail-select-background);
     padding: 4px 0px;
-    width: 192px;
     border-radius: 4px;
     -webkit-transform: translateX(-50%);
     transform: translateX(-50%);
@@ -172,6 +171,7 @@
     margin: auto;
     position: absolute;
     z-index: 2;
+
 
 
     .btn{
@@ -213,6 +213,10 @@
         border: 1px solid var(--sidebar-user-detail-select-background);
     }
 
+    .teammate-status-in-drawer {
+        width: 190px;
+    }
+
     /* projects-dropdown-wrapper - stile come ng-select .ng-select-container (teammate-status-in-drawer) */
     .projects-dropdown-wrapper {
         position: relative;
@@ -228,6 +232,7 @@
         text-align: left;
         font-size: 14px;
         line-height: 1.4;
+        width: 250px;
 
         .projects-dropdown-toggle {
             background-color: transparent !important;
@@ -245,6 +250,9 @@
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .dropdown-menu {
