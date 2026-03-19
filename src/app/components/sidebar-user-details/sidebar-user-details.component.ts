@@ -61,7 +61,7 @@ export class SidebarUserDetailsComponent implements OnInit, OnChanges {
   selectedProjectForStatus: ProjectUser | null = null;
   public openDropdownProjects: boolean = false
   public openStatusDropdownProjectId: string | null = null
-  statusDropdownPosition = { top: 0, right: 0 };
+  statusDropdownPosition = { top: 0, left: 0 };
   isVisibleMT = false;
   isVisibleMPA = false;
 
@@ -426,7 +426,7 @@ export class SidebarUserDetailsComponent implements OnInit, OnChanges {
       const rect = el.getBoundingClientRect()
       this.statusDropdownPosition = {
         top: rect.top + rect.height / 2,
-        right: window.innerWidth - rect.left + 4
+        left: rect.right + 20
       }
       this.selectedProjectForStatus = prjct
     } else {
