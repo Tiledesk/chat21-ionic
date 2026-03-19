@@ -8,6 +8,22 @@
 ### **Copyrigth**: 
 *Tiledesk SRL*
 
+# 3.4.32-rc8
+- **bug-fixed**: sidebar-user-details — status dropdown not visible when clicking first/last project; moved outside #user-details container to avoid overflow clipping.
+- **bug-fixed**: sidebar-user-details — replaced `transform` on #user-details with `left` animation to fix `position: fixed` containing block (dropdown positioning).
+- **changed**: sidebar-user-details — projects_dropdown_container and status-dropdown now use same colors as ng-select teammate-status-in-drawer.
+- **changed**: sidebar-user-details — projects-dropdown-wrapper styled to match ng-select container.
+- **added**: sidebar-user-details — MPA feature flag in featuresToken: if MPA is true show projects_dropdown_container, else show availability_dropdown_container.
+- **bug-fixed**: RouterModule.forRoot() called twice when clicking conversation — SharedModule now imports RouterModule.forChild([]) instead of AppRoutingModule.
+- **changed**: FindPipe and FilterPipe moved from AppModule to SharedModule for app-wide availability.
+- **added**: conversations-list — postMessage to hosting app on conversation selection (event: `onConversationChanged`, data: full conversation object).
+
+# 3.4.32-rc7
+- **addded**: ability to change availability status for each project the logged-in user in sidebar-user-detail 
+
+# 3.4.32-rc6
+- **bug-fixed**: convertRequestToConversation timestamp wrong unit 
+
 # 3.4.32-rc5
 - **added**: conversations-list — on init, fetches all projects via `getProjects` and stores them in AppStorageService under `all_projects`; before saving, checks that the key does not already contain each project (avoids duplicates).
 - **changed**: conversations-list `onConversationLoaded` — project name and id are now resolved from the `all_projects` storage key instead of per-project localStorage entries.
