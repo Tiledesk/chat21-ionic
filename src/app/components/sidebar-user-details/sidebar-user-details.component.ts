@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, OnInit, Output } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, Input, OnDestroy, OnChanges, OnInit, Output } from '@angular/core';
 import { LoggerInstance } from 'src/chat21-core/providers/logger/loggerInstance';
 import { LoggerService } from 'src/chat21-core/providers/abstract/logger.service';
 import { TranslateService } from '@ngx-translate/core';
@@ -24,7 +24,7 @@ import { ProjectUser } from 'src/chat21-core/models/project_user';
   templateUrl: './sidebar-user-details.component.html',
   styleUrls: ['./sidebar-user-details.component.scss'],
 })
-export class SidebarUserDetailsComponent implements OnInit, OnChanges {
+export class SidebarUserDetailsComponent implements OnInit, OnChanges, OnDestroy {
   // HAS_CLICKED_OPEN_USER_DETAIL: boolean = false;
   // @Output() onCloseUserDetailsSidebar = new EventEmitter();
 
@@ -63,6 +63,7 @@ export class SidebarUserDetailsComponent implements OnInit, OnChanges {
   statusDropdownPosition = { top: 0, left: 0 };
   isVisibleMT = false;
   isVisibleMPA = false;
+  private userDetailsMutationObserver: MutationObserver | null = null;
 
   translationsMap: Map<string, string> = new Map();
   
@@ -90,9 +91,43 @@ export class SidebarUserDetailsComponent implements OnInit, OnChanges {
     this.listenToCurrentStoredProject();
     this.listenToUserGoOnline();
     this.getOSCODE();
+    this.setupUserDetailsCloseObserver();
   }
 
   ngOnChanges() {  }
+
+  ngOnDestroy(): void {
+    this.userDetailsMutationObserver?.disconnect();
+    this.userDetailsMutationObserver = null;
+  }
+
+  /**
+   * Osserva la rimozione della classe 'active' da #user-details (es. chiusura via click avatar nel sidebar)
+   * per chiudere i dropdown aperti
+   */
+  private setupUserDetailsCloseObserver(): void {
+    setTimeout(() => {
+      const el = document.getElementById('user-details');
+      if (!el) return;
+    this.userDetailsMutationObserver = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+          const target = mutation.target as HTMLElement;
+          if (!target.classList.contains('active')) {
+            this.closeDropdowns();
+          }
+        }
+      });
+    });
+    this.userDetailsMutationObserver.observe(el, { attributes: true, attributeFilter: ['class'] });
+    }, 0);
+  }
+
+  private closeDropdowns(): void {
+    this.openDropdownProjects = false;
+    this.openStatusDropdownProjectId = null;
+    this.selectedProjectForStatus = null;
+  }
 
   subcribeToAuthStateChanged() {
     this.messagingAuthService.BSAuthStateChanged.subscribe((state) => {
