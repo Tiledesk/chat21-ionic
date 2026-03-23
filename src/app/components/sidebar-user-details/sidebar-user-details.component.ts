@@ -65,6 +65,7 @@ export class SidebarUserDetailsComponent implements OnInit, OnChanges, OnDestroy
   isVisibleMT = false;
   isVisibleMPA = false;
   private userDetailsMutationObserver: MutationObserver | null = null;
+  private statusDropdownCloseTimeout: any = null;
 
   translationsMap: Map<string, string> = new Map();
   
@@ -100,6 +101,7 @@ export class SidebarUserDetailsComponent implements OnInit, OnChanges, OnDestroy
   ngOnDestroy(): void {
     this.userDetailsMutationObserver?.disconnect();
     this.userDetailsMutationObserver = null;
+    this.cancelStatusDropdownClose();
   }
 
   /**
@@ -451,23 +453,32 @@ export class SidebarUserDetailsComponent implements OnInit, OnChanges, OnDestroy
     }
   }
 
-  toggleStatusDropdown(event: Event, prjct: any) {
-    event.stopPropagation()
-    event.preventDefault()
-    const projectId = prjct?.id_project?._id
-    const isOpening = this.openStatusDropdownProjectId !== projectId
-    if (isOpening) {
-      const el = event.currentTarget as HTMLElement
-      const rect = el.getBoundingClientRect()
-      this.statusDropdownPosition = {
-        top: rect.top + rect.height / 2,
-        left: rect.right + 20
-      }
-      this.selectedProjectForStatus = prjct
-    } else {
-      this.selectedProjectForStatus = null
+  openStatusDropdownOnHover(event: Event, prjct: any) {
+    this.cancelStatusDropdownClose();
+    const projectId = prjct?.id_project?._id;
+    const el = event.currentTarget as HTMLElement;
+    const rect = el.getBoundingClientRect();
+    this.statusDropdownPosition = {
+      top: rect.top,
+      left: rect.right + 10
+    };
+    this.selectedProjectForStatus = prjct;
+    this.openStatusDropdownProjectId = projectId;
+  }
+
+  closeStatusDropdownOnLeave() {
+    this.cancelStatusDropdownClose();
+    this.statusDropdownCloseTimeout = setTimeout(() => {
+      this.closeDropdowns();
+      this.statusDropdownCloseTimeout = null;
+    }, 150);
+  }
+
+  cancelStatusDropdownClose() {
+    if (this.statusDropdownCloseTimeout) {
+      clearTimeout(this.statusDropdownCloseTimeout);
+      this.statusDropdownCloseTimeout = null;
     }
-    this.openStatusDropdownProjectId = this.openStatusDropdownProjectId === projectId ? null : projectId
   }
 
   onChangeProjectStatus(projectUser: ProjectUser, selectedStatusID: any) {

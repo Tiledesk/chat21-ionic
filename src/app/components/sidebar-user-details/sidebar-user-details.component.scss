@@ -239,7 +239,7 @@
             padding: 0 !important;
             min-height: auto;
             flex: 1;
-            justify-content: flex-start;
+            justify-content: space-between;
             color: inherit;
             font-size: inherit;
         }
@@ -435,6 +435,19 @@
     border-radius: 4px;
     box-shadow: 0 2px 5px 0 rgb(0, 0, 0, 0.26);
     list-style: none;
+
+    /* Triangolino in alto a sinistra, fuori dal container, con leggero gap in basso */
+    &::before {
+        content: '';
+        position: absolute;
+        left: -7px;
+        top: 10px;
+        width: 0;
+        height: 0;
+        border-top: 7px solid transparent;
+        border-bottom: 7px solid transparent;
+        border-right: 7px solid var(--sidebar-user-detail-select-background);
+    }
 
     .status-dropdown-option {
         display: flex;
