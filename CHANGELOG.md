@@ -8,6 +8,9 @@
 ### **Copyrigth**: 
 *Tiledesk SRL*
 
+# 3.4.32-rc10
+- **bug-fixed**: minor ui fix
+
 # 3.4.32-rc9
 - **added**: sidebar-user-details — MutationObserver to close dropdowns when user details panel is hidden (watches #user-details class); cleanup in ngOnDestroy to prevent memory leaks.
 - **changed**: sidebar-user-details — refined closeDropdowns for better dropdown management when panel closes.
