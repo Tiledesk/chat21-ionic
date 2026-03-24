@@ -165,14 +165,14 @@
     background-color: var(--sidebar-user-detail-select-background);
     padding: 4px 0px;
     border-radius: 4px;
+    // width: 192px;
     -webkit-transform: translateX(-50%);
     transform: translateX(-50%);
     left: 50%;
     margin: auto;
     position: absolute;
+    font-size: 14px;
     z-index: 2;
-
-
 
     .btn{
         display: flex;
@@ -182,7 +182,9 @@
         justify-content: center;
     
         border: 1px solid transparent;
-        transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out
+        transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+        margin: 0px;
+        box-shadow: none;
     }
 
     .dropdown-toggle{
@@ -289,7 +291,7 @@
         -webkit-background-clip: padding-box;
         background-clip: padding-box;
         color: var(--sidebar-user-detail-select-color);
-        max-height: 240px;
+        max-height: 250px;
         overflow-y: auto;
     }
     
@@ -326,7 +328,7 @@
     
     .dropdown-menu li>a{
         font-size: 13px;
-        padding: 10px 20px;
+        padding: 10px 12px;
         border-radius: 2px;
         transition: all 150ms linear;
     
@@ -337,6 +339,7 @@
         color: var(--sidebar-user-detail-select-color);
         white-space: nowrap;
         text-decoration: none;
+        margin: 0px;
         cursor: auto;
     
         img {
@@ -345,7 +348,6 @@
             position: relative;
             top: 1px;
         }
-    
         .material-icons {
             vertical-align: middle;
         }
@@ -379,6 +381,13 @@
     
                 &.project-item-status-wrapper {
                     position: relative;
+
+                    .project-item-status-name {
+                        margin-right: 4px;
+                        color: #a9afbb;
+                        font-size: 9px;
+
+                    }
                 }
     
                 .status-dropdown {
@@ -426,7 +435,6 @@
 /* Status dropdown fuori da #user-details - stessi colori ng-select */
 .status-dropdown-outside {
     position: fixed !important;
-    transform: translateY(-50%);
     z-index: 1100;
     min-width: 140px;
     padding: 4px 0;
