@@ -8,6 +8,13 @@
 ### **Copyrigth**: 
 *Tiledesk SRL*
 
+# 3.4.32-rc9
+- **added**: sidebar-user-details — MutationObserver to close dropdowns when user details panel is hidden (watches #user-details class); cleanup in ngOnDestroy to prevent memory leaks.
+- **changed**: sidebar-user-details — refined closeDropdowns for better dropdown management when panel closes.
+- **added**: sidebar-user-details — hover to open status dropdown; improved status dropdown positioning logic.
+- **changed**: sidebar-user-details — flexbox layout (justify-content: space-between) for improved project item spacing.
+- **changed**: sidebar-user-details — HTML structure for conditional rendering of teammate status images and titles; cleaned up unused SCSS.
+
 # 3.4.32-rc8
 - **bug-fixed**: sidebar-user-details — status dropdown not visible when clicking first/last project; moved outside #user-details container to avoid overflow clipping.
 - **bug-fixed**: sidebar-user-details — replaced `transform` on #user-details with `left` animation to fix `position: fixed` containing block (dropdown positioning).
