@@ -332,27 +332,33 @@ export class ProjectItemComponent implements OnInit {
     if (!r?.id_project) return undefined;
     return typeof r.id_project === 'string' ? r.id_project : r.id_project?._id;
   }
-
+ 
   private recalculateUnservedCount(requests: any[]) {
     if (!requests) return;
+
     let count = 0;
-    this.unservedConversations = [];
-    requests.forEach((r) => {
+    const nextConvs: ConversationModel[] = [];
+    const seenUids = new Set<string>();
+
+    for (const r of requests) {
       const projectId = this.getRequestProjectId(r);
-      if (!projectId || !this.availableProjectIds.has(projectId)) return;
-      if (r['status'] === 100 && this.hasmeInAgents(r['agents']) === true) {
-        count += 1;
-        const conv = this.convertRequestToConversation.getConvFromRequest(r);
-        if (!this.unservedConversations.find((el) => el.uid === conv.uid)) {
-          this.unservedConversations.push(conv);
-          this.unservedConversations.sort(compareValues('timestamp', 'desc'));
-        }
-      }
-    });
+      if (!projectId || !this.availableProjectIds.has(projectId)) continue;
+      if (r['status'] !== 100 || !this.hasmeInAgents(r['agents'])) continue;
+
+      count += 1;
+      const conv = this.convertRequestToConversation.getConvFromRequest(r);
+      if (seenUids.has(conv.uid)) continue;
+      seenUids.add(conv.uid);
+      nextConvs.push(conv);
+    }
+
+    nextConvs.sort(compareValues('timestamp', 'desc'));
+    this.unservedConversations = nextConvs;
+
     if (count > this.unservedRequestCount) {
       this.events.publish('unservedRequest:count', count);
     }
-    console.log('unservedRequestCount', count);
+    this.logger.log('[PROJECT-ITEM] - unservedRequestCount', count);
     this.unservedRequestCount = count;
   }
 
@@ -367,16 +373,12 @@ export class ProjectItemComponent implements OnInit {
       );
   }
 
-  hasmeInAgents(agents) {
-    if (agents) {
-      for (let j = 0; j < agents.length; j++) {
-        if (this.currentUserId === agents[j].id_user) {
-          return true
-        }
-      }
-    } else {
-      this.logger.log('[PROJECT-ITEM] hasmeInAgents OOPS!!! AGENTS THERE ARE NOT ')
+  hasmeInAgents(agents: any[] | undefined): boolean {
+    if (!agents) {
+      this.logger.log('[PROJECT-ITEM] hasmeInAgents OOPS!!! AGENTS THERE ARE NOT ');
+      return false;
     }
+    return agents.some((a) => a.id_user === this.currentUserId);
   }
 
   isValidStoredProject(obj: any): obj is ProjectUser {
