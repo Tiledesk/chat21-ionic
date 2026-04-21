@@ -1345,7 +1345,6 @@ export class AppComponent implements OnInit {
 
   subscribeUnservedRequestCount = (unservedRequestCount) => {
     if(unservedRequestCount && unservedRequestCount > 0){
-      this.logger.debug("subscribeUnservedRequestCount appIsInitialized::::",this.isInitialized)
       if(this.isInitialized){
         this.manageTabNotification('conv_unassigned', true, unservedRequestCount) //sound and alternate title
       }

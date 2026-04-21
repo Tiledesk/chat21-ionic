@@ -214,8 +214,8 @@ export class WebsocketService {
 
 
       }, function (data, notification) {
-        self.logger.log("[WS-SERV] CHAT - CONVS  - ON-DATA - DATA ", data);
-        self.logger.log("[WS-SERV] CHAT - CONVS  - ON-DATA - notification ", notification);
+        // self.logger.log("[WS-SERV] CHAT - CONVS  - ON-DATA - DATA ", data);
+        // self.logger.log("[WS-SERV] CHAT - CONVS  - ON-DATA - notification ", notification);
 
         // console.log("[WS-SERV] CHAT - CONVS  - ON-DATA - DATA notification > event > method ", notification.event.method);
         // if (notification.event.method === 'CREATE') {

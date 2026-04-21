@@ -65,10 +65,9 @@ export class WebSocketJs {
   //     WsRequestsMsgsComponent onInit() is got the request id from url params
 
   ref(topic, calledby, onCreate, onUpdate, onData) {
-    // this.logger.log('[WEBSOCKET-JS] ****** CALLING REF ****** ');
-    this.logger.log('[WEBSOCKET-JS] - REF - calledby ', calledby);
-    this.logger.log('[WEBSOCKET-JS] - REF - TOPIC ', topic);
-    this.logger.log('[WEBSOCKET-JS] - REF - CALLBACKS', this.callbacks);
+    // this.logger.log('[WEBSOCKET-JS] - REF - calledby ', calledby);
+    // this.logger.log('[WEBSOCKET-JS] - REF - TOPIC ', topic);
+    // this.logger.log('[WEBSOCKET-JS] - REF - CALLBACKS', this.callbacks);
 
     if (!this.callbacks) {
       this.logger.log('[WEBSOCKET-JS] - REF OOOOPS! NOT CALLBACKS ***', this.callbacks);
@@ -76,24 +75,24 @@ export class WebSocketJs {
     }
 
     this.callbacks.set(topic, { onCreate: onCreate, onUpdate: onUpdate, onData: onData });
-    this.logger.log('[WEBSOCKET-JS] - CALLBACK-SET - callbacks', this.callbacks);
+    // this.logger.log('[WEBSOCKET-JS] - CALLBACK-SET - callbacks', this.callbacks);
 
     if (this.ws && this.ws.readyState == 1) {
-      this.logger.log('[WEBSOCKET-JS] - REF - READY STATE ', this.ws.readyState);
-      this.logger.log('[WEBSOCKET-JS] - REF - READY STATE = 1 > SUBSCRIBE TO TOPICS ');
+      // this.logger.log('[WEBSOCKET-JS] - REF - READY STATE ', this.ws.readyState);
+      // this.logger.log('[WEBSOCKET-JS] - REF - READY STATE = 1 > SUBSCRIBE TO TOPICS ');
 
       this.subscribe(topic);
 
     } else {
       // this.ws =  new WebSocket("wss://tiledesk-server-pre.herokuapp.com/?token=JWT eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1ZGRkMzBiZmYwMTk1ZjAwMTdmNzJjNmQiLCJlbWFpbCI6InByZWdpbm9AZjIxdGVzdC5pdCIsImZpcnN0bmFtZSI6Ikdpbm8iLCJsYXN0bmFtZSI6IlByZSIsImVtYWlsdmVyaWZpZWQiOnRydWUsImlhdCI6MTYwODgwNjY0MCwiYXVkIjoiaHR0cHM6Ly90aWxlZGVzay5jb20iLCJpc3MiOiJodHRwczovL3RpbGVkZXNrLmNvbSIsInN1YiI6InVzZXIiLCJqdGkiOiI1YmVmMDcxYy00ODBlLTQzYzQtOTRhYS05ZjQxYzMyNDcxMGQifQ.wv6uBn2P6H9wGb5WCYQkpPEScMU9PB1pBUzFouhJk20");
 
-      this.logger.log('[WEBSOCKET-JS] - REF - READY STATE ≠ 1 > OPEN WS AND THEN SUBSCRIBE TO TOPICS');
-      this.logger.log('% »»» WebSocketJs WF *** REF *** WS 2 ', this.ws);
+      // this.logger.log('[WEBSOCKET-JS] - REF - READY STATE ≠ 1 > OPEN WS AND THEN SUBSCRIBE TO TOPICS');
+      // this.logger.log('% »»» WebSocketJs WF *** REF *** WS 2 ', this.ws);
 
       var that = this;
       if (this.ws) {
         this.ws.addEventListener("open", function (event) {
-          that.logger.log('[WEBSOCKET-JS] - REF - OPEN EVENT *** ', event);
+          // that.logger.log('[WEBSOCKET-JS] - REF - OPEN EVENT *** ', event);
           that.subscribe(topic);
         });
       } else {
@@ -115,7 +114,7 @@ export class WebSocketJs {
     if (this.topics.indexOf(topic) === -1) {
       this.topics.push(topic);
     }
-    this.logger.log('[WEBSOCKET-JS] - SUBSCRIBE TO TOPIC ', topic);
+    // this.logger.log('[WEBSOCKET-JS] - SUBSCRIBE TO TOPIC ', topic);
 
     var message = {
       action: 'subscribe',
@@ -127,7 +126,7 @@ export class WebSocketJs {
       },
     };
     var str = JSON.stringify(message);
-    this.logger.log("[WEBSOCKET-JS] - SUBSCRIBE TO TOPIC - STRING TO SEND " + str, " FOR SUBSCRIBE TO TOPIC: ", topic);
+    // this.logger.log("[WEBSOCKET-JS] - SUBSCRIBE TO TOPIC - STRING TO SEND " + str, " FOR SUBSCRIBE TO TOPIC: ", topic);
 
     this.send(str, `SUBSCRIBE to ${topic}`);
   }

@@ -358,7 +358,6 @@ export class ProjectItemComponent implements OnInit {
     if (count > this.unservedRequestCount) {
       this.events.publish('unservedRequest:count', count);
     }
-    this.logger.log('[PROJECT-ITEM] - unservedRequestCount', count);
     this.unservedRequestCount = count;
   }
 
