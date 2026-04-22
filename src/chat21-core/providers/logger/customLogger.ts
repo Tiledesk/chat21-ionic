@@ -1,6 +1,6 @@
 import { LogLevel } from './../../utils/constants';
-import { Inject, Injectable } from '@angular/core';
-import { NGXLogger, NGXLoggerMonitor, NGXLogInterface } from 'ngx-logger';
+import { Injectable } from '@angular/core';
+import { NGXLogger } from 'ngx-logger';
 import { LoggerService } from './../abstract/logger.service';
 @Injectable()
 export class CustomLogger implements LoggerService {
@@ -28,38 +28,46 @@ export class CustomLogger implements LoggerService {
         return {isLogEnabled: this.isLogEnabled, logLevel: this.logLevel}
     }
 
+    /** ngx-logger typings reject `...message: any[]`; use apply to forward an arbitrary arg list. */
+    private forwardToNgx(
+        level: 'error' | 'warn' | 'info' | 'debug' | 'log',
+        message: any[]
+    ): void {
+        const fn = this.logger[level] as (...args: any[]) => void;
+        if (message.length === 0) {
+            fn.call(this.logger, '');
+        } else {
+            fn.apply(this.logger, message);
+        }
+    }
+
     error(...message: any[]) {
         if (this.isLogEnabled && this.logLevel >= LogLevel.ERROR) {
-            this.logger.error(message)
-            // console.log(message)
+            this.forwardToNgx('error', message);
         }
     }
 
     warn(...message: any[]) {
         if (this.isLogEnabled && this.logLevel >= LogLevel.WARN) {
-            this.logger.warn(message)
-            // console.log(message)
+            this.forwardToNgx('warn', message);
         }
     }
 
     info(...message: any[]) {
         if (this.isLogEnabled && this.logLevel >= LogLevel.INFO) {
-            this.logger.info(message)
-            // console.log(message)
+            this.forwardToNgx('info', message);
         }
     }
 
     debug(...message: any[]) {
         if (this.isLogEnabled && this.logLevel >= LogLevel.DEBUG) {
-            this.logger.debug(message)
-            // console.debug(message)
+            this.forwardToNgx('debug', message);
         }
     }
 
     log(...message: any[]) {
         if (this.isLogEnabled && this.logLevel >= LogLevel.DEBUG) {
-            // console.log(message);
-            this.logger.log(message)
+            this.forwardToNgx('log', message);
         }
     }
 

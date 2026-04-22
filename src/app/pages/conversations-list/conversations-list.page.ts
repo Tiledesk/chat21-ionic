@@ -69,6 +69,8 @@ export class ConversationListPage implements OnInit {
 
   private unsubscribe$: Subject<any> = new Subject<any>()
   private subscriptions: Array<string>
+  /** RxJS subscriptions from initSubscriptions — must be cleared before re-init to avoid duplicate handlers. */
+  private convListHandlerSubs: Subscription[] = []
   public tenant: string
   public loggedUserUid: string
   public conversations: Array<ConversationModel> = []
@@ -579,11 +581,18 @@ export class ConversationListPage implements OnInit {
   // ------------------------------------------------------------------
   //  SUBSCRIPTIONS
   // ------------------------------------------------------------------
+  private unsubscribeConversationHandlerStreams(): void {
+    this.convListHandlerSubs.forEach((sub) => sub.unsubscribe())
+    this.convListHandlerSubs = []
+  }
+
   initSubscriptions() {
     this.logger.log('[CONVS-LIST-PAGE] - CALLING - initSubscriptions ')
+    this.unsubscribeConversationHandlerStreams()
     let key = ''
 
     key = 'loggedUser:logout'
+    this.events.unsubscribe(key, this.subscribeLoggedUserLogout)
     if (!isInArray(key, this.subscriptions)) {
       this.subscriptions.push(key)
       this.events.subscribe(key, this.subscribeLoggedUserLogout)
@@ -596,6 +605,7 @@ export class ConversationListPage implements OnInit {
     // }
 
     key = 'profileInfoButtonClick:changed'
+    this.events.unsubscribe(key, this.subscribeProfileInfoButtonClicked)
     if (!isInArray(key, this.subscriptions)) {
       this.subscriptions.push(key)
       this.events.subscribe(key, this.subscribeProfileInfoButtonClicked)
@@ -606,37 +616,43 @@ export class ConversationListPage implements OnInit {
     //   this.readAllMessages(conversationId);
     // });
 
-    this.conversationsHandlerService.conversationAdded.subscribe((conversation: ConversationModel) => {
-        // this.logger.log('[CONVS-LIST-PAGE] ***** conversationsAdded *****', conversation);
-        // that.conversationsChanged(conversations);
+    this.convListHandlerSubs.push(
+      this.conversationsHandlerService.conversationAdded.subscribe((conversation: ConversationModel) => {
         if (conversation) {
           this.onImageLoaded(conversation)
           this.onConversationLoaded(conversation)
-          // conversation.is_new && this.isInitialized? this.segmentNewConversationAdded(conversation) : null;
         }
-    })
+      })
+    )
 
-    this.conversationsHandlerService.conversationChanged.subscribe((conversation: ConversationModel) => {
+    this.convListHandlerSubs.push(
+      this.conversationsHandlerService.conversationChanged.subscribe((conversation: ConversationModel) => {
         this.logger.log('[CONVS-LIST-PAGE] ***** subscribeConversationChanged *****', conversation);
-        // that.conversationsChanged(conversations)
         if (conversation) {
           this.onImageLoaded(conversation)
           this.onConversationLoaded(conversation)
         }
-    })
+      })
+    )
 
-    this.conversationsHandlerService.conversationRemoved.subscribe((conversation: ConversationModel) => {
-        this.logger.log('[CONVS-LIST-PAGE] ***** conversationsRemoved *****',conversation)
-    })
+    this.convListHandlerSubs.push(
+      this.conversationsHandlerService.conversationRemoved.subscribe((conversation: ConversationModel) => {
+        if (!conversation) {
+          return
+        }
+        this.logger.log('[CONVS-LIST-PAGE] ***** conversationsRemoved *****', conversation)
+      })
+    )
 
-    this.archivedConversationsHandlerService.archivedConversationAdded.subscribe((conversation: ConversationModel) => {
-        this.logger.log('[CONVS-LIST-PAGE] ***** archivedConversationAdded *****',conversation)
-        // that.conversationsChanged(conversations);
+    this.convListHandlerSubs.push(
+      this.archivedConversationsHandlerService.archivedConversationAdded.subscribe((conversation: ConversationModel) => {
+        this.logger.log('[CONVS-LIST-PAGE] ***** archivedConversationAdded *****', conversation);
         if (conversation) {
           this.onImageLoaded(conversation)
           this.onConversationLoaded(conversation)
         }
-    })
+      })
+    )
   }
 
   // ------------------------------------------------------------------------------------

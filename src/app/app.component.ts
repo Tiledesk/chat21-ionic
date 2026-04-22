@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, NgZone, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, HostListener, NgZone, OnInit, ViewChild } from '@angular/core';
 
 import { AlertController, Config, IonNav, IonRouterOutlet, ModalController, NavController, Platform, ToastController } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
@@ -141,7 +141,9 @@ export class AppComponent implements OnInit {
     /**TILEDESK SERVICES */
     private tiledeskService: TiledeskService,
     private projectService: ProjectService,
-    private contactsService: ContactsService
+    private contactsService: ContactsService,
+    private ngZone: NgZone,
+    private cdr: ChangeDetectorRef,
   ) {
 
     this.saveInStorageNumberOfOpenedChatTab();
@@ -174,6 +176,31 @@ export class AppComponent implements OnInit {
         this.checkPlatform()
       }
     });
+  }
+
+  /**
+   * Chat in iframe / tab: when the user returns from the dashboard, width and ion-split-pane
+   * are often wrong until a full reload. Force resize + change detection on visibility/focus.
+   */
+  private registerLayoutRefreshWhenDocumentVisible(): void {
+    const onVisibleOrFocus = () => {
+      if (typeof document === 'undefined' || document.visibilityState !== 'visible') {
+        return;
+      }
+      this.ngZone.run(() => {
+        this.logger.log('[APP-COMP] layout-refresh: document visible (resize + detectChanges)');
+        requestAnimationFrame(() => {
+          try {
+            window.dispatchEvent(new Event('resize'));
+          } catch (e) {
+            this.logger.warn('[APP-COMP] layout-refresh: resize dispatch failed', e);
+          }
+          this.cdr.detectChanges();
+        });
+      });
+    };
+    document.addEventListener('visibilitychange', onVisibleOrFocus);
+    window.addEventListener('focus', onVisibleOrFocus);
   }
 
   // listenToUrlChanges() {
@@ -323,6 +350,7 @@ export class AppComponent implements OnInit {
     this.initializeApp('oninit');
     this.loadCustomScript(appconfig)
     this.listenToPostMsgs();
+    this.registerLayoutRefreshWhenDocumentVisible();
 
     this.loadStyle(JSON.parse(localStorage.getItem('custom_style')));
     this.triggerOnInit('onInit')
@@ -1079,14 +1107,14 @@ export class AppComponent implements OnInit {
           // if (this.isOnline === false) {
           // if (AUTH_STATE_ONLINE) {
           this.IS_ONLINE = true;
-          // console.log('[APP-COMP] IS_ONLINE', this.IS_ONLINE)
+          console.log('[APP-COMP] IS_ONLINE', this.IS_ONLINE)
           this.goOnLine();
           this.triggerOnAuthStateChanged(state)
           // }
         } else if (state === AUTH_STATE_OFFLINE) {
           // this.checkTokenAndGoOffline() //se c'è un tiledeskToken salvato, allora aspetta, altrimenti vai offline
           this.IS_ONLINE = false;
-          // console.log('[APP-COMP] IS_ONLINE', this.IS_ONLINE)
+          console.log('[APP-COMP] IS_ONLINE', this.IS_ONLINE)
           this.goOffLine();
           this.triggerOnAuthStateChanged(state)
         } else if(state && state === AUTH_STATE_CLOSE ){
