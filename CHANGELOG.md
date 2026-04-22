@@ -11,10 +11,11 @@
 *Tiledesk SRL*
 
 # 3.4.33-rc1
- - Enhances AppComponent with ChangeDetectorRef and NgZone for layout refresh on document visibility. 
- - Refines ConversationListPage by managing RxJS subscriptions to prevent duplicates. 
- - Improves CustomLogger to forward messages correctly. 
- - Updates environment configuration for production settings and Firebase integration.
+ - Enhances AppComponent with ChangeDetectorRef and NgZone for layout refresh on document visibility
+ - Refines ConversationListPage by managing RxJS subscriptions to prevent duplicates
+ - Improves CustomLogger to forward messages correctly
+ - Updates environment configuration for production settings and Firebase integration
+ - Adds the in the sidebar the WA icon
 
 # 3.4.32 in PROD
 
