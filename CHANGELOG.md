@@ -5,8 +5,10 @@
 *Dario De Pascalis* <br>
 *Giovanni Troisi* <br>
 *Nicola Lanzilotto* <br>
-### **Copyrigth**: 
+### **Copyright**: 
 *Tiledesk SRL*
+
+# 3.4.33 in PROD
 
 # 3.4.32 in PROD
 
@@ -31,7 +33,7 @@
 - **added**: conversations-list — postMessage to hosting app on conversation selection (event: `onConversationChanged`, data: full conversation object).
 
 # 3.4.32-rc7
-- **addded**: ability to change availability status for each project the logged-in user in sidebar-user-detail 
+- **added**: ability to change availability status per project for the logged-in user in sidebar-user-detail
 
 # 3.4.32-rc6
 - **bug-fixed**: convertRequestToConversation timestamp wrong unit 
@@ -77,7 +79,7 @@
 
 # 3.4.26-rc1
 - **added**: tiledesk_projectID query param to manage user status
-- **added**: token to managane ticket feature
+- **added**: token to manage ticket feature
 
 # 3.4.25 in PROD
 - **changed**: pipe marked to support malicious text input
@@ -1689,7 +1691,7 @@
 - bug-fix: info conversation right sidebar
 
 # 3.0.8
-- new: added Scrivi a...
+- new: added “Write to…” (contact list label)
 
 # 3.0.7
 - bug fix: navigation and routing
