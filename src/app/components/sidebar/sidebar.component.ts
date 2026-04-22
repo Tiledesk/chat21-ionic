@@ -36,6 +36,7 @@ export class SidebarComponent implements OnInit {
   isVisibleACT: boolean;
   isVisibleMON: boolean;
   isVisibleCNT: boolean;
+  isVisibleAUT: boolean;
   isVisibleKNB: boolean;
   photo_profile_URL: string;
   project_id: string;
@@ -45,6 +46,7 @@ export class SidebarComponent implements OnInit {
   public_Key: any;
   conversations_lbl: string;
   contacts_lbl: string;
+  whatsapp_lbl: string;
   apps_lbl: string;
   analytics_lbl: string;
   activities_lbl: string;
@@ -58,6 +60,7 @@ export class SidebarComponent implements OnInit {
   dashboard_bots_url: string;
   dashboard_convs_url: string;
   dashboard_contacts_url: string;
+  dashboard_wa_url: string;
   dashboard_app_url: string;
   dashboard_analytics_url: string;
   dashboard_activities_url: string;
@@ -108,6 +111,7 @@ export class SidebarComponent implements OnInit {
     this.dashboard_bots_url = this.DASHBOARD_URL + this.project_id + '/bots'
     this.dashboard_convs_url = this.DASHBOARD_URL + this.project_id + '/wsrequests'
     this.dashboard_contacts_url = this.DASHBOARD_URL + this.project_id + '/contacts'
+    this.dashboard_wa_url = this.DASHBOARD_URL + this.project_id + '/automations'
     this.dashboard_app_url = this.DASHBOARD_URL + this.project_id + '/app-store'
     this.dashboard_analytics_url = this.DASHBOARD_URL + this.project_id + '/analytics'
     this.dashboard_activities_url = this.DASHBOARD_URL + this.project_id + '/activities'
@@ -247,6 +251,7 @@ export class SidebarComponent implements OnInit {
     const keys= [
       'Conversations',
       'LABEL_CONTACTS',
+      'LABEL_WA',
       'Apps',
       'Analytics',
       'Activities',
@@ -257,6 +262,7 @@ export class SidebarComponent implements OnInit {
     this.translate.get(keys).subscribe((text: string) => {
       this.conversations_lbl = text['Conversations'];
       this.contacts_lbl = text['LABEL_CONTACTS']
+      this.whatsapp_lbl = text['LABEL_WA']
       this.apps_lbl = text['Apps']
       this.analytics_lbl = text['Analytics']
       this.activities_lbl = text['Activities']
@@ -274,6 +280,7 @@ export class SidebarComponent implements OnInit {
     this.isVisibleAPP = getOSCode("APP", this.public_Key);
     this.isVisibleMON = getOSCode("MON", this.public_Key);
     this.isVisibleCNT = getOSCode("CNT", this.public_Key);
+    this.isVisibleAUT = getOSCode("AUT", this.public_Key);
     this.isVisibleKNB = getOSCode("KNB", this.public_Key);
     
   }

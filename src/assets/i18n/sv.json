@@ -118,6 +118,7 @@
   "LABEL_IS_WRITING": "skriver",
   "LABEL_VERSION": "version",
   "LABEL_CONTACTS": "Kontakter",
+  "LABEL_WA":"Whatsapp-sändningar",
   "LABEL_PLACEHOLDER": "skriv ditt meddelande..",
   "LABEL_START_NW_CONV": "Ny konversation",
   "LABEL_FIRST_MSG": "Beskriv kort ditt problem, du kommer att kontaktas av en agent.",
