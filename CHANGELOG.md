@@ -8,6 +8,9 @@
 ### **Copyright**: 
 *Tiledesk SRL*
 
+# 3.4.34 in PROD
+- **added**: role handling in the affected components (sidebar, navbar, conversations list, conversation detail) using shared `hasRole` checks and `ProjectUser.rolePermissions`.
+
 # 3.4.33 in PROD
 
 # 3.4.32 in PROD
