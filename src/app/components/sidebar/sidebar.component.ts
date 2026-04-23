@@ -39,6 +39,7 @@ export class SidebarComponent implements OnInit {
   isVisibleACT: boolean;
   isVisibleMON: boolean;
   isVisibleCNT: boolean;
+  isVisibleAUT: boolean;
   isVisibleKNB: boolean;
   photo_profile_URL: string;
   project_id: string;
@@ -49,6 +50,7 @@ export class SidebarComponent implements OnInit {
   conversations_lbl: string;
   whatsappbroadcast_lbl: string;
   contacts_lbl: string;
+  whatsapp_lbl: string;
   apps_lbl: string;
   analytics_lbl: string;
   activities_lbl: string;
@@ -269,6 +271,7 @@ setQueryParamsForAll(queryParams: any) {
     const keys= [
       'Conversations',
       'LABEL_CONTACTS',
+      'LABEL_WA',
       'Apps',
       'Analytics',
       'Activities',
@@ -280,6 +283,7 @@ setQueryParamsForAll(queryParams: any) {
       this.conversations_lbl = text['Conversations'];
       this.whatsappbroadcast_lbl = text['WhatsAppBroadcasts']
       this.contacts_lbl = text['LABEL_CONTACTS']
+      this.whatsapp_lbl = text['LABEL_WA']
       this.apps_lbl = text['Apps']
       this.analytics_lbl = text['Analytics']
       this.activities_lbl = text['Activities']
@@ -296,6 +300,7 @@ setQueryParamsForAll(queryParams: any) {
     this.isVisibleACT = getOSCode("ACT", this.public_Key);
     this.isVisibleMON = getOSCode("MON", this.public_Key);
     this.isVisibleCNT = getOSCode("CNT", this.public_Key);
+    this.isVisibleAUT = getOSCode("AUT", this.public_Key);
     this.isVisibleKNB = getOSCode("KNB", this.public_Key);
 
   }

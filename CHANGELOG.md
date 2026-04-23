@@ -5,8 +5,72 @@
 *Dario De Pascalis* <br>
 *Giovanni Troisi* <br>
 *Nicola Lanzilotto* <br>
-### **Copyrigth**: 
+### **Copyright**: 
 *Tiledesk SRL*
+
+# 3.4.33 in PROD
+
+# 3.4.32 in PROD
+
+# 3.4.32-rc10
+- **bug-fixed**: minor ui fix
+
+# 3.4.32-rc9
+- **added**: sidebar-user-details — MutationObserver to close dropdowns when user details panel is hidden (watches #user-details class); cleanup in ngOnDestroy to prevent memory leaks.
+- **changed**: sidebar-user-details — refined closeDropdowns for better dropdown management when panel closes.
+- **added**: sidebar-user-details — hover to open status dropdown; improved status dropdown positioning logic.
+- **changed**: sidebar-user-details — flexbox layout (justify-content: space-between) for improved project item spacing.
+- **changed**: sidebar-user-details — HTML structure for conditional rendering of teammate status images and titles; cleaned up unused SCSS.
+
+# 3.4.32-rc8
+- **bug-fixed**: sidebar-user-details — status dropdown not visible when clicking first/last project; moved outside #user-details container to avoid overflow clipping.
+- **bug-fixed**: sidebar-user-details — replaced `transform` on #user-details with `left` animation to fix `position: fixed` containing block (dropdown positioning).
+- **changed**: sidebar-user-details — projects_dropdown_container and status-dropdown now use same colors as ng-select teammate-status-in-drawer.
+- **changed**: sidebar-user-details — projects-dropdown-wrapper styled to match ng-select container.
+- **added**: sidebar-user-details — MPA feature flag in featuresToken: if MPA is true show projects_dropdown_container, else show availability_dropdown_container.
+- **bug-fixed**: RouterModule.forRoot() called twice when clicking conversation — SharedModule now imports RouterModule.forChild([]) instead of AppRoutingModule.
+- **changed**: FindPipe and FilterPipe moved from AppModule to SharedModule for app-wide availability.
+- **added**: conversations-list — postMessage to hosting app on conversation selection (event: `onConversationChanged`, data: full conversation object).
+
+# 3.4.32-rc7
+- **added**: ability to change availability status per project for the logged-in user in sidebar-user-detail
+
+# 3.4.32-rc6
+- **bug-fixed**: convertRequestToConversation timestamp wrong unit 
+
+# 3.4.32-rc5
+- **added**: conversations-list — on init, fetches all projects via `getProjects` and stores them in AppStorageService under `all_projects`; before saving, checks that the key does not already contain each project (avoids duplicates).
+- **changed**: conversations-list `onConversationLoaded` — project name and id are now resolved from the `all_projects` storage key instead of per-project localStorage entries.
+
+# 3.4.32-rc4
+- **changed**: unassigned conversations page — `onImageLoaded` and `onConversationLoaded` are now invoked for each conversation in the list (avatar URLs, last message formatting, project name).
+- **bug-fixed**: navbar project dropdown — descenders (letters like g, p, q) were being clipped; added `line-height: 1.4` and vertical padding to prevent clipping.
+
+# 3.4.32-rc3
+- **bug-fixed**: unassigned conversations list was reset on each WebSocket subscription; conversations from other projects were lost when subscribing to multiple online projects. Added `skipClear` parameter to `subscriptionToWsConversations` so the list is cleared only once when subscribing to all online projects.
+- **changed**: unassigned conversations empty state — centered the "no conversations" label both vertically and horizontally within the full viewport height.
+
+# 3.4.32-rc2
+
+# 3.4.32-rc1
+- **added**: ability to change availability status for each project the logged-in user belongs to.
+- **changed**: unserved-request.page refactor html and ts refactor
+
+# 3.4.31 in PROD
+- **changed**: enhance HTML entities encoding by normalizing line breaks and handling null/undefined inputs
+- **changed**: API for upload a file/image into chat
+
+# 3.4.30 in PROD
+- **changed**: when the app is in background, play a sound whenever a new message arrives.
+
+# 3.4.29 in PROD
+- **bug-fixed**: web (Chrome >= 144) `ion-content` stopped scrolling on some pages (conversation list / contacts directory / unassigned); removed the forced `--overflow: hidden` and handled scrolling on Ionic’s internal scroll container via `ion-content::part(scroll)`
+
+# 3.4.28 in PROD
+- **bug-fixed**: cannot do project subscription if last_project object is not a project_user obj
+
+# 3.4.27 in PROD
+- **bug-fixed**: cannot find route if userFullname contains /
 
 # 3.4.26 in PROD
 
@@ -15,7 +79,7 @@
 
 # 3.4.26-rc1
 - **added**: tiledesk_projectID query param to manage user status
-- **added**: token to managane ticket feature
+- **added**: token to manage ticket feature
 
 # 3.4.25 in PROD
 - **changed**: pipe marked to support malicious text input
@@ -1627,7 +1691,7 @@
 - bug-fix: info conversation right sidebar
 
 # 3.0.8
-- new: added Scrivi a...
+- new: added “Write to…” (contact list label)
 
 # 3.0.7
 - bug fix: navigation and routing

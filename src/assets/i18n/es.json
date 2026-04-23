@@ -118,6 +118,7 @@
   "LABEL_IS_WRITING": "escribir",
   "LABEL_VERSION": "versión",
   "LABEL_CONTACTS": "Contactos",
+  "LABEL_WA":"Transmisiones de Whatsapp",
   "LABEL_PLACEHOLDER": "escribe tu mensaje..",
   "LABEL_START_NW_CONV": "Nueva conversación",
   "LABEL_FIRST_MSG": "Describa en breve su problema, será contactado por un agente.",

@@ -120,7 +120,6 @@ export class AppComponent implements OnInit {
     private navService: NavProxyService,
     // public chatPresenceHandler: ChatPresenceHandler,
     public typingService: TypingService,
-    public uploadService: UploadService,
     public appStorageService: AppStorageService,
 
     // public chatConversationsHandler: ChatConversationsHandler,
@@ -344,7 +343,7 @@ export class AppComponent implements OnInit {
 
       if (event && event.data && event.data.action && event.data.parameter) {
         if (event.data.action === 'resolveConversation') {
-          this.conversationsHandlerService.archiveConversation(event.data.patameter)
+          this.conversationsHandlerService.archiveConversation(event.data.parameter)
         }
       }
       // if (event && event.data && event.data.action && event.data.parameter) {
@@ -549,7 +548,6 @@ export class AppComponent implements OnInit {
       if (pushEngine && pushEngine !== 'none') {
         this.notificationsService.initialize(this.tenant, vap_id_Key, platform)
       }
-      this.uploadService.initialize();
 
       this.setLanguage(null)
       this.initAuthentication();
@@ -888,10 +886,15 @@ export class AppComponent implements OnInit {
 
       let pageUrl = 'conversation-detail/'
       if (IDConv && FullNameConv) {
-        pageUrl += IDConv + '/' + FullNameConv + '/' + Convtype
+        pageUrl += IDConv + '/' + encodeURIComponent(FullNameConv) + '/' + Convtype
       }
+
+      const queryParams = this.route.snapshot.queryParams;
+      const queryString = new URLSearchParams(queryParams).toString();
+      pageUrl += queryString ? `?${queryString}` : '';
+
       // replace(/\(/g, '%28').replace(/\)/g, '%29') -> used for the encoder of any round brackets
-      this.router.navigateByUrl(pageUrl.replace(/\(/g, '%28').replace(/\)/g, '%29').replace( /#/g, "%23" ));
+      this.router.navigateByUrl(pageUrl.replace(/\(/g, '%28').replace(/\)/g, '%29'));
 
 
       // const DASHBOARD_URL = this.appConfigProvider.getConfig().DASHBOARD_URL;
@@ -1129,6 +1132,10 @@ export class AppComponent implements OnInit {
         if (changes.value && changes.value.sender !== currentUser.uid) {
           let checkIfStatusChanged = changes.value.is_new === changes.previousValue.is_new? true: false
           let checkIfUidChanged = changes.value.uid === changes.previousValue.uid? true: false
+          if(!this.isTabVisible){
+            this.manageTabNotification('new_message', true);
+            return
+          }
           if(changes.value.is_new && checkIfStatusChanged && checkIfUidChanged){
             this.manageTabNotification('new_message', true);
           }
@@ -1166,7 +1173,7 @@ export class AppComponent implements OnInit {
     // if (supportmode === true) {
     //   this.connetWebsocket() // moved in the comp project-item
     // }
-    this.events.publish('go:online', true);
+    
     const currentUser = this.tiledeskAuthService.getCurrentUser();
     this.setLanguage(currentUser);
     // this.logger.printDebug('APP-COMP - goOnLine****', currentUser);
@@ -1178,6 +1185,9 @@ export class AppComponent implements OnInit {
     this.projectService.initialize(serverBaseURL)
     this.projectUsersService.initialize(serverBaseURL)
     this.contactsService.initialize(serverBaseURL)
+
+
+    this.events.publish('go:online', true);
     // this.chatManager.startApp();
 
     // ----------------------------------------------
@@ -1299,7 +1309,7 @@ export class AppComponent implements OnInit {
   subscribeChangedConversationSelected = (user: UserModel, type: string) => {
     this.logger.log('[APP-COMP] subscribeUidConvSelectedChanged navigateByUrl', user, type);
     // this.router.navigateByUrl('conversation-detail/' + user.uid + '?conversationWithFullname=' + user.fullname);
-    this.router.navigateByUrl('conversation-detail/' + user.uid + '/' + user.fullname + '/' + type);
+    this.router.navigateByUrl('conversation-detail/' + user.uid + '/' + encodeURIComponent(user.fullname) + '/' + type);
   }
 
   subscribeProfileInfoButtonLogOut = (hasClickedLogout) => {
@@ -1338,7 +1348,6 @@ export class AppComponent implements OnInit {
 
   subscribeUnservedRequestCount = (unservedRequestCount) => {
     if(unservedRequestCount && unservedRequestCount > 0){
-      this.logger.debug("subscribeUnservedRequestCount appIsInitialized::::",this.isInitialized)
       if(this.isInitialized){
         this.manageTabNotification('conv_unassigned', true, unservedRequestCount) //sound and alternate title
       }
@@ -1471,10 +1480,10 @@ export class AppComponent implements OnInit {
             let Convtype = 'active'
             
             if (IDConv && FullNameConv) {
-              pageUrl += IDConv + '/' + FullNameConv + '/' + Convtype
+              pageUrl += IDConv + '/' + encodeURIComponent(FullNameConv) + '/' + Convtype
             }
             // replace(/\(/g, '%28').replace(/\)/g, '%29') -> used for the encoder of any round brackets
-            this.router.navigateByUrl(pageUrl.replace(/\(/g, '%28').replace(/\)/g, '%29').replace( /#/g, "%23" ));
+            this.router.navigateByUrl(pageUrl.replace(/\(/g, '%28').replace(/\)/g, '%29'));
           } else {
             console.log("FCM: Received in foreground", JSON.stringify(data));
             // let IDConv = data.recipient
@@ -1485,7 +1494,7 @@ export class AppComponent implements OnInit {
             //   pageUrl += IDConv + '/' + FullNameConv + '/' + Convtype
             // }
             // // replace(/\(/g, '%28').replace(/\)/g, '%29') -> used for the encoder of any round brackets
-            // this.router.navigateByUrl(pageUrl.replace(/\(/g, '%28').replace(/\)/g, '%29').replace( /#/g, "%23" ));
+            // this.router.navigateByUrl(pageUrl.replace(/\(/g, '%28').replace(/\)/g, '%29'));
           };
         });
     }

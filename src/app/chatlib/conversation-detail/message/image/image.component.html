@@ -8,5 +8,6 @@
     [height]="height"
     [src]="metadata.src" 
     (load)="onLoaded($event)" 
+    (error)="onError($event)"
     (click)="openImageViewerModal(metadata.src, metadata.name)" />
 </div>

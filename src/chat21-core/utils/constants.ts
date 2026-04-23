@@ -116,11 +116,12 @@ export const PLATFORM_DESKTOP = 'desktop';
 
 // STORAGE
 export const STORAGE_PREFIX = 'tiledesk_widget_';
+export const PROJECTS_STORAGE_KEY = 'all_projects';
 
 // links
 export const FIREBASESTORAGE_BASE_URL_IMAGE = 'https://firebasestorage.googleapis.com/v0/b/' //+ 'chat-v2-dev.appspot.com/o/';
-export const IMG_PROFILE_BOT = '/assets/images/avatar_bot_tiledesk.svg';
-export const IMG_PROFILE_DEFAULT = '/assets/images/avatar_male_tiledesk.svg';
+export const IMG_PROFILE_BOT = '/assets/img/avatar_bot_tiledesk.svg';
+export const IMG_PROFILE_DEFAULT = '/assets/img/avatar_male_tiledesk.svg';
 
 //LOG LEVEL
 // export enum LogLevel {
@@ -148,5 +149,10 @@ export enum PLAN_NAME {
 
 export const tranlatedLanguage = ['it', 'en', 'de', 'es', 'pt', 'fr', 'ru', 'tr', 'sr', 'ar', 'uk', 'sv', 'az', 'kk', 'uz']
 
+export const TEAMMATE_STATUS = [
+    { id: 1, name: 'Available', avatar: 'assets/img/teammate-status/avaible.svg', label: "LABEL_AVAILABLE" },
+    { id: 2, name: 'Unavailable', avatar: 'assets/img/teammate-status/unavaible.svg', label: "LABEL_NOT_AVAILABLE" },
+    { id: 3, name: 'Inactive', avatar: 'assets/img/teammate-status/inactive.svg', label: "LABEL_INACTIVE" },
+];
 
 
