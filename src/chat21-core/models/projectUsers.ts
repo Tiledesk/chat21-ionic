@@ -1,19 +1,28 @@
 export interface ProjectUser {
     _id?: string;
-    updatedAt?: any;
-    createdAt?: any;
-    id_project?: string;
-    user_available?: boolean;
-    role?: string;
+    id?: string;
+    __v?: any;
+    attributes?: any;
+    createdAt?: string | any;
     createdBy?: string;
-    is_group_member?: boolean;
-    // id_user?: string;
+    id_project?: any;
+    id_user?: any;
     isAuthenticated?: boolean;
     isBusy?: boolean;
-    status?: string;
-    id_user?: any;
-    rolePermissions?: string[];
+    is_group_member?: boolean;
+    last_login_at?: string;
+    number_assigned_requests?: number;
+    permissions?: any;
+    presence?: { [key: string]: string } | any;
     profileStatus?: string;
-    presence?: { [key: string]: string}
-    __v?: any;
+    role?: string;
+    roleType?: number;
+    rolePermissions?: string[];
+    status?: string;
+    tags?: any;
+    trashed?: boolean;
+    updatedAt?: string | any;
+    user_available?: boolean;
+    /** Derived in UI (e.g. from getUserStatusFromProjectUser) */
+    teammateStatus?: any;
 }

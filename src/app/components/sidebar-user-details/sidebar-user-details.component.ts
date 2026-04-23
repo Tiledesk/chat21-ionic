@@ -18,7 +18,8 @@ import { BRAND_BASE_INFO } from 'src/app/utils/utils-resources';
 import { getOSCode } from 'src/app/utils/utils';
 import { getUserStatusFromProjectUser } from 'src/chat21-core/utils/utils';
 import { ProjectService } from 'src/app/services/projects/project.service';
-import { ProjectUser } from 'src/chat21-core/models/project_user';
+import { ProjectUser } from 'src/chat21-core/models/projectUsers';
+
 @Component({
   selector: 'app-sidebar-user-details',
   templateUrl: './sidebar-user-details.component.html',

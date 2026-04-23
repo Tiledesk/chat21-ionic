@@ -15,7 +15,7 @@ import { AppConfigProvider } from 'src/app/services/app-config';
 import { ConvertRequestToConversation } from 'src/chat21-core/utils/convertRequestToConversation';
 import { compareValues, getUserStatusFromProjectUser } from 'src/chat21-core/utils/utils';
 import { ProjectService } from 'src/app/services/projects/project.service';
-import { ProjectUser } from 'src/chat21-core/models/project_user';
+import { ProjectUser } from 'src/chat21-core/models/projectUsers';
 
 @Component({
   selector: 'app-project-item',

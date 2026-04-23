@@ -7,7 +7,7 @@ import { LoggerInstance } from 'src/chat21-core/providers/logger/loggerInstance'
 import { AppConfigProvider } from '../app-config';
 import { Observable } from 'rxjs';
 import { AppStorageService } from 'src/chat21-core/providers/abstract/app-storage.service';
-import { ProjectUser } from 'src/chat21-core/models/project_user';
+import { ProjectUser } from 'src/chat21-core/models/projectUsers';
 
 @Injectable({
   providedIn: 'root'
