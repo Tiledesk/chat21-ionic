@@ -1,13 +1,11 @@
-
 export const PERMISSIONS = {
   REQUEST_READ_ALL: 'request_read_all',
   REQUEST_READ_GROUP: 'request_read_group',
   REQUEST_READ_MY: 'request_read_my',
  
-  HOME_READ: 'home_read',
-
   INBOX_READ: 'inbox_read',
-  REQUEST_UPDATE: 'request_update',
+  REQUEST_UNASSIGNED_NOTIFICATION_READ: 'request_unassigned_notification_read',
+  // REQUEST_UPDATE: 'request_update',
   REQUEST_SEND: 'request_send',
   REQUEST_CREATE_TICKET: 'request_create_ticket',
   REQUEST_CLOSE: 'request_close',
@@ -26,8 +24,20 @@ export const PERMISSIONS = {
   REQUEST_TRANSCRIPT_SEND: 'request_transcript_send',
 
   HISTORY_READ: 'history_read',
-
+  HISTORY_FILTER_BY_AGENT: 'history_filter_by_agent',
+  REQUESTS_EXPORT:'requests_export',
+  
+  CONVERSATION_DETAIL_READ: 'conversation_detail_read',
+  TICKET_ID_READ:'ticket_id_read',
   RATING_READ:'rating_read',
+  TAGS_READ_ALL: 'tags_read_all',
+
+
+  CHANGE_PROJECT:'change_project',
+  SIMULATE_CONV:'simulate_conv',
+  QUOTA_USAGE_READ: 'quota_usage_read',
+  LOGOUT: 'logout',
+  HOME_READ: 'home_read',
 
   AUTOMATIONSLOG_READ: "automationslog_read",
   AUTOMATIONSLOG_CREATE: "automationslog_create",
@@ -80,15 +90,20 @@ export const PERMISSIONS = {
 
   DEPARTMENTS_LIST_READ: 'department_list_read',
   DEPARTMENT_DETAIL_READ: 'department_detail_read',
-  DEPARTMENT_CREATE_READ: 'department_create_read',
+  DEPARTMENT_CREATE: 'department_create',
 
   TEAMMATES_READ: 'teammates_read',
   TEAMMATE_UPDATE: 'teammate_update',
   TEAMMATES_CREATE: 'teammates_create',
   ROLES_READ: 'roles_read',
+  ROLE_CREATE: 'roles_create',
+  ROLE_UPDATE: 'roles_update',
+  ROLE_DELETE: 'role_delete',
+
   GROUPS_READ: 'groups_read',
-
-
+  GROUPS_CREATE: 'groups_create',
+  GROUP_UPDATE: 'group_update',
+  GROUP_DELETE: 'group_delete',
 
   EMAIL_TICKETING_READ:'email_ticketing_read',
   EMAIL_TICKETING_UPDATE:'email_ticketing_update',
@@ -96,6 +111,7 @@ export const PERMISSIONS = {
   CANNED_RESPONSES_READ:'canned_responses_read',
   CANNED_RESPONSES_UPDATE:'canned_responses_update',
   CANNED_RESPONSES_CREATE:'canned_responses_create',
+  CANNED_RESPONSES_SHARED_CREATE:'canned_responses_shared_create',
   CANNED_RESPONSES_DELETE:'canned_responses_delete',
   
   TAGS_READ:'tags_read',
@@ -114,25 +130,31 @@ export const PERMISSIONS = {
   APPS_READ:'apps_read',
   APPS_UPDATE:'apps_update',
 
-  SETTINGS_READ: 'settings_read',
   PROJECTSETTINGS_GENERAL_READ: 'projectsettings_general_read',
   PROJECTSETTINGS_GENERAL_UPDATE: 'projectsettings_general_update',
+
   PROJECTSETTINGS_SUBSCRIPTION_READ: 'projectsettings_subscription_read',
+
   PROJECTSETTINGS_DEVELOPER_READ: 'projectsettings_developer_read',
   PROJECTSETTINGS_DEVELOPER_UPDATE: 'projectsettings_developer_update',
+
   PROJECTSETTINGS_SMARTASSIGNMENT_READ: 'projectsettings_smartassignment_read',
   PROJECTSETTINGS_SMARTASSIGNMENT_UPDATE: 'projectsettings_smartassignment_update',
+
   PROJECTSETTINGS_NOTIFICATION_READ: 'projectsettings_notification_read',
+
   PROJECTSETTINGS_SECURITY_READ: 'projectsettings_security_read',
+
   PROJECTSETTINGS_BANNED_READ: 'projectsettings_banned_read',
+
+  PROJECTSETTINGS_RETENTION_READ: 'projectsettings_retention_read',
+
   PROJECTSETTINGS_ADVANCED_READ: 'projectsettings_advanced_read',
   
+
   ACCESS_LISTS: 'accessLists',
   PROFILE_PAGES: 'profilePages',
   LEAD_DATA: 'leadData',
   IMPORT_DATA: 'importData',
-  MANAGE_TAGS: 'manageTags',
-
-  CHANGE_PROJECT:'change_project',
-  SIMULATE_CONV:'simulate_conv',
+  MANAGE_TAGS: 'manageTags'
 };
