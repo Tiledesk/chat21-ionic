@@ -222,7 +222,6 @@ export class ConversationListPage implements OnInit {
   ngOnInit() {
     this.getAppConfigToHideDiplayBtns();
     this.getOSCODE();
-    this.loadAndStoreProjects();
   }
 
   /**
@@ -488,6 +487,7 @@ export class ConversationListPage implements OnInit {
       // this.events.unsubscribe('profileInfoButtonClick:logout')
       if (goonline === true) {
         this.displayNewConvsItem = true
+        this.loadAndStoreProjects();
       }
     })
   }
