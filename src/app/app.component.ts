@@ -1200,7 +1200,7 @@ export class AppComponent implements OnInit {
     this.projectService.initialize(serverBaseURL)
     this.contactsService.initialize(serverBaseURL)
 
-    this.connectWebsocket(tiledeskToken);
+    
     this.initProjectSubscriptions();
 
     this.events.publish('go:online', true);
@@ -1208,7 +1208,7 @@ export class AppComponent implements OnInit {
 
 
     //INIT WEBSOCKET
-    this.connetWebsocket(tiledeskToken)
+    this.connectWebsocket(tiledeskToken);
 
     // ----------------------------------------------
     // PUSH NOTIFICATIONS
@@ -1298,19 +1298,6 @@ export class AppComponent implements OnInit {
     // myWindow.focus();
   }
 
-  connetWebsocket(tiledeskToken) {
-
-    this.logger.log('[WEBSOCKET-JS] connetWebsocket called in [PROJECT-ITEM] tiledeskToken ', tiledeskToken)
-    const appconfig = this.appConfigProvider.getConfig();
-    this.logger.log('[WEBSOCKET-JS] connetWebsocket called in [PROJECT-ITEM] wsUrl ', appconfig.wsUrl)
-    const WS_URL = appconfig.wsUrl + '?token=' + tiledeskToken
-    this.logger.log('[WEBSOCKET-JS] connetWebsocket called in [PROJECT-ITEM] wsUrl ', WS_URL)
-    this.webSocketJs.init(
-      WS_URL
-    );
-  }
-
-
   connectWebsocket(tiledeskToken: string) {
     if (!tiledeskToken) {
       this.logger.warn('[APP-COMP] connectWebsocket - missing tiledeskToken');
@@ -1326,7 +1313,7 @@ export class AppComponent implements OnInit {
 
     const WS_URL = wsUrl + '?token=' + tiledeskToken;
     this.logger.log('[APP-COMP] connectWebsocket - WS_URL ', WS_URL);
-    this.webSocketJs.init(WS_URL, undefined, undefined, undefined);
+    this.webSocketJs.init(WS_URL);
   }
 
   initProjectSubscriptions() {

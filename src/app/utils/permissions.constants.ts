@@ -130,28 +130,21 @@ export const PERMISSIONS = {
   APPS_READ:'apps_read',
   APPS_UPDATE:'apps_update',
 
+  SETTINGS_READ: 'settings_read',
+
   PROJECTSETTINGS_GENERAL_READ: 'projectsettings_general_read',
   PROJECTSETTINGS_GENERAL_UPDATE: 'projectsettings_general_update',
-
   PROJECTSETTINGS_SUBSCRIPTION_READ: 'projectsettings_subscription_read',
-
   PROJECTSETTINGS_DEVELOPER_READ: 'projectsettings_developer_read',
   PROJECTSETTINGS_DEVELOPER_UPDATE: 'projectsettings_developer_update',
-
   PROJECTSETTINGS_SMARTASSIGNMENT_READ: 'projectsettings_smartassignment_read',
   PROJECTSETTINGS_SMARTASSIGNMENT_UPDATE: 'projectsettings_smartassignment_update',
-
   PROJECTSETTINGS_NOTIFICATION_READ: 'projectsettings_notification_read',
-
   PROJECTSETTINGS_SECURITY_READ: 'projectsettings_security_read',
-
   PROJECTSETTINGS_BANNED_READ: 'projectsettings_banned_read',
-
   PROJECTSETTINGS_RETENTION_READ: 'projectsettings_retention_read',
-
   PROJECTSETTINGS_ADVANCED_READ: 'projectsettings_advanced_read',
   
-
   ACCESS_LISTS: 'accessLists',
   PROFILE_PAGES: 'profilePages',
   LEAD_DATA: 'leadData',
