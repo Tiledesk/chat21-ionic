@@ -4,7 +4,6 @@ import { Router, NavigationExtras } from '@angular/router';
 
 // utils
 import { checkPlatformIsMobile } from '../../chat21-core/utils/utils';
-// import { ConversationDetailPage } from '../pages/conversation-detail/conversation-detail.page';
 
 import { LoggerService } from 'src/chat21-core/providers/abstract/logger.service';
 import { LoggerInstance } from 'src/chat21-core/providers/logger/loggerInstance';

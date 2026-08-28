@@ -58,7 +58,7 @@ export class ConversationContentComponent implements OnInit {
   MESSAGE_TYPE_OTHERS = MESSAGE_TYPE_OTHERS;
   // ========== end:: check message type functions ======= //
 
-  urlBOTImage = 'https://s3.eu-west-1.amazonaws.com/tiledesk-widget/dev/2.0.4-beta.7/assets/images/avatar_bot_tiledesk.svg'
+  urlBOTImage = 'https://s3.eu-west-1.amazonaws.com/tiledesk-widget/dev/2.0.4-beta.7/assets/img/avatar_bot_tiledesk.svg'
   uploadProgress: number;
   showUploadProgress: boolean = false;
   fileType: string;

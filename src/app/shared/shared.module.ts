@@ -25,8 +25,9 @@ import { SafeHtmlPipe } from '../directives/safe-html.pipe';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { createTranslateLoader } from 'src/chat21-core/utils/utils';
 import { HttpClient } from '@angular/common/http';
-
-// import { MessageTextAreaComponent } from '../components/conversation-detail/message-text-area/message-text-area.component'; // MessageTextAreaComponent is part of the declarations ConversationDetailPageModule
+import { RouterModule } from '@angular/router';
+import { FindPipe } from '../pipe/find.pipe';
+import { FilterPipe } from '../pipe/filter.pipe';
 
 @NgModule({
   declarations: [
@@ -69,12 +70,13 @@ import { HttpClient } from '@angular/common/http';
      SidebarUserDetailsComponent,
     
      //DIRECTIVES
-     AutofocusDirective,
-     TooltipDirective,
-     MarkedPipe,
-     HtmlEntitiesEncodePipe,
-     SafeHtmlPipe,
- 
+    AutofocusDirective,
+    TooltipDirective,
+    MarkedPipe,
+    HtmlEntitiesEncodePipe,
+    SafeHtmlPipe,
+    FindPipe,
+    FilterPipe,
 
 
      AvatarProfileComponent,
@@ -125,6 +127,10 @@ import { HttpClient } from '@angular/common/http';
     MarkedPipe,
     HtmlEntitiesEncodePipe,
     SafeHtmlPipe,
+    FindPipe,
+    FilterPipe,
+
+    RouterModule,
 
     //COMMON COMPONENTS
     AvatarProfileComponent,
@@ -142,16 +148,15 @@ import { HttpClient } from '@angular/common/http';
     MomentModule,
     NgSelectModule,
     FormsModule,
-
     TranslateModule.forChild({
-      loader: {
-        provide: TranslateLoader,
-        useFactory: (createTranslateLoader),
-        deps: [HttpClient]
-      }
-    })
-
-  ],
+        loader: {
+            provide: TranslateLoader,
+            useFactory: (createTranslateLoader),
+            deps: [HttpClient]
+        }
+    }),
+    RouterModule.forChild([])
+],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA,
     NO_ERRORS_SCHEMA

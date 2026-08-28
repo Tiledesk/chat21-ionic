@@ -1010,6 +1010,7 @@ class Chat21Client {
                     this.start( () => {
                         // callback();
                     });
+                    this.initKeepAliveWorker()
                 }
                 this.client.publish(
                     this.presence_topic,
@@ -1027,6 +1028,34 @@ class Chat21Client {
                 console.error("Chat client error event", error);
             }
         );
+
+        
+    }
+
+
+    initKeepAliveWorker(){
+        this.worker= new Worker('assets/js/mqtt-keepalive-worker.js');
+        console.log("Chat21Client - initKeepAliveWorker() - worker created", this.worker);
+        // this.worker.postMessage({
+        //     action: 'start',
+        //     user_id: this.user_id,
+        //     client_id: this.client_id,
+        //     jwt: this.jwt,
+        //     endpoint: this.endpoint
+        // });
+        this.worker.onmessage = (event) => {
+            if (event.data.action === 'ping') {
+                if (this.client && this.client.connected) {
+                    // questo non causa refresh di niente
+                    this.client.publish(
+                        `apps/tilechat/users/${this.user_id}/keepalive`,
+                        JSON.stringify({ ts: Date.now() })
+                    );
+                }
+            }
+        };
+
+        this.worker.postMessage({ action: 'ping' });
     }
 
     onDisconnect(callback){
@@ -1041,6 +1070,11 @@ class Chat21Client {
                 this.connected = false
                 if (this.log) {console.log("Chat client close event");}
                 callback('close')
+                if (this.worker) {
+                    this.worker.postMessage({ action: 'stop' });
+                    this.worker.terminate();
+                    this.worker = null;
+                }
             }
         );
         this.client.on('offline',

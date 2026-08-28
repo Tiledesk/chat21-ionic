@@ -51,9 +51,9 @@ export class ProfileInfoPage implements OnInit {
 
   isVisiblePAY: boolean;
   teammateStatus = [
-    { id: 1, name: 'Available', avatar: 'assets/images/teammate-status/avaible.svg', label: "LABEL_AVAILABLE" },
-    { id: 2, name: 'Unavailable', avatar: 'assets/images/teammate-status/unavaible.svg', label: "LABEL_NOT_AVAILABLE" },
-    { id: 3, name: 'Inactive', avatar: 'assets/images/teammate-status/inactive.svg', label: "LABEL_INACTIVE" },
+    { id: 1, name: 'Available', avatar: 'assets/img/teammate-status/avaible.svg', label: "LABEL_AVAILABLE" },
+    { id: 2, name: 'Unavailable', avatar: 'assets/img/teammate-status/unavaible.svg', label: "LABEL_NOT_AVAILABLE" },
+    { id: 3, name: 'Inactive', avatar: 'assets/img/teammate-status/inactive.svg', label: "LABEL_INACTIVE" },
   ];
 
   constructor(

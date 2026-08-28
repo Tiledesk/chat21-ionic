@@ -6,6 +6,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { map } from 'rxjs/operators';
 import { LoggerService } from 'src/chat21-core/providers/abstract/logger.service';
 import { LoggerInstance } from 'src/chat21-core/providers/logger/loggerInstance';
+import { getUserStatusFromProjectUser } from 'src/chat21-core/utils/utils';
 
 @Injectable({
   providedIn: 'root'
@@ -18,6 +19,8 @@ export class WebsocketService {
   public wsRequestsList$: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
   public currentProjectUserAvailability$: BehaviorSubject<[]> = new BehaviorSubject<[]>([])
   public wsRequesterStatus$: BehaviorSubject<any> = new BehaviorSubject<any>({});
+  /** Progetti attualmente sottoscritti per conversations (per gestire unsubscribe) */
+  private subscribedConversationProjectIds: string[] = [];
 
   private logger: LoggerService = LoggerInstance.getInstance();
 
@@ -87,15 +90,24 @@ export class WebsocketService {
       }))
   }
 
-  subscriptionToWsConversations(project_id) {
+  /**
+   * Sottoscrive alle conversations di un singolo progetto.
+   * Mantenuto per retrocompatibilità. Preferire subscriptionToWsConversationsForOnlineProjects
+   * per sottoscrivere ai progetti online con status Available.
+   * @param project_id ID del progetto
+   * @param skipClear Se true, non svuota wsRequestsList (usato quando si sottoscrivono più progetti in sequenza)
+   */
+  subscriptionToWsConversations(project_id, skipClear = false) {
     // console.log("[WS-SERV] - CALLED SUBSC TO WS CONVS - PROJECT ID ", project_id);
     var self = this;
-    this.wsRequestsList = [];
+    if (!skipClear) {
+      this.wsRequestsList = [];
+    }
 
-    this.webSocketJs.ref('/' + project_id + '/requests', 'getCurrentProjectAndSubscribeTo_WsRequests',
+    this.webSocketJs.ref('/' + project_id + '/requests', 'getCurrentProjectAndSubscribeTo_WsRequests_' + project_id,
 
       function (data, notification) {
-        // console.log("[WS-SERV] - CONVS - CREATE DATA ", data);
+        // console.log("[WS-SERV] - CONVS - CREATE DATA for project ", project_id, data);
         if (data) {
           // ------------------------------------------------
           // @ Agents - pass in data agents get from snapshot
@@ -202,8 +214,8 @@ export class WebsocketService {
 
 
       }, function (data, notification) {
-        self.logger.log("[WS-SERV] CHAT - CONVS  - ON-DATA - DATA ", data);
-        self.logger.log("[WS-SERV] CHAT - CONVS  - ON-DATA - notification ", notification);
+        // self.logger.log("[WS-SERV] CHAT - CONVS  - ON-DATA - DATA ", data);
+        // self.logger.log("[WS-SERV] CHAT - CONVS  - ON-DATA - notification ", notification);
 
         // console.log("[WS-SERV] CHAT - CONVS  - ON-DATA - DATA notification > event > method ", notification.event.method);
         // if (notification.event.method === 'CREATE') {
@@ -293,6 +305,36 @@ export class WebsocketService {
     }
   }
 
+  /**
+   * Sottoscrive alle conversations di tutti i progetti con status "online" (id_project.status === 100)
+   * E dove l'utente ha teammateStatus "Available".
+   * @param projects Array di ProjectUser con teammateStatus già calcolato (getUserStatusFromProjectUser)
+   */
+  subscriptionToWsConversationsForOnlineProjects(projects: any[]) {
+    const onlineProjects = (projects || []).filter((p) => {
+      const statusOk = p?.id_project?.status === 100;
+      const teammateStatus = p?.teammateStatus ?? getUserStatusFromProjectUser(p);
+      const isAvailable = teammateStatus?.name === 'Available';
+      return statusOk && isAvailable;
+    });
+    if (onlineProjects.length === 0) {
+      this.logger.log('[WS-SERV] - No online projects to subscribe');
+      return [];
+    }
+    this.unsubscribeFromAllProjectConversations();
+    this.wsRequestsList = [];
+    this.subscribedConversationProjectIds = onlineProjects.map(
+      (p) => p.id_project._id
+    );
+    this.logger.log(
+      '[WS-SERV] - SUBSCR TO WS CONVS FOR PROJECTS (status 100 + Available) ',
+      this.subscribedConversationProjectIds
+    );
+    this.subscribedConversationProjectIds.forEach((projectId) =>
+      this.subscriptionToWsConversations(projectId, true)
+    );
+    return this.subscribedConversationProjectIds;
+  }
 
   // -----------------------------------------------
   //  @ Subscribe to Requester Presence
@@ -306,17 +348,17 @@ export class WebsocketService {
 
     this.webSocketJs.ref(path, 'subscribeToWS_RequesterPresence',
 
-      function (data, notification) {
+      function (data) {
         // this.logger.log("[WS-REQUESTS-SERV] - SUBSCRIBE TO REQUESTER-PRECENCE - CREATE data ", data);
 
         self.wsRequesterStatus$.next(data);
 
-      }, function (data, notification) {
+      }, function (data) {
         // this.logger.log("[WS-REQUESTS-SERV] - SUBSCRIBE TO REQUESTER-PRECENCE - UPDATE data ", data);
 
         self.wsRequesterStatus$.next(data);
 
-      }, function (data, notification) {
+      }, function (data) {
 
         if (data) {
           // this.logger.log("[WS-REQUESTS-SERV] - SUBSCRIBE TO REQUESTER-PRECENCE - ON-DATA data ", data);
@@ -341,6 +383,18 @@ export class WebsocketService {
     const path = '/' + project_id + '/requests';
     this.logger.log("[WS-REQUESTS-SERV] - UNSUBSCRIBE TO REQUESTS PATH", path);
     this.webSocketJs.unsubscribe(path);
+  }
+
+  /**
+   * Rimuove tutte le sottoscrizioni alle conversations dei progetti.
+   */
+  unsubscribeFromAllProjectConversations() {
+    if (this.subscribedConversationProjectIds.length === 0) return;
+    this.subscribedConversationProjectIds.forEach((projectId) =>
+      this.unsubscribeToWsConversations(projectId)
+    );
+    this.subscribedConversationProjectIds = [];
+    this.logger.log('[WS-SERV] - UNSUBSCR FROM ALL PROJECT CONVERSATIONS');
   }
 
 

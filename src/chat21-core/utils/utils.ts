@@ -2,7 +2,7 @@
 import * as moment from 'moment/moment';
 // import * as moment from 'moment-timezone';
 import 'moment/locale/it.js';
-import { CHANNEL_TYPE } from './constants';
+import { CHANNEL_TYPE, TEAMMATE_STATUS } from './constants';
 
 import { HttpClient } from '@angular/common/http';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
@@ -1028,4 +1028,40 @@ function extractUrls(text: string): string[] {
     }
     return url;
   });
+}
+
+/**
+ * Restituisce lo status dell'utente nel contesto di un project.
+ * Basato su user_available e profileStatus dell'oggetto projectUser.
+ *
+ * @param projectUser - Oggetto con user_available e profileStatus (es. ProjectUser dal websocket)
+ * @returns Oggetto da TEAMMATE_STATUS (Available, Unavailable, Inactive) o null se i dati non sono sufficienti
+ */
+export function getUserStatusFromProjectUser(projectUser: {
+  user_available?: boolean;
+  profileStatus?: string;
+}): typeof TEAMMATE_STATUS[number] | null {
+  if (!projectUser) {
+    return null;
+  }
+
+  if (projectUser.user_available === false && projectUser.profileStatus === 'inactive') {
+    return TEAMMATE_STATUS[2]; // Inactive
+  }
+  if (projectUser.user_available === false && (!projectUser.profileStatus || projectUser.profileStatus === '')) {
+    return TEAMMATE_STATUS[1]; // Unavailable
+  }
+  if (projectUser.user_available === true && (!projectUser.profileStatus || projectUser.profileStatus === '')) {
+    return TEAMMATE_STATUS[0]; // Available
+  }
+
+  // Fallback per casi non esplicitamente gestiti
+  if (projectUser.user_available === true) {
+    return TEAMMATE_STATUS[0];
+  }
+  if (projectUser.user_available === false) {
+    return TEAMMATE_STATUS[1];
+  }
+
+  return null;
 }

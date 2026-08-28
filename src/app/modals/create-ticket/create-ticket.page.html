@@ -36,7 +36,7 @@
             <img *ngIf="item.requestertype === 'agent' && UPLOAD_ENGINE_IS_FIREBASE" height="24" width="24"
               style="border-radius:50%; object-fit: cover; vertical-align: middle;"
               src="https://firebasestorage.googleapis.com/v0/b/{{storageBucket}}/o/profiles%2F{{item.id}}%2Fphoto.jpg?alt=media"
-              alt="" onerror="this.src='assets/images/default-avatar-x-select.png'">
+              alt="" onerror="this.src='assets/img/default-avatar-x-select.png'">
 
             <!-- ---------------------------------------- -->
             <!-- Usecase Native -->
@@ -44,11 +44,11 @@
             <img *ngIf="item.requestertype === 'agent' && !UPLOAD_ENGINE_IS_FIREBASE" height="24" width="24"
               style="border-radius:50%;object-fit: cover;vertical-align: middle;"
               src="{{baseUrl}}images?path=uploads%2Fusers%2F{{item.id}}%2Fimages%2Fthumbnails_200_200-photo.jpg" alt=""
-              onerror="this.src='assets/images/default-avatar-x-select.png'">
+              onerror="this.src='assets/img/default-avatar-x-select.png'">
 
             <img *ngIf="item.requestertype === 'lead'" height="24" width="24"
               style="border-radius:50%;object-fit: cover;vertical-align: middle;"
-              src="assets/images/default-avatar-x-select.png" alt="">
+              src="assets/img/default-avatar-x-select.png" alt="">
             <span style="font-weight: 400;">
               {{ item.name }}
             </span>
@@ -64,7 +64,7 @@
             <img *ngIf="item.requestertype === 'agent' && UPLOAD_ENGINE_IS_FIREBASE" height="24" width="24"
               style="border-radius:50%;object-fit: cover;vertical-align: middle;"
               src="https://firebasestorage.googleapis.com/v0/b/{{storageBucket}}/o/profiles%2F{{item.id}}%2Fphoto.jpg?alt=media"
-              alt="" onerror="this.src='assets/images/default-avatar-x-select.png'">
+              alt="" onerror="this.src='assets/img/default-avatar-x-select.png'">
 
             <!-- ---------------------------------------- -->
             <!-- Usecase Native -->
@@ -72,11 +72,11 @@
             <img *ngIf="item.requestertype === 'agent' && !UPLOAD_ENGINE_IS_FIREBASE" height="24" width="24"
               style="border-radius:50%;object-fit: cover;vertical-align: middle;"
               src="{{baseUrl}}images?path=uploads%2Fusers%2F{{item.id}}%2Fimages%2Fthumbnails_200_200-photo.jpg" alt=""
-              onerror="this.src='assets/images/default-avatar-x-select.png'">
+              onerror="this.src='assets/img/default-avatar-x-select.png'">
 
             <img *ngIf="item.requestertype === 'lead'" height="24" width="24"
               style="border-radius:50%; object-fit: cover;vertical-align: middle;"
-              src="assets/images/default-avatar-x-select.png" alt="">
+              src="assets/img/default-avatar-x-select.png" alt="">
             <span style="font-weight: 400;">
               {{ item.name }}
             </span>

@@ -156,7 +156,7 @@ export class LoaderPreviewPage implements OnInit, AfterViewInit {
   }
   // file-alt-solid.png
   async createFile() {
-    let response = await fetch('./assets/images/file-alt-solid.png')
+    let response = await fetch('./assets/img/file-alt-solid.png')
     let data = await response.blob()
     let metadata = {
       type: 'image/png',

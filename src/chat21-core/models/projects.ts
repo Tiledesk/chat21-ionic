@@ -20,6 +20,7 @@ export interface Project {
     isActiveSubscription?: boolean;
     profile?: any;
     offlineMsgEmail?: boolean;
+    teammateStatus?: any;
     // subscription_end_date?: any;
     // subscription_id?: any;
     // subscription_creation_date?: any;

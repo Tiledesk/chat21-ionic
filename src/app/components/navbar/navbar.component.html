@@ -5,7 +5,7 @@
       </div>
       <div class="navbar-right">
         <!-- test site -->
-        <ng-container *ngIf="project">
+        <ng-container *ngIf="project && roles?.[PERMISSIONS.SIMULATE_CONV]">
           <button class="btn simulate-visitor-btn" (click)="testWidgetPage()">
             <i class="material-icons">play_arrow</i>
             <!-- {{translationsMap?.get('NAVBAR.SIMULATE_VISITOR')}} -->
@@ -23,9 +23,9 @@
         </ng-container>
 
         <!--  ------ PROJECTS  DROPDOWN ------ -->
-        <ng-container *ngIf="project">
+        <ng-container *ngIf="project && roles?.[PERMISSIONS.CHANGE_PROJECT]">
             <li>
-              <button class="btn dropdown-toggle project-dropdown" (click)="openDropdownProjects = !openDropdownProjects">
+              <button class="btn dropdown-toggle project-dropdown" (click)="toggleProjectsDropdown()">
                 <span class="project-dropdown" style="text-transform: none"> {{ project?.id_project?.name }} </span>
                 <i class="material-icons" style="margin-right: 3px;">arrow_drop_down</i>
               </button>
@@ -49,7 +49,7 @@
                 </li>
   
                 <!--  ADD PROJECT -->
-                <li id="navbar_create_prjct" *ngIf="MT === true" (click)="onClickDropdownOption('addProject')" class="add-project">
+                <li id="navbar_create_prjct" *ngIf="isVisibleMT" (click)="onClickDropdownOption('addProject')" class="add-project">
                   <a>
                     <i class="material-icons">add_circle_outline </i>
                     {{translationsMap?.get('NAVBAR.ADD_PROJECT')}}
@@ -71,9 +71,22 @@
                 <!-- *ngFor="let prjct of projects?.slice().reverse() | slice:0:5; let i=index" -->
                 <li *ngFor="let prjct of projects?.slice() | slice:0:5; let i=index" style="cursor: pointer">
                   <a (click)="goToHome(prjct?.id_project?._id, prjct?.id_project?.name)"
-                    [ngClass]="{'li-selected' : prjct?.id_project?._id === project?.id_project?.id }">
-  
-                    <span> {{ prjct?.id_project?.name }} </span>
+                    [ngClass]="{'li-selected' : prjct?.id_project?._id === project?.id_project?.id }"
+                    class="project-item-row">
+                    <span class="project-item-name">{{ prjct?.id_project?.name }}</span>
+                    <span class="project-item-status project-item-status-wrapper"
+                      [attr.title]="translationsMap?.get(prjct?.teammateStatus?.label) || prjct?.teammateStatus?.name"
+                      (click)="toggleStatusDropdown($event, prjct)">
+                      <img style="width: 15px; height: 15px; position: relative; top: 1px; cursor: pointer;" height="15" width="15" [src]="prjct?.teammateStatus?.avatar" />
+                      <div class="status-dropdown status-dropdown-fixed" *ngIf="openStatusDropdownProjectId === prjct?.id_project?._id" (click)="$event.stopPropagation()"
+                        [style.top.px]="statusDropdownPosition.top" [style.right.px]="statusDropdownPosition.right">
+                        <div class="status-dropdown-option" *ngFor="let status of TEAMMATE_STATUS"
+                          (click)="$event.stopPropagation(); onChangeProjectStatus(prjct, status.id)">
+                          <img style="width: 15px; height: 15px; margin-right: 6px;" [src]="status.avatar" />
+                          <span>{{ translationsMap?.get(status.label) || status.name }}</span>
+                        </div>
+                      </div>
+                    </span>
                   </a>
                 </li>
 
@@ -85,8 +98,21 @@
     
                   <!-- *ngFor="let prjct of projects?.slice().reverse() | slice:5:10; let i=index" -->
                   <li *ngFor="let prjct of projects?.slice() | slice:5:10; let i=index" style="cursor: pointer">
-                    <a (click)="goToHome(prjct?.id_project?._id, prjct?.id_project?.name)">
-                      {{ prjct?.id_project?.name }}
+                    <a (click)="goToHome(prjct?.id_project?._id, prjct?.id_project?.name)" class="project-item-row">
+                      <span class="project-item-name">{{ prjct?.id_project?.name }}</span>
+                      <span class="project-item-status project-item-status-wrapper"
+                        [attr.title]="translationsMap?.get(prjct?.teammateStatus?.label) || prjct?.teammateStatus?.name"
+                        (click)="toggleStatusDropdown($event, prjct)">
+                        <img style="width: 15px; height: 15px; position: relative; top: 1px; cursor: pointer;" height="15" width="15" [src]="prjct?.teammateStatus?.avatar" />
+                        <div class="status-dropdown status-dropdown-fixed" *ngIf="openStatusDropdownProjectId === prjct?.id_project?._id" (click)="$event.stopPropagation()"
+                          [style.top.px]="statusDropdownPosition.top" [style.right.px]="statusDropdownPosition.right">
+                          <div class="status-dropdown-option" *ngFor="let status of TEAMMATE_STATUS"
+                            (click)="$event.stopPropagation(); onChangeProjectStatus(prjct, status.id)">
+                            <img style="width: 15px; height: 15px; margin-right: 6px;" [src]="status.avatar" />
+                            <span>{{ translationsMap?.get(status.label) || status.name }}</span>
+                          </div>
+                        </div>
+                      </span>
                     </a>
                   </li>
                 </ng-container>

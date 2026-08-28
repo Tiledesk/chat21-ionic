@@ -9,6 +9,7 @@ import * as uuid from 'uuid';
 import { EventsService } from 'src/app/services/events-service'
 import { LoggerService } from 'src/chat21-core/providers/abstract/logger.service';
 import { LoggerInstance } from 'src/chat21-core/providers/logger/loggerInstance';
+import { ProjectUsersService } from 'src/app/services/project_users/project-users.service'
 
 @Component({
   selector: 'app-create-ticket',
@@ -42,28 +43,29 @@ export class CreateTicketPage implements OnInit {
       {
         id: 1,
         name: 'urgent',
-        avatar: 'assets/images/priority_icons/urgent_v2.svg'
+        avatar: 'assets/img/priority_icons/urgent_v2.svg'
       },
       {
         id: 2,
         name: 'high',
-        avatar: 'assets/images/priority_icons/high_v2.svg '
+        avatar: 'assets/img/priority_icons/high_v2.svg '
       },
       {
         id: 3,
         name: 'medium',
-        avatar: 'assets/images/priority_icons/medium_v2.svg'
+        avatar: 'assets/img/priority_icons/medium_v2.svg'
       },
       {
         id: 4,
         name: 'low',
-        avatar: 'assets/images/priority_icons/low_v2.svg'
+        avatar: 'assets/img/priority_icons/low_v2.svg'
       },
     ];
 
   logger: LoggerService = LoggerInstance.getInstance();
   constructor(
     public modalController: ModalController,
+    public projectUsersService: ProjectUsersService,
     public tiledeskService: TiledeskService,
     public appConfigProvider: AppConfigProvider,
     public events: EventsService
@@ -104,7 +106,7 @@ export class CreateTicketPage implements OnInit {
   // Create the array of the project-users and contacts displayed in the combo box  "Requester"
   // -------------------------------------------------------------------------------------------
   getProjectUsersAndContacts(projctid: string) {
-    const projectUsers = this.tiledeskService.getProjectUsersByProjectId(projctid)
+    const projectUsers = this.projectUsersService.getProjectUsersByProjectId(projctid)
     const leads = this.tiledeskService.getAllLeadsActiveWithLimit(projctid,10000)
 
     zip(projectUsers, leads).subscribe(
@@ -243,7 +245,7 @@ export class CreateTicketPage implements OnInit {
   // -------------------------------------------------------------------------------------------------------------------
   getProjectUserBotsAndDepts(projctid: string) {
     // this.loadingAssignee = true;
-    const projectUsers = this.tiledeskService.getProjectUsersByProjectId( projctid)
+    const projectUsers = this.projectUsersService.getProjectUsersByProjectId( projctid)
     const bots = this.tiledeskService.getAllBotByProjectId(projctid)
     const depts = this.tiledeskService.getDeptsByProjectId(projctid)
 

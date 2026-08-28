@@ -17,18 +17,18 @@ export class AvatarComponent implements OnInit {
     if(this.senderID){
       this.url = this.imageRepoService.getImagePhotoUrl(this.senderID)  
       if(!this.url && (this.senderID.indexOf('bot_') !== -1 || this.senderFullname === 'Bot')){
-        this.url =  this.baseLocation +'/assets/images/avatar_bot_tiledesk.svg'
+        this.url =  this.baseLocation +'/assets/img/avatar_bot_tiledesk.svg'
       }else if(!this.url && this.senderID.indexOf('bot_') == -1){
-        this.url =  this.baseLocation +'/assets/images/light_avatar_placeholder.svg'
+        this.url =  this.baseLocation +'/assets/img/light_avatar_placeholder.svg'
       }
     }
   }
 
   onBotImgError(event){
-    event.target.src = this.baseLocation +'/assets/images/avatar_bot_tiledesk.svg'
+    event.target.src = this.baseLocation +'/assets/img/avatar_bot_tiledesk.svg'
   }
   onHumanImgError(event) {
-    event.target.src = this.baseLocation + "/assets/images/light_avatar_placeholder.svg"
+    event.target.src = this.baseLocation + "/assets/img/light_avatar_placeholder.svg"
   }
 
   onLoadedBot(event){
