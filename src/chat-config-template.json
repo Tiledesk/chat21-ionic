@@ -38,5 +38,6 @@
     "storage_prefix": "${CHAT_STORAGE_PREFIX}",
     "emailSection": "${EMAIL_SECTION}",
     "whatsappTemplatesSection":"${WHATSAPP_TEMPLATES_SECTION}",
-    "googleMapsApiKey":"${GOOGLE_MAPS_APIKEY}"
+    "googleMapsApiKey":"${GOOGLE_MAPS_APIKEY}",
+    "hideUnassignedConversations":"${HIDE_UNASSIGNED_CONVERSATIONS}"
 }

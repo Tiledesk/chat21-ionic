@@ -124,6 +124,8 @@ export class ConversationListPage implements OnInit {
   ];
   // PROJECT AVAILABILITY INFO: end
 
+  hideUnassignedConversations: boolean = true;
+
   constructor(
     private router: Router,
     private route: ActivatedRoute,

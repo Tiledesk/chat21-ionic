@@ -19,7 +19,7 @@ export class HeaderConversationsList implements OnInit {
   @Input() isMobile: boolean;
   @Input() isVisibleTKT: boolean = true;
   @Input() isVisibleCNT: boolean = true;;
-  @Input() roles: Array<string>;
+  @Input() roles: { [key: string]: boolean };
   @Output() onSoundChange = new EventEmitter<string>()
   @Output() openContactsDirectory = new EventEmitter()
   @Output() openProfileInfo = new EventEmitter()

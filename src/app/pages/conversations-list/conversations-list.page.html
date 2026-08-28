@@ -35,13 +35,13 @@
     <ion-list>
 
         <!-- supportMode && -->
-        <ion-item  *ngIf="displayNewConvsItem && conversationType !=='archived' && supportMode" class="ion-no-padding open-iframe-item" lines="none">
+        <ion-item  *ngIf="displayNewConvsItem && conversationType !=='archived' && supportMode && !hideUnassignedConversations" class="ion-no-padding open-iframe-item" lines="none">
           <div tabindex="0"></div>
           <!-- <ion-note class="pinned-project">
             {{ 'PINNED_PROJECT' | translate }}
           </ion-note> -->
      
-          <app-project-item
+          <app-project-item 
             [projectID]="g?.projectID"
             (openUnsevedConvsEvent)="openUnsevedConversationIframe($event)"
             (projectIdEvent)="getLastProjectId($event)">

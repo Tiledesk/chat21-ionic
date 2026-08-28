@@ -45,6 +45,7 @@ import { ProjectService } from './services/projects/project.service';
 import { ContactsService } from './services/contacts/contacts.service';
 import { TiledeskService } from './services/tiledesk/tiledesk.service';
 import { ProjectUsersService } from './services/project_users/project-users.service';
+import { ProjectUser } from 'src/chat21-core/models/projectUsers';
 
 @Component({
   selector: 'app-root',
@@ -96,8 +97,6 @@ export class AppComponent implements OnInit {
   IS_ON_MOBILE_DEVICE: boolean = true
   SUPPORT_MODE: boolean;
   // private isOnline: boolean = false;
-
-  wsService: WebSocketJs;
 
   constructor(
     private platform: Platform,
@@ -1110,6 +1109,10 @@ export class AppComponent implements OnInit {
     this.events.subscribe('profileInfoButtonClick:logout', this.subscribeProfileInfoButtonLogOut);
     this.events.subscribe('unservedRequest:count', this.subscribeUnservedRequestCount)
     this.events.subscribe('convList:onConversationSelected', this.subscribeConversationSelected)
+    this.events.subscribe('project:reload-subscriptions', () => {
+      this.logger.log('[APP-COMP] project:reload-subscriptions');
+      this.initProjectSubscriptions();
+    });
     this.conversationsHandlerService.conversationAdded.subscribe((conversation: ConversationModel) => {
       this.logger.log('[APP-COMP] ***** subscribeConversationAdded *****', conversation);
       if (conversation && conversation.is_new === true && this.isInitialized) {
@@ -1168,11 +1171,6 @@ export class AppComponent implements OnInit {
     // clearTimeout(this.timeModalLogin);
     const tiledeskToken = this.tiledeskAuthService.getTiledeskToken();
     const serverBaseURL = this.appConfigProvider.getConfig().apiUrl 
-    // const supportmode = this.appConfigProvider.getConfig().supportMode;
-    // this.logger.log('[APP-COMP] - GO-ONLINE - supportmode ', supportmode);
-    // if (supportmode === true) {
-    //   this.connetWebsocket() // moved in the comp project-item
-    // }
     
     const currentUser = this.tiledeskAuthService.getCurrentUser();
     this.setLanguage(currentUser);
@@ -1186,6 +1184,8 @@ export class AppComponent implements OnInit {
     this.projectUsersService.initialize(serverBaseURL)
     this.contactsService.initialize(serverBaseURL)
 
+    this.connectWebsocket(tiledeskToken);
+    this.initProjectSubscriptions();
 
     this.events.publish('go:online', true);
     // this.chatManager.startApp();
@@ -1261,6 +1261,100 @@ export class AppComponent implements OnInit {
     myWindow.focus();
   }
 
+
+  connectWebsocket(tiledeskToken: string) {
+    if (!tiledeskToken) {
+      this.logger.warn('[APP-COMP] connectWebsocket - missing tiledeskToken');
+      return;
+    }
+
+    const appConfig = this.appConfigProvider.getConfig();
+    const wsUrl = appConfig?.wsUrl;
+    if (!wsUrl) {
+      this.logger.warn('[APP-COMP] connectWebsocket - missing wsUrl in app config');
+      return;
+    }
+
+    const WS_URL = wsUrl + '?token=' + tiledeskToken;
+    this.logger.log('[APP-COMP] connectWebsocket - WS_URL ', WS_URL);
+    this.webSocketJs.init(WS_URL, undefined, undefined, undefined);
+  }
+
+  initProjectSubscriptions() {
+    const storedProject = this.getStoredProject();
+    const publishResolvedProject = (projects: ProjectUser[], currentProject: ProjectUser) => {
+      if (!storedProject) {
+        localStorage.setItem('last_project', JSON.stringify(currentProject));
+      }
+      this.events.publish('project:ws-subscriptions-init', { projects, currentProject });
+      this.events.publish('storage:last_project', currentProject);
+      this.logger.log('[APP-COMP] initProjectSubscriptions - currentProject ', currentProject);
+    };
+
+    if (!storedProject) {
+      this.logger.log('[APP-COMP] No valid stored project, fetching remote');
+      this.projectService.getProjects().subscribe((projects) => {
+          let project: ProjectUser | undefined;
+
+          if (this.g.projectID) {
+            project = projects.find((p) => p.id_project?._id === this.g.projectID);
+          }
+          if (!project) {
+            project = projects[0];
+          }
+          if (!project) {
+            this.logger.warn('[APP-COMP] No projects returned from API');
+            return;
+          }
+          publishResolvedProject(projects, project);
+        },
+        (error) => this.logger.error('[APP-COMP] GET PROJECTS ERROR', error)
+      );
+      return;
+    }
+
+    this.projectService.getProjects().subscribe((projects) => {
+        const currentProject = projects.find((p) => p.id_project?._id === storedProject.id_project?._id) || storedProject;
+        publishResolvedProject(projects, currentProject);
+      },(error) => {
+        this.logger.error('[APP-COMP] GET PROJECTS ERROR (stored)', error);
+        this.events.publish('project:ws-subscriptions-init', { projects: [storedProject], currentProject: storedProject });
+        this.events.publish('storage:last_project', storedProject);
+      }
+    );
+  }
+
+  private getStoredProject(): ProjectUser | null {
+    try {
+      const raw = localStorage.getItem('last_project');
+      if (!raw) {
+        return null;
+      }
+      const parsed = JSON.parse(raw);
+      if (this.isValidStoredProject(parsed)) {
+        return parsed;
+      }
+      this.logger.warn('[APP-COMP] Invalid stored project schema, clearing storage');
+      localStorage.removeItem('last_project');
+      return null;
+    } catch (err) {
+      this.logger.error('[APP-COMP] Error parsing stored project', err);
+      localStorage.removeItem('last_project');
+      return null;
+    }
+  }
+
+  private isValidStoredProject(obj: any): obj is ProjectUser {
+    return (
+      obj &&
+      typeof obj === 'object' &&
+      obj.id_project &&
+      typeof obj.id_project === 'object' &&
+      typeof obj.id_project._id === 'string' &&
+      typeof obj._id === 'string' &&
+      typeof obj.role === 'string'
+    );
+  }
 
   webSocketClose() {
     this.logger.log('[APP-COMP] - GO-OFFLINE - webSocketClose');

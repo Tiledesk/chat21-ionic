@@ -9,12 +9,8 @@ import { LoggerService } from 'src/chat21-core/providers/abstract/logger.service
 import { LoggerInstance } from 'src/chat21-core/providers/logger/loggerInstance';
 import { CustomTranslateService } from 'src/chat21-core/providers/custom-translate.service';
 import { TiledeskAuthService } from 'src/chat21-core/providers/tiledesk/tiledesk-auth.service';
-import { TiledeskService } from 'src/app/services/tiledesk/tiledesk.service';
-import { WebSocketJs } from 'src/app/services/websocket/websocket-js';
-import { AppConfigProvider } from 'src/app/services/app-config';
 import { ConvertRequestToConversation } from 'src/chat21-core/utils/convertRequestToConversation';
 import { compareValues, getUserStatusFromProjectUser } from 'src/chat21-core/utils/utils';
-import { ProjectService } from 'src/app/services/projects/project.service';
 import { ProjectUser } from 'src/chat21-core/models/projectUsers';
 
 @Component({
@@ -45,24 +41,24 @@ export class ProjectItemComponent implements OnInit {
   window_width_is_60: boolean;
   newInnerWidth: any;
   avaialble_status_for_tooltip: string;
+
+  hideUnassignedConversations: boolean = true;
   
   constructor(
     public wsService: WebsocketService,
     public appStorageService: AppStorageService,
     private translateService: CustomTranslateService,
     public tiledeskAuthService: TiledeskAuthService,
-    public projectService: ProjectService,
-    public webSocketJs: WebSocketJs,
-    private appConfigProvider: AppConfigProvider,
     public events: EventsService,
     public convertRequestToConversation: ConvertRequestToConversation
   ) { }
 
   ngOnInit() {
-    this.getStoredTokenAndConnectWS();
+    this.getStoredToken();
     this.getStoredCurrenUser();
     this.translations();
     this.listenToPostMsgs();
+    this.listenToLastStoredProject();
     this.onInitWindowWidth();
   }
 
@@ -81,27 +77,34 @@ export class ProjectItemComponent implements OnInit {
     this.openUnsevedConvsEvent.emit({event:'pinbtn', data: this.unservedConversations})
   }
 
-  getStoredTokenAndConnectWS() {
+  getStoredToken() {
     this.tiledeskToken = this.appStorageService.getItem('tiledeskToken');
     this.logger.log('[PROJECT-ITEM] - STORED TILEDEK TOKEN ', this.tiledeskToken)
-    this.connetWebsocket(this.tiledeskToken)
   }
 
-  connetWebsocket(tiledeskToken) {
+  listenToLastStoredProject() {
+    this.events.subscribe('project:ws-subscriptions-init', (payload: { projects: ProjectUser[]; currentProject: ProjectUser }) => {
+      if (payload?.projects && payload?.currentProject) {
+        this.applyWsSubscriptions(payload.projects, payload.currentProject);
+      }
+    });
 
-    this.logger.log('[WEBSOCKET-JS] connetWebsocket called in [PROJECT-ITEM] tiledeskToken ', tiledeskToken)
-    const appconfig = this.appConfigProvider.getConfig();
-    this.logger.log('[WEBSOCKET-JS] connetWebsocket called in [PROJECT-ITEM] wsUrl ', appconfig.wsUrl)
-    const WS_URL = appconfig.wsUrl + '?token=' + tiledeskToken
-    this.logger.log('[WEBSOCKET-JS] connetWebsocket called in [PROJECT-ITEM] wsUrl ', WS_URL)
-    this.webSocketJs.init(
-      WS_URL,
-      undefined,
-      undefined,
-      undefined
+    this.events.subscribe('storage:last_project', (project: ProjectUser) => {
+      if (project && project !== 'undefined') {
+        this.handleStoredProject(project);
+      }
+    });
+  }
+
+  applyWsSubscriptions(projects: ProjectUser[], currentProject: ProjectUser) {
+    projects.forEach((p) => (p.teammateStatus = getUserStatusFromProjectUser(p as any)));
+    const availableProjectIds = this.wsService.subscriptionToWsConversationsForOnlineProjects(projects) || [];
+    this.availableProjectIds = new Set(availableProjectIds);
+    this.wsService.subscriptionToWsCurrentProjectUserAvailability(
+      currentProject.id_project._id,
+      currentProject._id
     );
-
-    this.getLastProjectStoredAndSubscToWSAvailabilityAndConversations();
+    this.logger.log('[PROJECT-ITEM] applyWsSubscriptions - currentProject ', currentProject);
   }
 
   listenToPostMsgs() {
@@ -110,7 +113,7 @@ export class ProjectItemComponent implements OnInit {
         if (event.data === 'hasChangedProject') {
           this.unservedRequestCount = 0;
           this.wsService.unsubscribeFromAllProjectConversations();
-          this.getLastProjectStoredAndSubscToWSAvailabilityAndConversations();
+          this.events.publish('project:reload-subscriptions');
         }
       }
     })
@@ -166,110 +169,21 @@ export class ProjectItemComponent implements OnInit {
     }
   }
 
-  getStoredProject(): ProjectUser | null {
-    try {
-      const raw = localStorage.getItem('last_project');
+  handleStoredProject(project: ProjectUser) {
+    this.project = project;
+    this.logger.log('[PROJECT-ITEM] handleStoredProject project ', project);
 
-      if (!raw) {
-        return null;
-      }
-
-      const parsed = JSON.parse(raw);
-
-      if (this.isValidStoredProject(parsed)) {
-        return parsed;
-      }
-
-      // modello sbagliato → pulizia
-      this.logger.warn('[PROJECT-ITEM] Invalid stored project schema, clearing storage');
-      localStorage.removeItem('last_project');
-      return null;
-
-    } catch (err) {
-      this.logger.error('[PROJECT-ITEM] Error parsing stored project', err);
-      localStorage.removeItem('last_project');
-      return null;
-    }
-  }
-
-  getLastProjectStoredAndSubscToWSAvailabilityAndConversations() {
-
-    let stored_project = this.getStoredProject();
-
-    const applySubscriptions = (projects: ProjectUser[], currentProject: ProjectUser) => {
-      this.project = currentProject;
-      if (!stored_project) {
-        localStorage.setItem('last_project', JSON.stringify(currentProject));
-      }
-      projects.forEach((p) => (p.teammateStatus = getUserStatusFromProjectUser(p as any)));
-      const ids = this.wsService.subscriptionToWsConversationsForOnlineProjects(projects);
-      this.availableProjectIds = new Set(ids || []);
-      this.doProjectSubscriptions(currentProject);
-    };
-
-    if (!stored_project) {
-      this.logger.log('[PROJECT-ITEM] No valid stored project, fetching remote');
-      this.projectService.getProjects().subscribe(projects => {
-        let project: ProjectUser | undefined;
-
-        if (this.projectID) {
-          project = projects.find( p => p.id_project?._id === this.projectID );
-        }
-
-        if (!project) {
-          project = projects[0];
-        }
-
-        if (!project) {
-          this.logger.warn('[PROJECT-ITEM] No projects returned from API');
-          return;
-        }
-
-        applySubscriptions(projects, project);
-
-      }, error => {
-        this.logger.error('[PROJECT-ITEM] GET PROJECTS ERROR', error);
-      });
-
+    if (!project) {
       return;
     }
 
-    this.projectService.getProjects().subscribe(projects => {
-      const currentProject = projects.find(p => p.id_project?._id === stored_project.id_project?._id) || stored_project;
-      applySubscriptions(projects, currentProject);
-    }, error => {
-      this.logger.error('[PROJECT-ITEM] GET PROJECTS ERROR (stored)', error);
-      this.project = stored_project;
-      this.doProjectSubscriptions(stored_project);
-    });
-  }
+    const user_role = project.role;
+    this.logger.log('[PROJECT-ITEM] - user_role ', user_role);
+    this.projectIdEvent.emit(project.id_project._id);
+    this.ROLE_IS_AGENT = user_role === 'agent';
 
-  doProjectSubscriptions(project) {
-    this.events.publish('storage:last_project', project)
-    this.logger.log('[PROJECT-ITEM] doProjectSubscriptions project ', project)
-    if (project) {
-      const user_role = this.project.role
-      this.logger.log('[PROJECT-ITEM] - user_role ', user_role)
-      //TODO: recuperare id da root project (DA VERIFICARE)
-      this.projectIdEvent.emit(project.id_project._id)
-
-      if (user_role === 'agent') {
-        this.ROLE_IS_AGENT = true;
-
-      } else {
-        this.ROLE_IS_AGENT = false;
-      }
-
-
-      this.logger.log('[PROJECT-ITEM] - LAST PROJECT PARSED > user_role ', user_role)
-      //TODO: recuperare project_user_ID da API --> aggiugere metodo
-      this.wsService.subscriptionToWsCurrentProjectUserAvailability(project.id_project._id, this.project._id);
-      this.listenTocurrentProjectUserUserAvailability$(project)
-
-      // Le conversations sono già sottoscritte per tutti i progetti online in subscriptionToWsConversationsForOnlineProjects
-      this.updateUnservedRequestCount();
-
-    }
+    this.listenTocurrentProjectUserUserAvailability$(project);
+    this.updateUnservedRequestCount();
   }
 
   listenTocurrentProjectUserUserAvailability$(project) {
@@ -379,20 +293,6 @@ export class ProjectItemComponent implements OnInit {
     }
     return agents.some((a) => a.id_user === this.currentUserId);
   }
-
-  isValidStoredProject(obj: any): obj is ProjectUser {
-    return (
-      obj &&
-      typeof obj === 'object' &&
-      obj.id_project &&
-      typeof obj.id_project === 'object' &&
-      typeof obj.id_project._id === 'string' &&
-      typeof obj._id === 'string' &&
-      typeof obj.role === 'string'
-    );
-  }
-
-
 
 }
 
