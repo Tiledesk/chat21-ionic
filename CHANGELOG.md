@@ -8,6 +8,10 @@
 ### **Copyright**: 
 *Tiledesk SRL*
 
+# 3.4.35-rc2
+- **changed**: conversations-list — `hideUnassignedConversations` is now read from chat-config via `getParameterValue` instead of a hardcoded value.
+- **changed**: conversations-list — default value for `hideUnassignedConversations` set to `false` (unassigned block visible unless explicitly hidden in config).
+
 # 3.4.35-rc1
 - **added**: `hideUnassignedConversations` chat-config / environment flag — when enabled, hides the unassigned-conversations block (`app-project-item`) in conversations-list.
 - **added**: `getUserStatusFromProjectUser()` in `chat21-core/utils/utils.ts` — maps `user_available` and `profileStatus` to the corresponding `TEAMMATE_STATUS` object.
