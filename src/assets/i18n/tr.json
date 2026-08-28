@@ -311,5 +311,11 @@
     "SEND_EMAIL_SUCCESS_OFFLINE_MESSAGE":"Mesaj ayrıca e-posta ile gönderilir 📩"
   },
   "EMOJI_NOT_ELLOWED": "Emoji'ye izin verilmiyor",
-  "DOMAIN_NOT_ALLOWED": "URL izin verilmeyen bir alan adı içeriyor"
+  "DOMAIN_NOT_ALLOWED": "URL izin verilmeyen bir alan adı içeriyor",
+  "TICKET": {
+    "OPEN_TICKET": "Bilet Aç",
+    "DESCRIPTION": "Bu görüşme için bir bilet açmak istediğinizi onaylıyor musunuz?",
+    "CONFIRM": "Onayla",
+    "CLOSE": "Kapat"
+  }
 }

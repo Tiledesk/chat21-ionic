@@ -44,6 +44,8 @@ import { conversationToMessage } from 'src/chat21-core/utils/utils-message';
 import { ProjectService } from './services/projects/project.service';
 import { ContactsService } from './services/contacts/contacts.service';
 import { TiledeskService } from './services/tiledesk/tiledesk.service';
+import { Project } from 'src/chat21-core/models/projects';
+import { BRAND_BASE_INFO } from './utils/utils-resources';
 import { ProjectUsersService } from './services/project_users/project-users.service';
 import { ProjectUser } from 'src/chat21-core/models/projectUsers';
 
@@ -167,6 +169,7 @@ export class AppComponent implements OnInit {
       }
     }, { capture: true });
   }
+
 
   listenChatAlreadyOpenWithoutParamsInMobileMode() {
     this.events.subscribe('noparams:mobile', (isAlreadyOpenInMobileMode) => {
@@ -296,6 +299,10 @@ export class AppComponent implements OnInit {
         this.zone = new NgZone({}); // a cosa serve?
 
         this.SUPPORT_MODE = this.g.supportMode
+        this.logger.info('[APP-COMP] this.SUPPORT_MODE', this.SUPPORT_MODE)
+
+        BRAND_BASE_INFO['LOGOUT_ENABLED'] = this.g.logOut
+        this.logger.info('[APP-COMP] this.logOut', BRAND_BASE_INFO['LOGOUT_ENABLED'])
       }
 
     });
@@ -332,7 +339,7 @@ export class AppComponent implements OnInit {
 
   listenToPostMsgs() {
     window.addEventListener("message", (event) => {
-      this.logger.log("[APP-COMP] message event ", event);
+      // this.logger.log("[APP-COMP] message event ", event);
 
       if (event && event.data && event.data.action && event.data.parameter) {
         if (event.data.action === 'openJoinConversationModal') {
@@ -534,10 +541,10 @@ export class AppComponent implements OnInit {
       this.statusBar.styleLightContent();
       this.navService.init(this.sidebarNav, this.detailNav);
       this.tiledeskAuthService.initialize(this.appConfigProvider.getConfig().apiUrl);
-      this.messagingAuthService.initialize();
-
+      
       // this.currentUserService.initialize();
       this.chatManager.initialize();
+      this.messagingAuthService.initialize();
       this.presenceService.initialize(this.tenant);
       this.typingService.initialize(this.tenant);
 
@@ -863,7 +870,8 @@ export class AppComponent implements OnInit {
       // console.log('[APP-COMP] PLATFORM', PLATFORM_MOBILE, 'route.snapshot', this.route.snapshot);
       if (!IDConv) {
         this.logger.log('[APP-COMP]  navigateByUrl -- conversations-list');
-        this.router.navigateByUrl('conversations-list')
+        const queryString = window.location.search; // restituisce ad es. "?jwt=...&tiledesk_supportMode=false"
+        this.router.navigateByUrl('conversations-list' + queryString);
       }
       // this.router.navigateByUrl(pageUrl);
       // this.navService.setRoot(ConversationListPage, {});
@@ -1118,13 +1126,19 @@ export class AppComponent implements OnInit {
       if (conversation && conversation.is_new === true && this.isInitialized) {
         this.manageTabNotification('conv_added', conversation.sound)
         this.manageEventNewConversation(conversation)
+        //UPDATE NOTIFICATION FOR NEW CONVERSATION COUNT 
+        this.triggerOnUpdateNewConversationBadge(this.conversationsHandlerService.countIsNew());
       }
       if(conversation) this.updateConversationsOnStorage()
     });
 
     this.conversationsHandlerService.conversationChanged.subscribe((conversation: ConversationModel) => {
       // console.log('[APP-COMP] ***** subscribeConversationChanged conversation: ', conversation);
-      if(conversation)  this.updateConversationsOnStorage();
+      if(conversation){
+        this.updateConversationsOnStorage();
+        //UPDATE NOTIFICATION FOR NEW CONVERSATION COUNT 
+        this.triggerOnUpdateNewConversationBadge(this.conversationsHandlerService.countIsNew());
+      }  
     });
 
     this.conversationsHandlerService.conversationChangedDetailed.subscribe((changes: {value: ConversationModel, previousValue: ConversationModel}) => {
@@ -1152,6 +1166,8 @@ export class AppComponent implements OnInit {
       if(conversation) { 
         this.updateConversationsOnStorage();
         this.segmentResolved(conversation);
+        //UPDATE NOTIFICATION FOR NEW CONVERSATION COUNT 
+        this.triggerOnUpdateNewConversationBadge(this.conversationsHandlerService.countIsNew());
         this.router.navigateByUrl('conversation-detail/'); //redirect to basePage
       }
     });
@@ -1180,8 +1196,8 @@ export class AppComponent implements OnInit {
     this.chatManager.setCurrentUser(currentUser);
 
     this.tiledeskService.initialize(serverBaseURL)
-    this.projectService.initialize(serverBaseURL)
     this.projectUsersService.initialize(serverBaseURL)
+    this.projectService.initialize(serverBaseURL)
     this.contactsService.initialize(serverBaseURL)
 
     this.connectWebsocket(tiledeskToken);
@@ -1190,11 +1206,14 @@ export class AppComponent implements OnInit {
     this.events.publish('go:online', true);
     // this.chatManager.startApp();
 
+
+    //INIT WEBSOCKET
+    this.connetWebsocket(tiledeskToken)
+
     // ----------------------------------------------
     // PUSH NOTIFICATIONS
     // ----------------------------------------------
     const pushEngine = this.appConfigProvider.getConfig().pushEngine
-
     if (currentUser) {
       if (pushEngine && pushEngine !== 'none') {
         this.notificationsService.getNotificationPermissionAndSaveToken(currentUser.uid);
@@ -1215,6 +1234,24 @@ export class AppComponent implements OnInit {
       }
     } catch (err) {
       this.logger.error('[APP-COMP] -> error:', err);
+    }
+
+    // ----------------------------------------------
+    // LAST PROJECT FROM URL
+    // ----------------------------------------------
+    if(this.g.projectID){
+      this.projectService.getProjects().subscribe({ next: (projects: Project[]) => {
+        const project = projects.find(prjct => prjct.id_project._id === this.g.projectID)
+        if(project){
+          this.logger.log('[APP-COMP] - GET PROJECT - project found with this.projectID', project);
+          localStorage.setItem('last_project', JSON.stringify(project)) 
+          this.events.publish('storage:last_project', project)
+        }
+      }, error: (error) => {
+        this.logger.log('[APP-COMP] - GET PROJECT - project NOT found with this.projectID', this.g.projectID, error);
+      }, complete: () => {
+
+      }});
     }
   }
 
@@ -1256,9 +1293,21 @@ export class AppComponent implements OnInit {
   }
 
   goToDashboardLogin(){
-    let DASHBOARD_URL = this.appConfigProvider.getConfig().dashboardUrl + '#/login'
-    const myWindow = window.open(DASHBOARD_URL, '_self');
-    myWindow.focus();
+    // let DASHBOARD_URL = this.appConfigProvider.getConfig().dashboardUrl + '#/login'
+    // const myWindow = window.open(DASHBOARD_URL, '_self');
+    // myWindow.focus();
+  }
+
+  connetWebsocket(tiledeskToken) {
+
+    this.logger.log('[WEBSOCKET-JS] connetWebsocket called in [PROJECT-ITEM] tiledeskToken ', tiledeskToken)
+    const appconfig = this.appConfigProvider.getConfig();
+    this.logger.log('[WEBSOCKET-JS] connetWebsocket called in [PROJECT-ITEM] wsUrl ', appconfig.wsUrl)
+    const WS_URL = appconfig.wsUrl + '?token=' + tiledeskToken
+    this.logger.log('[WEBSOCKET-JS] connetWebsocket called in [PROJECT-ITEM] wsUrl ', WS_URL)
+    this.webSocketJs.init(
+      WS_URL
+    );
   }
 
 
@@ -1450,7 +1499,8 @@ export class AppComponent implements OnInit {
 
   subscribeConversationSelected= (conversation: ConversationModel) => {
     if(conversation && conversation.is_new){
-      this.audio_NewConv.pause()
+      this.audio_NewConv.pause();
+      this.conversationsHandlerService.setConversationRead(conversation.uid)
     }
   }
 
@@ -1526,6 +1576,9 @@ export class AppComponent implements OnInit {
         this.logger.debug('[APP-COMP]-CONVS - INIT CONV CONVS 2', conversations)
         this.events.publish('appcompSubscribeToConvs:loadingIsActive', false);
       }
+
+      //INIT NOTIFICATION FOR NEW CONVERSATION COUNT 
+      this.triggerOnUpdateNewConversationBadge(this.conversationsHandlerService.countIsNew());
     });
 
   }
@@ -1806,6 +1859,11 @@ export class AppComponent implements OnInit {
   private triggerOnInit(event){
     const detailOBJ = { event: event, isLogged: true, user: this.tiledeskAuthService.getCurrentUser() }
     this.triggerEvents.triggerOnInit(detailOBJ)
+  }
+
+  private triggerOnUpdateNewConversationBadge(count: number){
+    const detailOBJ = { event: 'onUpdateNewConversationBadge', count: count.toString() }
+    this.triggerEvents.triggerOnUpdateNewConversationBadge(detailOBJ)
   }
 
 

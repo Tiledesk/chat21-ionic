@@ -83,11 +83,12 @@ import { WebsocketService } from 'src/app/services/websocket/websocket.service';
 import { Project } from 'src/chat21-core/models/projects';
 import { Globals } from 'src/app/utils/globals';
 import { ProjectService } from 'src/app/services/projects/project.service';
+import { UploadService } from 'src/chat21-core/providers/abstract/upload.service';
 import { ProjectUsersService } from 'src/app/services/project_users/project-users.service';
 import { ProjectUser } from 'src/chat21-core/models/projectUsers';
 import { getOSCode, hasRole } from 'src/app/utils/utils';
 import { PERMISSIONS } from 'src/app/utils/permissions.constants';
-import { UploadService } from 'src/chat21-core/providers/abstract/upload.service';
+import { TriggerEvents } from 'src/app/services/triggerEvents/triggerEvents';
 
 @Component({
   selector: 'app-conversation-detail',
@@ -177,6 +178,10 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
   copilotQuestion: string = '';
   /**COPILOT : end */
 
+  /** TICKET: start */
+  isTicketEnabled: boolean = false;
+  /** TICKET: end */
+
   isMine = isMine
   isInfo = isInfo
   isFirstMessage = isFirstMessage
@@ -252,14 +257,15 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
     private events: EventsService,
     private webSocketService: WebsocketService,
     public projectPlanUtils: ProjectPlanUtils,
+    public triggerEvents: TriggerEvents,
     private g: Globals,
   ) {
     // Change list on date change
     this.route.paramMap.subscribe((params) => {
       this.logger.log('[CONVS-DETAIL] - constructor -> params: ', params)
       this.conversationWith = params.get('IDConv')
-      this.conversationWithFullname = params.get('FullNameConv')
-      this.conv_type = params.get('Convtype')
+      this.conversationWithFullname = decodeURIComponent(params.get('FullNameConv'))
+      this.conv_type = decodeURIComponent(params.get('Convtype'))
 
       this.events.publish('supportconvid:haschanged', this.conversationWith)
     })
@@ -426,6 +432,8 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
   ionViewDidEnter() {
     this.logger.log('[CONVS-DETAIL] > ionViewDidEnter')
     // this.info_content_child_enabled = true;
+    // Scroll to bottom to show the last message without animation
+    this.scrollToLastMessage()
   }
 
   // Unsubscibe when new page transition end
@@ -485,6 +493,7 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
     this.messages = [] // list messages of conversation
     this.isFileSelected = false // indicates if a file has been selected (image to upload)
     this.isEmailEnabled = (this.appConfigProvider.getConfig().emailSection === 'true' || this.appConfigProvider.getConfig().emailSection === true) ? true : false;
+    this.isTicketEnabled = (this.appConfigProvider.getConfig().ticketSection === 'true' || this.appConfigProvider.getConfig().ticketSection === true) ? true : false;
     this.isWhatsappTemplatesEnabled = (this.appConfigProvider.getConfig().whatsappTemplatesSection === 'true' || this.appConfigProvider.getConfig().whatsappTemplatesSection === true) ? true : false;
     this.fileUploadAccept = this.appConfigProvider.getConfig().fileUploadAccept
     
@@ -714,6 +723,11 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
       "WHATSAPP.SELECT_MESSAGE_TEMPLATE",
       "WHATSAPP.ERROR_WHATSAPP_NOT_INSTALLED",
       "WHATSAPP.ERROR_WHATSAPP_GENERIC_ERROR",
+
+      "TICKET.OPEN_TICKET",
+      "TICKET.DESCRIPTION",
+      "TICKET.CONFIRM",
+      "TICKET.CLOSE",
 
       "COPILOT.ASK_AI",
       "COPILOT.NO_SUGGESTIONS_PRESENT",
@@ -1930,6 +1944,11 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
   }
 
 
+  onOpenTicket(event) {
+    this.logger.debug('[CONVS-DETAIL] openTicketOnExternalService - conversationWith ', this.conversationWith)
+    const detailOBJ = { event: 'onOpenTicketExternally', request_id: this.conversationWith, conversation: this.conversation }
+    this.triggerEvents.triggerOnOpenTicketExternally(detailOBJ)
+  }
   // -------------- START SCROLL/RESIZE  -------------- //
   /** */
   resizeTextArea() {
@@ -1970,6 +1989,29 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
         this.ionContentChatArea.scrollToBottom(time)
       }, 0)
       // nota: se elimino il settimeout lo scrollToBottom non viene richiamato!!!!!
+    }
+  }
+
+  /**
+   * Scroll to last message without animation using requestAnimationFrame
+   * This is a best practice alternative to setTimeout
+   */
+  private scrollToLastMessage() {
+    this.showIonContent = true
+    if (this.ionContentChatArea) {
+      // Use requestAnimationFrame for better performance
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          // Double RAF ensures DOM is fully rendered
+          this.ionContentChatArea.scrollToBottom(0).then(() => {
+            this.logger.log('[CONVS-DETAIL] scroll posizionato all\'ultimo messaggio')
+          }).catch((error) => {
+            this.logger.error('[CONVS-DETAIL] errore durante lo scroll:', error)
+          })
+        })
+      })
+    } else {
+      this.logger.warn('[CONVS-DETAIL] ionContentChatArea non disponibile')
     }
   }
 

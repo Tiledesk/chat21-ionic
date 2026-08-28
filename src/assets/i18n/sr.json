@@ -311,5 +311,11 @@
     "SEND_EMAIL_SUCCESS_OFFLINE_MESSAGE":"Порука је такође послата е-поштом 📩"  
   },
   "EMOJI_NOT_ELLOWED": "Emodžiji nisu dozvoljeni",
-  "DOMAIN_NOT_ALLOWED": "URL sadrži nedozvoljenu domenu"
+  "DOMAIN_NOT_ALLOWED": "URL sadrži nedozvoljenu domenu",
+  "TICKET": {
+    "OPEN_TICKET": "Otvori tiket",
+    "DESCRIPTION": "Da li potvrđujete da želite da otvorite tiket za ovaj razgovor?",
+    "CONFIRM": "Potvrdi",
+    "CLOSE": "Zatvori"
+  }
 }

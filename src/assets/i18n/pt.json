@@ -311,5 +311,11 @@
     "SEND_EMAIL_SUCCESS_OFFLINE_MESSAGE":"Mensagem também enviada por e-mail 📩"
   },
   "EMOJI_NOT_ELLOWED": "Emoji não permitido",
-  "DOMAIN_NOT_ALLOWED": "O URL contém um domínio não permitido"
+  "DOMAIN_NOT_ALLOWED": "O URL contém um domínio não permitido",
+  "TICKET": {
+    "OPEN_TICKET": "Abrir Ticket",
+    "DESCRIPTION": "Confirma que deseja abrir um ticket para esta conversa?",
+    "CONFIRM": "Confirmar",
+    "CLOSE": "Fechar"
+  }
 }

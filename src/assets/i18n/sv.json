@@ -311,5 +311,11 @@
     "SEND_EMAIL_SUCCESS_OFFLINE_MESSAGE":"Meddelande skickas även via mail 📩"    
   },
   "EMOJI_NOT_ELLOWED": "Emoji är inte tillåtna",
-  "DOMAIN_NOT_ALLOWED": "URL:en innehåller en otillåten domän"
+  "DOMAIN_NOT_ALLOWED": "URL:en innehåller en otillåten domän",
+  "TICKET": {
+    "OPEN_TICKET": "Öppna Ärende",
+    "DESCRIPTION": "Bekräftar du att du vill öppna ett ärende för den här konversationen?",
+    "CONFIRM": "Bekräfta",
+    "CLOSE": "Stäng"
+  }
 }

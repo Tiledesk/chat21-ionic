@@ -365,7 +365,7 @@ export class MQTTConversationHandler extends ConversationHandlerService {
                 complement = INFO_SUPPORT_USER_ADDED_COMPLEMENT;
             } else {
                 if (message.attributes.messagelabel.parameters.firstname) {
-                    // other user has been added to the group (and he has a firstname)
+                    // other user has been added to the group (and he has a fullname)
                     subject = message.attributes.messagelabel.parameters.firstname;
                     verb = INFO_SUPPORT_USER_ADDED_VERB;
                     complement = INFO_SUPPORT_USER_ADDED_COMPLEMENT;

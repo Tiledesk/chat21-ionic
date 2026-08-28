@@ -29,6 +29,7 @@ export class SidebarUserDetailsComponent implements OnInit, OnChanges, OnDestroy
   // HAS_CLICKED_OPEN_USER_DETAIL: boolean = false;
   // @Output() onCloseUserDetailsSidebar = new EventEmitter();
 
+  @Input() logOut: boolean;
 
   public browserLang: string;
   private logger: LoggerService = LoggerInstance.getInstance()
@@ -339,7 +340,7 @@ export class SidebarUserDetailsComponent implements OnInit, OnChanges, OnDestroy
   listenToCurrentStoredProject() {
     this.events.subscribe('storage:last_project', projectObjct => {
       if (projectObjct && projectObjct !== 'undefined') {
-        // this.logger.log('[SIDEBAR-USER-DETAILS] - GET STORED PROJECT ', projectObjct)
+        this.logger.log('[SIDEBAR-USER-DETAILS] - GET STORED PROJECT ', projectObjct)
 
         //TODO: recuperare info da root e non da id_project
         this.project = {

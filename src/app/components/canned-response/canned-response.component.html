@@ -9,8 +9,8 @@
           <ion-input [class.readonly]="canned?.disabled" [readonly]="canned?.disabled" type="text" [(ngModel)]="canned.title" class="title" id="{{'titleCanned_'+canned._id}}" #title></ion-input>
           <ion-input [class.readonly]="canned?.disabled" [readonly]="canned?.disabled" type="text" [(ngModel)]="canned.text"  class="text truncate"></ion-input>
         </div>
-        <!-- <ion-icon class="canned-item-icon" name="pin" src="assets/images/pin.svg" slot=end *ngIf="canned.pinned" (click)="onPinCanned(canned, $event)"></ion-icon>
-        <ion-icon class="canned-item-icon" name="pin" src="assets/images/pinned.svg" slot=end (click)="onUnPinCanned(canned, $event)"></ion-icon> -->
+        <!-- <ion-icon class="canned-item-icon" name="pin" src="assets/img/pin.svg" slot=end *ngIf="canned.pinned" (click)="onPinCanned(canned, $event)"></ion-icon>
+        <ion-icon class="canned-item-icon" name="pin" src="assets/img/pinned.svg" slot=end (click)="onUnPinCanned(canned, $event)"></ion-icon> -->
         <ion-icon class="canned-item-icon"  name="checkmark-sharp" slot=end *ngIf="(canned.createdBy === loggedUser.uid && !canned.disabled) && roles[PERMISSIONS.CANNED_RESPONSES_UPDATE]" (click)="onConfirmEditCanned(canned, $event)"></ion-icon>
         <ion-icon class="canned-item-icon"  name="pencil-sharp" slot=end *ngIf="(canned.createdBy === loggedUser.uid && canned.disabled) && roles[PERMISSIONS.CANNED_RESPONSES_UPDATE]" (click)="onEditCanned(canned, $event)"></ion-icon>
         <ion-icon class="canned-item-icon"  name="trash-bin-outline" slot=end *ngIf="(canned.createdBy === loggedUser.uid) && roles[PERMISSIONS.CANNED_RESPONSES_DELETE]" (click)="onDeleteCanned(canned, $event)"></ion-icon>

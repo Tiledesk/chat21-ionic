@@ -311,5 +311,11 @@
     "SEND_EMAIL_SUCCESS_OFFLINE_MESSAGE":"Повідомлення також надіслано електронною поштою 📩"    
   },
   "EMOJI_NOT_ELLOWED": "Емодзі не дозволені",
-  "DOMAIN_NOT_ALLOWED": "URL містить недозволений домен"
+  "DOMAIN_NOT_ALLOWED": "URL містить недозволений домен",
+  "TICKET": {
+    "OPEN_TICKET": "Відкрити тікет",
+    "DESCRIPTION": "Підтверджуєте, що хочете відкрити тікет для цієї розмови?",
+    "CONFIRM": "Підтвердити",
+    "CLOSE": "Закрити"
+  }
 }

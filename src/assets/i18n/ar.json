@@ -311,5 +311,11 @@
     "SEND_EMAIL_SUCCESS_OFFLINE_MESSAGE":"تم إرسال الرسالة أيضًا عبر البريد الإلكتروني 📩"
   },
   "EMOJI_NOT_ELLOWED": "الرموز التعبيرية غير مسموح بها",
-  "DOMAIN_NOT_ALLOWED": "يحتوي الرابط على نطاق غير مسموح"
+  "DOMAIN_NOT_ALLOWED": "يحتوي الرابط على نطاق غير مسموح",
+  "TICKET": {
+    "OPEN_TICKET": "افتح تذكرة",
+    "DESCRIPTION": "هل تؤكد أنك تريد فتح تذكرة لهذه المحادثة؟",
+    "CONFIRM": "تأكيد",
+    "CLOSE": "إغلاق"
+  }
 }

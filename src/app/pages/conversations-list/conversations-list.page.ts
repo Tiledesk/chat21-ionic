@@ -60,6 +60,7 @@ import { ProjectUsersService } from 'src/app/services/project_users/project-user
 import { PROJECTS_STORAGE_KEY } from 'src/chat21-core/utils/constants';
 import { ProjectService } from 'src/app/services/projects/project.service';
 
+
 @Component({
   selector: 'app-conversations-list',
   templateUrl: './conversations-list.page.html',
@@ -424,6 +425,11 @@ export class ConversationListPage implements OnInit {
     // save conversationHandler in chatManager
     this.chatManager.setConversationsHandler(this.conversationsHandlerService)
     this.showPlaceholder = false
+    
+    // Hide loading spinner if there are no conversations
+    if (this.conversations.length === 0) {
+      this.loadingIsActive = false
+    }
   }
 
   // private manageStoredConversations() {

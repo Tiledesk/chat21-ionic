@@ -88,14 +88,14 @@ export class GlobalSettingsService {
     this.logger.debug('[GLOBAL-SET] setVariableFromStorage :::::::: SET VARIABLE ---------->', Object.keys(globals));
     for (const key of Object.keys(globals)) {
         const val = this.appStorageService.getItem(key);
-        // this.logger.debug('[GLOBAL-SET] setVariableFromStorage SET globals KEY ---------->', key);
-        // this.logger.debug('[GLOBAL-SET] setVariableFromStorage SET globals VAL ---------->', val);
+        this.logger.debug('[GLOBAL-SET] setVariableFromStorage SET globals KEY ---------->', key);
+        this.logger.debug('[GLOBAL-SET] setVariableFromStorage SET globals VAL ---------->', val);
         if (val && val !== null) {
             // globals.setParameter(key, val);
             globals[key] = stringToBoolean(val);
         }
         // this.logger.debug('[GLOBAL-SET] setVariableFromStorage SET globals == ---------->', globals);
-    } 
+    }
   }
 
   /**
@@ -113,6 +113,7 @@ export class GlobalSettingsService {
     TEMP = getParameterByName(windowContext, 'tiledesk_supportMode');
     if (TEMP) {
         globals.supportMode = stringToBoolean(TEMP);
+        this.appStorageService.setItem('supportMode', String(globals.supportMode))
     }
 
     TEMP = getParameterByName(windowContext, 'tiledesk_lang');
@@ -138,6 +139,13 @@ export class GlobalSettingsService {
     TEMP = getParameterByName(windowContext, 'tiledesk_projectID');
     if (TEMP) {
         globals.projectID = TEMP;
+        this.appStorageService.setItem('projectID', TEMP)
+    }
+
+    TEMP = getParameterByName(windowContext, 'tiledesk_logOut');
+    if (TEMP) {
+        globals.logOut = stringToBoolean(TEMP);
+        this.appStorageService.setItem('logOut', TEMP)
     }
 
 }

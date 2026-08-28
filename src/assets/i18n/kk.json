@@ -311,5 +311,11 @@
     "SEND_EMAIL_SUCCESS_OFFLINE_MESSAGE":"Хабарлама электрондық пошта арқылы да жіберілді 📩"
   },
   "EMOJI_NOT_ELLOWED": "Эмодзи рұқсат етілмеген",
-  "DOMAIN_NOT_ALLOWED": "URL рұқсат етілмеген доменді қамтиды"
+  "DOMAIN_NOT_ALLOWED": "URL рұқсат етілмеген доменді қамтиды",
+  "TICKET": {
+    "OPEN_TICKET": "Тапсырма ашу",
+    "DESCRIPTION": "Осы әңгіме үшін тапсырма ашқыңыз келетінін растайсыз ба?",
+    "CONFIRM": "Растау",
+    "CLOSE": "Жабу"
+  }
 }
