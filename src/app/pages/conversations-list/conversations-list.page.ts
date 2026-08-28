@@ -125,7 +125,7 @@ export class ConversationListPage implements OnInit {
   ];
   // PROJECT AVAILABILITY INFO: end
 
-  hideUnassignedConversations: boolean = true;
+  hideUnassignedConversations: boolean = false;
 
   constructor(
     private router: Router,
@@ -278,7 +278,8 @@ export class ConversationListPage implements OnInit {
     this.supportMode = this.g.supportMode;
     this.archived_btn =  getParameterValue('archivedButton', appConfig)
     this.writeto_btn =  getParameterValue('writeToButton', appConfig)
-    this.logger.debug('[CONVS-LIST-PAGE] parameters supportMode/archived_btn/writeto_btn', this.supportMode, this.archived_btn, this.writeto_btn)
+    this.hideUnassignedConversations =  getParameterValue('hideUnassignedConversations', appConfig)
+    this.logger.debug('[CONVS-LIST-PAGE] parameters supportMode/archived_btn/writeto_btn/hideUnassignedConversations', this.supportMode, this.archived_btn, this.writeto_btn, this.hideUnassignedConversations)
 
 
     const sound_status = localStorage.getItem('dshbrd----sound')
