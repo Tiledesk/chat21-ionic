@@ -8,6 +8,26 @@
 ### **Copyright**: 
 *Tiledesk SRL*
 
+# 3.4.35-rc1
+- **added**: `hideUnassignedConversations` chat-config / environment flag — when enabled, hides the unassigned-conversations block (`app-project-item`) in conversations-list.
+- **added**: `getUserStatusFromProjectUser()` in `chat21-core/utils/utils.ts` — maps `user_available` and `profileStatus` to the corresponding `TEAMMATE_STATUS` object.
+- **added**: centralized project bootstrap in `AppComponent.initProjectSubscriptions()` — resolves `last_project`, publishes `project:ws-subscriptions-init` and `storage:last_project`.
+- **added**: WebSocket connection bootstrap in `AppComponent.connectWebsocket()` on `goOnLine`, after Tiledesk services are initialized.
+- **added**: `project:reload-subscriptions` event — re-runs project resolution when the hosting app posts `hasChangedProject`.
+- **changed**: WebSocket subscriptions for online projects and current-project user availability remain in `project-item`, triggered by `project:ws-subscriptions-init`.
+- **changed**: `loadAndStoreProjects()` moved from conversations-list `ngOnInit` to the `go:online` handler.
+- **changed**: conversations-list — loading spinner is cleared when the conversation list is empty after load.
+- **changed**: mobile navigation to conversations-list preserves URL query string (JWT, supportMode, etc.).
+- **changed**: conversation-detail — `decodeURIComponent` for route params; scroll to last message on `ionViewDidEnter` via double `requestAnimationFrame`.
+- **changed**: header-conversations-list — `@Input() roles` type corrected to permission map `{ [key: string]: boolean }`.
+- **added**: WebSocket worker architecture — refactored `websocket-js.ts` with dedicated `websocket.worker.ts`, tab visibility handling, and MQTT keepalive worker.
+- **added**: Agent Desktop integration — `agentDesktop-sdk.js` and `triggerOnUpdateNewConversationBadge` postMessage to sync the new-conversation badge with the hosting app.
+- **added**: external ticket open flow — `triggerOnOpenTicketExternally`, ticket section in message-text-area, and `onOpenTicket` handler in conversation-detail.
+- **added**: `tiledesk_logOut` URL parameter / `Globals.logOut` — controls logout visibility in sidebar-user-details.
+- **added**: permissions refactor — new keys (`CONVERSATION_DETAIL_READ`, `TICKET_ID_READ`, `REQUEST_UNASSIGNED_NOTIFICATION_READ`, `HISTORY_FILTER_BY_AGENT`, etc.) and aggregated `SETTINGS_READ` in sidebar.
+- **bug-fixed**: `undefinedproject/` API error when `hideUnassignedConversations: true` — project fetch now runs in app bootstrap after `ProjectService.initialize()`.
+- **removed**: deprecated `connetWebsocket` method and duplicate `wsService` property from AppComponent.
+
 # 3.4.34 in PROD
 - **added**: role handling in the affected components (sidebar, navbar, conversations list, conversation detail) using shared `hasRole` checks and `ProjectUser.rolePermissions`.
 
@@ -36,11 +56,7 @@
 - **added**: conversations-list — postMessage to hosting app on conversation selection (event: `onConversationChanged`, data: full conversation object).
 
 # 3.4.32-rc7
-<<<<<<< HEAD
-- **added**: ability to change availability status per project for the logged-in user in sidebar-user-detail
-=======
-- **addded**: ability to change availability status for each project the logged-in user in sidebar-user-detail 
->>>>>>> master-PRE
+- **added**: ability to change availability status per project for the logged-in user in sidebar-user-details.
 
 # 3.4.32-rc6
 - **bug-fixed**: convertRequestToConversation timestamp wrong unit 
