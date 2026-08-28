@@ -1,5 +1,6 @@
-import { Component, Input, OnInit, SecurityContext } from '@angular/core';
-import { ModalController } from '@ionic/angular';
+import { Component, Input, OnChanges, OnInit, SecurityContext, SimpleChanges } from '@angular/core';
+import { AlertController, ModalController } from '@ionic/angular';
+import { Router } from '@angular/router';
 import { NavProxyService } from 'src/app/services/nav-proxy.service';
 import { LoggerService } from 'src/chat21-core/providers/abstract/logger.service';
 import { LoggerInstance } from 'src/chat21-core/providers/logger/loggerInstance';
@@ -7,22 +8,38 @@ import { DomSanitizer } from '@angular/platform-browser'
 import { CustomTranslateService } from 'src/chat21-core/providers/custom-translate.service';
 import { AppStorageService } from 'src/chat21-core/providers/abstract/app-storage.service';
 import { EventsService } from 'src/app/services/events-service';
-
+import { ConversationModel } from 'src/chat21-core/models/conversation';
+import { TiledeskAuthService } from 'src/chat21-core/providers/tiledesk/tiledesk-auth.service';
+import { TiledeskService } from 'src/app/services/tiledesk/tiledesk.service';
+import { getProjectIdSelectedConversation, isGroup } from 'src/chat21-core/utils/utils';
+import { ImageRepoService } from 'src/chat21-core/providers/abstract/image-repo.service';
+import { Project } from 'src/chat21-core/models/projects';
+import { ProjectService } from 'src/app/services/projects/project.service';
+import { PROJECTS_STORAGE_KEY } from 'src/chat21-core/utils/constants';
 
 @Component({
   selector: 'app-unassigned-conversations',
   templateUrl: './unassigned-conversations.page.html',
   styleUrls: ['./unassigned-conversations.page.scss'],
 })
-export class UnassignedConversationsPage implements OnInit {
+export class UnassignedConversationsPage implements OnInit, OnChanges {
 
   @Input() iframe_URL: any;
   @Input() callerBtn: string;
   @Input() isMobile: boolean;
+  /** Lista conversazioni unassigned passata da project-item (calcolata da wsRequestsList) */
+  @Input() unassignedConversations: ConversationModel[] = [];
+  @Input() stylesMap: Map<string, string>;
+  @Input() translationMapConversation: Map<string, string>;
+
+  /** Array salvato localmente per uso nella page */
+  unassignedConversationsList: ConversationModel[] = [];
+  uidConvSelected: string;
   // @Input() prjctsxpanel_url: any;
   // @Input() unassigned_convs_url: any;
 
   iframe_url_sanitized: any;
+  private loggedUserUid: string;
   private logger: LoggerService = LoggerInstance.getInstance();
   // has_loaded: boolean;
   ion_content: any;
@@ -34,26 +51,131 @@ export class UnassignedConversationsPage implements OnInit {
   constructor(
     private modalController: ModalController,
     private navService: NavProxyService,
+    private alertController: AlertController,
+    private router: Router,
     private sanitizer: DomSanitizer,
     private translateService: CustomTranslateService,
-    private events : EventsService
-  ) { }
+    private events: EventsService,
+    private tiledeskAuthService: TiledeskAuthService,
+    private tiledeskService: TiledeskService,
+    private projectService: ProjectService,
+    public imageRepoService: ImageRepoService,
+    public appStorageService: AppStorageService,
+  ) {
+    if (this.tiledeskAuthService.getCurrentUser()) {
+      this.loggedUserUid = this.tiledeskAuthService.getCurrentUser().uid;
+    }
+  }
 
   ngOnInit() {
     const keys = [
       'UnassignedConversations',
       'NewConversations',
-      'PIN_A_PROJECT'
+      'PIN_A_PROJECT',
+      'LABEL_MSG_PUSH_START_CHAT'
     ];
     this.translationMap = this.translateService.translateLanguage(keys);
-    this.buildIFRAME();
+
+    this.unassignedConversationsList = this.unassignedConversations ?? [];
+    if (!this.stylesMap) {
+      this.stylesMap = new Map([['themeColor', '#165CEE']]);
+    }
+    if (!this.translationMapConversation) {
+      this.translationMapConversation = this.translateService.translateLanguage(['CLOSED', 'Resolve']);
+    }
+    this.logger.log('[UNASSIGNED-CONVS-PAGE] unassignedConversationsList', this.unassignedConversationsList);
+    this.processConversationsForDisplay();
+    this.loadAndStoreProjects();
+    // this.buildIFRAME();
     this.listenToPostMsg();
     this.hideHotjarFeedbackBtn();
     this.events.subscribe('style', (data)=>this.loadStyle(data))
   }
 
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['unassignedConversations'] && changes['unassignedConversations'].currentValue) {
+      this.unassignedConversationsList = this.unassignedConversations ?? [];
+      this.processConversationsForDisplay();
+    }
+  }
+
   ngOnDestroy(){
     this.logger.log('[UNASSIGNED-CONVS-PAGE] - onDestroy called', this.iframe_URL);
+  }
+
+  /** Chiama onImageLoaded e onConversationLoaded per ogni conversazione in lista */
+  private processConversationsForDisplay() {
+    if (!this.unassignedConversationsList?.length) return;
+    this.unassignedConversationsList.forEach((conv) => {
+      this.onImageLoaded(conv);
+      this.onConversationLoaded(conv);
+    });
+  }
+
+  /**
+   * Recupera tutti i progetti con getProjects e li salva in AppStorage.
+   * Se la chiave esiste già nello storage, salta la chiamata remota e usa i dati in cache.
+   * Al termine richiama processConversationsForDisplay per aggiornare i project_name.
+   */
+  private loadAndStoreProjects() {
+    const stored = this.appStorageService.getItem(PROJECTS_STORAGE_KEY);
+    if (stored) {
+      this.processConversationsForDisplay();
+      return;
+    }
+    const token = this.tiledeskAuthService.getTiledeskToken();
+    if (!token) return;
+    this.projectService.getProjects().subscribe(
+      (projects: Project[]) => {
+        if (!projects?.length) return;
+        let projectsMap: Record<string, Project> = {};
+        const stored = this.appStorageService.getItem(PROJECTS_STORAGE_KEY);
+        if (stored) {
+          try {
+            projectsMap = JSON.parse(stored) || {};
+          } catch (e) {
+            this.logger.warn('[UNASSIGNED-CONVS-PAGE] loadAndStoreProjects - failed to parse stored projects', e);
+          }
+        }
+        let hasChanges = false;
+        projects.forEach((project) => {
+          const projectId = project.id_project?._id || project.id_project?.id || project._id;
+          if (!projectId) return;
+          if (!projectsMap[projectId]) {
+            projectsMap[projectId] = project.id_project || project;
+            hasChanges = true;
+          }
+        });
+        if (hasChanges) {
+          this.appStorageService.setItem(PROJECTS_STORAGE_KEY, JSON.stringify(projectsMap));
+          this.logger.log('[UNASSIGNED-CONVS-PAGE] loadAndStoreProjects - saved', Object.keys(projectsMap).length, 'projects');
+        }
+        this.processConversationsForDisplay();
+      },
+      (err) => {
+        this.logger.error('[UNASSIGNED-CONVS-PAGE] loadAndStoreProjects - error', err);
+        this.processConversationsForDisplay();
+      }
+    );
+  }
+
+  /** Recupera il progetto dalla chiave di storage (all_projects); se non trovato restituisce null */
+  private getProjectFromStorage(conversation: ConversationModel): Project | null {
+    let projectId: string | undefined;
+    if (conversation.attributes?.['projectId']) {
+      projectId = conversation.attributes['projectId'];
+    } else if (conversation.attributes) {
+      projectId = getProjectIdSelectedConversation(conversation.uid);
+    }
+    if (!projectId) return null;
+    const stored = this.appStorageService.getItem(PROJECTS_STORAGE_KEY);
+    if (!stored) return null;
+    try {
+      const projectsMap: Record<string, Project> = JSON.parse(stored);
+      return projectsMap[projectId] || null;
+    } catch {
+      return null;
+    }
   }
 
   hideHotjarFeedbackBtn() {
@@ -115,6 +237,45 @@ export class UnassignedConversationsPage implements OnInit {
       });
     }
 
+  }
+
+  async presentAlertConfirmJoinRequest(request: ConversationModel) {
+    var iframeWin = <HTMLIFrameElement>document.getElementById("unassigned-convs-iframe")
+
+    const isIFrame = (input: HTMLElement | null): input is HTMLIFrameElement =>
+      input !== null && input.tagName === 'IFRAME';
+
+    const keys = ['YouAreAboutToJoinThisChat', 'Cancel', 'AreYouSure'];
+    const translationMap = this.translateService.translateLanguage(keys);
+
+    const alert = await this.alertController.create({
+      cssClass: 'my-custom-class',
+      header: translationMap.get('AreYouSure'),
+      message: translationMap.get('YouAreAboutToJoinThisChat'),
+      buttons: [
+        {
+          text: translationMap.get('Cancel'),
+          role: 'cancel',
+          cssClass: 'secondary',
+          handler: (blah) => {
+          }
+        }, {
+          text: 'Ok',
+          handler: () => {
+            this.tiledeskService.addParticipant(request.uid, this.loggedUserUid, request.attributes.projectId).subscribe((res: any) => {
+              this.logger.log('[APP-COMP] addParticipant - RES ', res);
+              this.onClose(request);
+            }, (error) => {
+              this.logger.error('[APP-COMP] addParticipant - ERROR ', error);
+            }, () => {
+              this.logger.log('[APP-COMP] addParticipant - COMPLETE ');
+            });
+          }
+        }
+      ]
+    });
+
+    await alert.present();
   }
 
   onLoad(iframe){
@@ -185,17 +346,122 @@ export class UnassignedConversationsPage implements OnInit {
   }
 
 
-  async onClose() {
+  onConversationSelected(conversation: ConversationModel) {
+    this.logger.log('[UNASSIGNED-CONVS-PAGE] onConversationSelected', conversation);
+    this.uidConvSelected = conversation?.uid;
+    const fullName = conversation?.conversation_with_fullname || '';
+    const pageUrl = 'conversation-detail/' + conversation.uid + '/' + encodeURIComponent(fullName) + '/unassigned';
+    this.modalController.dismiss({ conversation }).then(() => {
+      this.router.navigateByUrl(pageUrl.replace(/\(/g, '%28').replace(/\)/g, '%29'));
+    }).catch(() => {
+      this.navService.pop();
+      this.router.navigateByUrl(pageUrl.replace(/\(/g, '%28').replace(/\)/g, '%29'));
+    });
+  }
+
+  onCloseConversation(conversation: ConversationModel) {
+    this.logger.log('[UNASSIGNED-CONVS-PAGE] onCloseConversation', conversation);
+    this.tiledeskService.closeSupportGroup(conversation.attributes.projectId, conversation.uid).subscribe((res: any) => {
+      this.logger.log('[UNASSIGNED-CONVS-PAGE] archiveRequest - RES ', res);
+      this.onClose();
+    }, (error) => {
+      this.logger.error('[UNASSIGNED-CONVS-PAGE] archiveRequest - ERROR ', error);
+    }, () => {
+      this.logger.log('[UNASSIGNED-CONVS-PAGE] archiveRequest - COMPLETE ');
+    });
+  }
+
+  onJoinConversation(conversation: ConversationModel) {
+    this.logger.log('[UNASSIGNED-CONVS-PAGE] onJoinConversation', conversation);
+    this.presentAlertConfirmJoinRequest(conversation)
+  }
+
+  onImageLoaded(conversation: any) {
+    // this.logger.log('[CONVS-LIST-PAGE] onImageLoaded', conversation)
+    let conversation_with_fullname = conversation.sender_fullname
+    let conversation_with = conversation.sender
+    if (conversation.sender === this.loggedUserUid) {
+      conversation_with = conversation.recipient
+      conversation_with_fullname = conversation.recipient_fullname
+    } else if (isGroup(conversation)) {
+      // conversation_with_fullname = conv.sender_fullname;
+      // conv.last_message_text = conv.last_message_text;
+      conversation_with = conversation.recipient
+      conversation_with_fullname = conversation.recipient_fullname
+    }
+    if (!conversation_with.startsWith('support-group')) {
+      conversation.image = this.imageRepoService.getImagePhotoUrl(conversation_with)
+    }
+  }
+
+  onConversationLoaded(conversation: ConversationModel) {
+    this.logger.log('[CONVS-LIST-PAGE] onConversationLoaded ', conversation)
+    // this.logger.log('[CONVS-LIST-PAGE] onConversationLoaded is new? ', conversation.is_new)
+    // if (conversation.is_new === false) {
+    //   this.ionContentConvList.scrollToTop(0);
+    // }
+
+    const keys = ['YOU', 'SENT_AN_IMAGE', 'SENT_AN_ATTACHMENT']
+    const translationMap = this.translateService.translateLanguage(keys)
+    // Fixes the bug: if a snippet of code is pasted and sent it is not displayed correctly in the convesations list
+
+    var regex = /<br\s*[\/]?>/gi
+    if (conversation ) { //&& conversation.last_message_text
+      conversation.last_message_text = conversation.last_message_text.replace(regex, '',)
+
+      //FIX-BUG: 'YOU: YOU: YOU: text' on last-message-text in conversation-list
+      if (conversation.sender === this.loggedUserUid && !conversation.last_message_text.includes(': ')) {
+        // this.logger.log('[CONVS-LIST-PAGE] onConversationLoaded', conversation)
+
+        if (conversation.type !== 'image' && conversation.type !== 'file') {
+          conversation.last_message_text = translationMap.get('YOU') + ': ' + conversation.last_message_text
+        } else if (conversation.type === 'image') {
+          // this.logger.log('[CONVS-LIST-PAGE] HAS SENT AN IMAGE');
+          // this.logger.log("[CONVS-LIST-PAGE] translationMap.get('YOU')")
+          const SENT_AN_IMAGE = (conversation['last_message_text'] = translationMap.get('SENT_AN_IMAGE'))
+
+          conversation.last_message_text = translationMap.get('YOU') + ': ' + SENT_AN_IMAGE
+        } else if (conversation.type === 'file') {
+          // this.logger.log('[CONVS-LIST-PAGE] HAS SENT FILE')
+          const SENT_AN_ATTACHMENT = (conversation['last_message_text'] = translationMap.get('SENT_AN_ATTACHMENT'))
+          conversation.last_message_text = translationMap.get('YOU') + ': ' + SENT_AN_ATTACHMENT
+        }
+      } else {
+        if (conversation.type === 'image') {
+          // this.logger.log('[CONVS-LIST-PAGE] HAS SENT AN IMAGE');
+          // this.logger.log("[CONVS-LIST-PAGE] translationMap.get('YOU')")
+          const SENT_AN_IMAGE = (conversation['last_message_text'] = translationMap.get('SENT_AN_IMAGE'))
+
+          conversation.last_message_text = SENT_AN_IMAGE
+        } else if (conversation.type === 'file') {
+          // this.logger.log('[CONVS-LIST-PAGE] HAS SENT FILE')
+          const SENT_AN_ATTACHMENT = (conversation['last_message_text'] = translationMap.get('SENT_AN_ATTACHMENT'))
+          conversation.last_message_text = SENT_AN_ATTACHMENT
+        }
+      }
+    }
+    
+    const project = this.getProjectFromStorage(conversation);
+    if (project) {
+      if (!conversation.attributes) conversation.attributes = {};
+      conversation.attributes.projectId = project._id;
+      conversation.attributes.project_name = project.name;
+    }
+  }
+
+  async onClose(conversation?: ConversationModel) {
     this.logger.log('[UNASSIGNED-CONVS-PAGE] - onClose MODAL')
-    this.logger.log('[UNASSIGNED-CONVS-PAGE] - onClose MODAL isModalOpened ', await this.modalController.getTop())
     const isModalOpened = await this.modalController.getTop();
     this.logger.log('[UNASSIGNED-CONVS-PAGE] - onClose MODAL isModalOpened ', isModalOpened)
     if (isModalOpened) {
-      this.modalController.dismiss({
-        confirmed: true
-      });
+      await this.modalController.dismiss({ confirmed: true });
     } else {
       this.navService.pop();
+    }
+    if (conversation) {
+      const fullName = conversation.conversation_with_fullname || '';
+      const pageUrl = 'conversation-detail/' + conversation.uid + '/' + encodeURIComponent(fullName) + '/active';
+      this.router.navigateByUrl(pageUrl.replace(/\(/g, '%28').replace(/\)/g, '%29'));
     }
   }
 

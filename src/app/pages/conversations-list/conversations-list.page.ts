@@ -53,7 +53,12 @@ import { Globals } from 'src/app/utils/globals';
 import { TriggerEvents } from 'src/app/services/triggerEvents/triggerEvents';
 import { MessageModel } from 'src/chat21-core/models/message';
 import { Project } from 'src/chat21-core/models/projects';
-import { getOSCode } from 'src/app/utils/utils';
+import { getOSCode, hasRole } from 'src/app/utils/utils';
+import { PERMISSIONS } from 'src/app/utils/permissions.constants';
+import { ProjectUser } from 'src/chat21-core/models/projectUsers';
+import { ProjectUsersService } from 'src/app/services/project_users/project-users.service';
+import { PROJECTS_STORAGE_KEY } from 'src/chat21-core/utils/constants';
+import { ProjectService } from 'src/app/services/projects/project.service';
 
 @Component({
   selector: 'app-conversations-list',
@@ -82,6 +87,7 @@ export class ConversationListPage implements OnInit {
   public archived_btn: boolean
   public sound_btn: string
   public isVisibleTKT: boolean = true;
+  public isVisibleCNT: boolean = true;;
   public convertMessage = convertMessage
   private isShowMenuPage = false
   private logger: LoggerService = LoggerInstance.getInstance()
@@ -103,6 +109,9 @@ export class ConversationListPage implements OnInit {
 
   public isMobile: boolean = false;
   public isInitialized: boolean = false;
+
+  public projectUser: ProjectUser;
+  public rolesHeader: { [key: string]: boolean }
 
   // PROJECT AVAILABILITY INFO: start
   project: Project
@@ -130,10 +139,14 @@ export class ConversationListPage implements OnInit {
     private translateService: CustomTranslateService,
     public tiledeskService: TiledeskService,
     public tiledeskAuthService: TiledeskAuthService,
+    public projectUsersService: ProjectUsersService,
+    public projectService: ProjectService,
     public appConfigProvider: AppConfigProvider,
     public platform: Platform,
     public wsService: WebsocketService,
     public g: Globals,
+    public appStorageService: AppStorageService,
+    private triggerEvents: TriggerEvents,
   ) {
     this.checkPlatform();
     this.translations();
@@ -207,8 +220,45 @@ export class ConversationListPage implements OnInit {
   // @ Lifehooks
   // -----------------------------------------------
   ngOnInit() {
-    this.getAppConfigToHideDiplayBtns()
+    this.getAppConfigToHideDiplayBtns();
     this.getOSCODE();
+    this.loadAndStoreProjects();
+  }
+
+  /**
+   * Recupera tutti i progetti con getProjects e li salva in AppStorage.
+   * Prima di salvare verifica che la chiave non esista già e che non contenga già ogni singolo progetto.
+   */
+  private loadAndStoreProjects() {
+    const token = this.tiledeskAuthService.getTiledeskToken();
+    if (!token) return;
+    this.projectService.getProjects().subscribe((projects: Project[]) => {
+        if (!projects?.length) return;
+        let projectsMap: Record<string, Project> = {};
+        const stored = this.appStorageService.getItem(PROJECTS_STORAGE_KEY);
+        if (stored) {
+          try {
+            projectsMap = JSON.parse(stored) || {};
+          } catch (e) {
+            this.logger.warn('[CONVS-LIST-PAGE] loadAndStoreProjects - failed to parse stored projects', e);
+          }
+        }
+        let hasChanges = false;
+        projects.forEach((project) => {
+          const projectId =  project.id_project?._id || project.id_project?.id;
+          if (!projectId) return;
+          if (!projectsMap[projectId]) {
+            projectsMap[projectId] = project.id_project;
+            hasChanges = true;
+          }
+        });
+        if (hasChanges) {
+          this.appStorageService.setItem(PROJECTS_STORAGE_KEY, JSON.stringify(projectsMap));
+          this.logger.log('[CONVS-LIST-PAGE] loadAndStoreProjects - saved', Object.keys(projectsMap).length, 'projects');
+        }
+      },
+      (err) => this.logger.error('[CONVS-LIST-PAGE] loadAndStoreProjects - error', err)
+    );
   }
 
   ngOnChanges() {
@@ -294,17 +344,19 @@ export class ConversationListPage implements OnInit {
   // ---------------------------------------------------------
   // Opens the Unassigned Conversations iframe
   // ---------------------------------------------------------
-  openUnassignedConversations(IFRAME_URL: string, event) {
+  openUnassignedConversations(IFRAME_URL: string, event: { event: string; data: ConversationModel[] }) {
+    const unassignedConversations = event?.data ?? [];
+    const params = {
+      iframe_URL: IFRAME_URL,
+      callerBtn: event.event,
+      unassignedConversations,
+      stylesMap: this.stylesMap,
+      translationMapConversation: this.translationMapConversation,
+    };
     if (checkPlatformIsMobile()) {
-      presentModal(this.modalController, UnassignedConversationsPage, {
-        iframe_URL: IFRAME_URL,
-        callerBtn: event,
-      })
+      presentModal(this.modalController, UnassignedConversationsPage, params);
     } else {
-      this.navService.push(UnassignedConversationsPage, {
-        iframe_URL: IFRAME_URL,
-        callerBtn: event,
-      })
+      this.navService.push(UnassignedConversationsPage, params);
     }
   }
 
@@ -471,9 +523,9 @@ export class ConversationListPage implements OnInit {
   }
 
   listenToCurrentStoredProject() {
-    this.events.subscribe('storage:last_project', projectObjct => {
+    this.events.subscribe('storage:last_project', async(projectObjct) => {
       if (projectObjct && projectObjct !== 'undefined') {
-        // console.log('[CONVS-LIST-PAGE] - GET STORED PROJECT ', projectObjct)
+        this.logger.log('[CONVS-LIST-PAGE] - GET STORED PROJECT ', projectObjct)
 
         //TODO: recuperare info da root e non da id_project
         this.project = {
@@ -496,6 +548,10 @@ export class ConversationListPage implements OnInit {
         } else if (this.project.profile.type === 'payment' && this.project.profile.name === 'enterprise') {
           this.profile_name_translated = this.translationMapHeader.get('PaydPlanNameEnterprise');
         }
+
+        this.projectUser = await this.projectUsersService.getProjectUserByProjectId(this.project._id)
+        this.rolesHeader = this.checkCannedResponsesRoles();
+        this.logger.log('[CONVS-LIST-PAGE] - GET PROJECT USER ROLES ', this.rolesHeader)
       }
     })
   }
@@ -631,7 +687,23 @@ export class ConversationListPage implements OnInit {
     const public_Key = this.appConfigProvider.getConfig().t2y12PruGU9wUtEGzBJfolMIgK
     this.logger.log('[CONVS-LIST-PAGE] AppConfigService getAppConfig public_Key', public_Key)
     this.isVisibleTKT = getOSCode("TKT", public_Key);
+    this.isVisibleCNT = getOSCode("CNT", public_Key);
   }
+
+  checkCannedResponsesRoles(): { [key: string]: boolean } {
+      const permissionKeys = [
+        'LEADS_READ',
+      ] as const;
+  
+      const roles: { [key: string]: boolean } = {};
+      for (const key of permissionKeys) {
+        const permission = PERMISSIONS[key];
+        roles[permission] = hasRole(this.projectUser, permission);
+      }
+  
+      return roles;
+  
+    }
 
   onBackButtonFN(event) {
     this.conversationType = 'active'
@@ -760,6 +832,7 @@ export class ConversationListPage implements OnInit {
       this.logger.log('[CONVS-LIST-PAGE] onConversationSelected active conversation.uid ', conversation.uid)
       this.events.publish('convList:onConversationSelected', conversation)
     }
+    this.triggerEvents.triggerOnConversationChanged(conversation)
   }
 
   onImageLoaded(conversation: any) {
@@ -827,22 +900,32 @@ export class ConversationListPage implements OnInit {
       }
     }
     
-    if(conversation.attributes && conversation.attributes['projectId']){
-      let project = localStorage.getItem(conversation.attributes['projectId'])
-      if(project){
-        project = JSON.parse(project)
-        conversation.attributes.project_name = project['name']
-      }
-    }else if(conversation.attributes){
-      const projectId = getProjectIdSelectedConversation(conversation.uid)
-      let project = localStorage.getItem(projectId)
-      if(project){
-        project = JSON.parse(project)
-        conversation.attributes.projectId = project['_id']
-        conversation.attributes.project_name = project['name']
-      }
+    const project = this.getProjectFromStorage(conversation);
+    if (project) {
+      if (!conversation.attributes) conversation.attributes = {};
+      conversation.attributes.projectId = project._id;
+      conversation.attributes.project_name = project.name;
     }
+  }
 
+  /** Recupera il progetto dalla chiave di storage (all_projects) */
+  private getProjectFromStorage(conversation: ConversationModel): Project | null {
+    let projectId: string | undefined;
+    if (conversation.attributes?.['projectId']) {
+      projectId = conversation.attributes['projectId'];
+    } else if (conversation.attributes) {
+      projectId = getProjectIdSelectedConversation(conversation.uid);
+    }
+    if (!projectId) return null;
+    const stored = this.appStorageService.getItem(PROJECTS_STORAGE_KEY);
+    this.logger.log('[CONVS-LIST-PAGE] getProjectFromStorage - stored', stored);
+    if (!stored) return null;
+    try {
+      const projectsMap: Record<string, Project> = JSON.parse(stored);
+      return projectsMap[projectId] || null;
+    } catch {
+      return null;
+    }
   }
 
   // isMarkdownLink(last_message_text) {
@@ -883,6 +966,10 @@ export class ConversationListPage implements OnInit {
 
     this.logger.log('[CONVS-LIST-PAGE] navigateByUrl this.uidConvSelected ', this.uidConvSelected)
 
+    const queryParams = this.route.snapshot.queryParams;
+    const queryString = new URLSearchParams(queryParams).toString();
+    
+
     this.setUidConvSelected(uidConvSelected, converationType)
     if (checkPlatformIsMobile()) {
       this.logger.log('[CONVS-LIST-PAGE] checkPlatformIsMobile(): ', checkPlatformIsMobile())
@@ -900,6 +987,7 @@ export class ConversationListPage implements OnInit {
       if (this.conversationSelected && this.conversationSelected.conversation_with_fullname) {
         pageUrl = 'conversation-detail/' + this.uidConvSelected + '/' + encodeURIComponent(this.conversationSelected.conversation_with_fullname) + '/' + converationType
       }
+      pageUrl += queryString ? `?${queryString}` : '';
       this.logger.log('[CONVS-LIST-PAGE] setUidConvSelected navigateByUrl--->: ', pageUrl)
       // replace(/\(/g, '%28').replace(/\)/g, '%29') -> used for the encoder of any round brackets
       this.router.navigateByUrl(pageUrl.replace(/\(/g, '%28').replace(/\)/g, '%29'), {replaceUrl: true})

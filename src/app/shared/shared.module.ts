@@ -22,6 +22,12 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { SafeHtmlPipe } from '../directives/safe-html.pipe';
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { createTranslateLoader } from 'src/chat21-core/utils/utils';
+import { HttpClient } from '@angular/common/http';
+import { RouterModule } from '@angular/router';
+import { FindPipe } from '../pipe/find.pipe';
+import { FilterPipe } from '../pipe/filter.pipe';
 
 @NgModule({
   declarations: [
@@ -64,12 +70,13 @@ import { SafeHtmlPipe } from '../directives/safe-html.pipe';
      SidebarUserDetailsComponent,
     
      //DIRECTIVES
-     AutofocusDirective,
-     TooltipDirective,
-     MarkedPipe,
-     HtmlEntitiesEncodePipe,
-     SafeHtmlPipe,
- 
+    AutofocusDirective,
+    TooltipDirective,
+    MarkedPipe,
+    HtmlEntitiesEncodePipe,
+    SafeHtmlPipe,
+    FindPipe,
+    FilterPipe,
 
 
      AvatarProfileComponent,
@@ -120,6 +127,10 @@ import { SafeHtmlPipe } from '../directives/safe-html.pipe';
     MarkedPipe,
     HtmlEntitiesEncodePipe,
     SafeHtmlPipe,
+    FindPipe,
+    FilterPipe,
+
+    RouterModule,
 
     //COMMON COMPONENTS
     AvatarProfileComponent,
@@ -137,8 +148,15 @@ import { SafeHtmlPipe } from '../directives/safe-html.pipe';
     MomentModule,
     NgSelectModule,
     FormsModule,
-
-  ],
+    TranslateModule.forChild({
+        loader: {
+            provide: TranslateLoader,
+            useFactory: (createTranslateLoader),
+            deps: [HttpClient]
+        }
+    }),
+    RouterModule.forChild([])
+],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA,
     NO_ERRORS_SCHEMA

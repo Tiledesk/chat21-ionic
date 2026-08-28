@@ -19,8 +19,7 @@ import { ProfileInfoPageModule } from '../profile-info/profile-info.module';
 // import { ConversationDetailPageModule } from '../conversation-detail/conversation-detail.module';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { ScrollbarThemeModule } from '../../utils/scrollbar-theme.directive';
-import { ListConversationsComponent } from 'src/app/chatlib/list-conversations-component/list-conversations/list-conversations.component';
-import { IonListConversationsComponent } from 'src/app/chatlib/list-conversations-component/ion-list-conversations/ion-list-conversations.component';
+import { ListConversationsModule } from 'src/app/chatlib/list-conversations-component/list-conversations.module';
 import { HeaderConversationsList } from 'src/app/components/conversations-list/header-conversations-list/header-conversations-list.component';
 import { HeaderConversationsListArchived } from 'src/app/components/conversations-list/header-conversations-list-archived/header-conversations-list-archived.component';
 import { HeaderConversationsListUnassigned } from 'src/app/components/conversations-list/header-conversations-list-unassigned/header-conversations-list-unassigned.component';
@@ -46,14 +45,13 @@ import { MomentModule } from 'ngx-moment';
       }
     }),
     SharedModule,
-    MomentModule
+    MomentModule,
+    ListConversationsModule
   ],
   // entryComponents: [DdpHeaderComponent],
   declarations: [
     ConversationListPage,
     //******** COMPONENTS - init ********//
-    ListConversationsComponent,
-    IonListConversationsComponent,
     HeaderConversationsList,
     HeaderConversationsListArchived,
     HeaderConversationsListUnassigned,

@@ -7,6 +7,7 @@ import { LoggerInstance } from 'src/chat21-core/providers/logger/loggerInstance'
 import { AppConfigProvider } from '../app-config';
 import { Observable } from 'rxjs';
 import { AppStorageService } from 'src/chat21-core/providers/abstract/app-storage.service';
+import { ProjectUser } from 'src/chat21-core/models/projectUsers';
 
 @Injectable({
   providedIn: 'root'
@@ -35,7 +36,7 @@ export class ProjectService {
     this.tiledeskToken = this.appStorageService.getItem('tiledeskToken')
   }
 
-  public getProjects(): Observable<Project[]> {
+  public getProjects(): Observable<ProjectUser[]> {
     const url = this.SERVER_BASE_URL  + "projects/";
     this.logger.log('[PROJECTS-SERVICE] getProjects - URL ', url);
 

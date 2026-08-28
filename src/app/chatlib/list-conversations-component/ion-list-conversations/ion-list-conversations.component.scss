@@ -9,8 +9,9 @@
 }
 ion-item {
     cursor: pointer;
-    height: 90px; //70px;
-    --min-height: 90px; //70px;
+    min-height: 90px;
+    height: auto;
+    --min-height: auto;
     position: relative;
     display: flex;
     text-decoration: none;
@@ -23,6 +24,42 @@ ion-item {
     border-radius: var(--border-radius-item);
     margin: 4px 5px;
     transition: none;
+    .conv-item-wrapper {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        padding-bottom: 8px;
+    }
+    .conv-item-top {
+        display: flex;
+        flex: 1;
+        position: relative;
+    }
+    .conv-item-actions {
+        display: flex;
+        justify-content: space-around;
+        gap: 8px;
+        margin-top: 4px;
+        ion-button {
+            --padding-start: 12px;
+            --padding-end: 12px;
+            font-size: 12px;
+            margin: 0;
+            --border-radius: var(--button-border-radius);
+            &.join-button {
+                --background: var(--join-button-background);
+                --background-hover: #e4e6eb;
+                --background-activated: #d8dae0;
+                --color: var(--bacis-white);
+            }
+            &.resolve-button {
+                --background: var(--resolve-button-background);
+                --background-hover: #e4e6eb;
+                --background-activated: #d8dae0;
+                --color: #1c1e21;
+            }
+        }
+    }
     .conv-container{
         width: 84%;
         height: 100%;

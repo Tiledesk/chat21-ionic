@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, OnInit, Output } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, Input, OnDestroy, OnChanges, OnInit, Output } from '@angular/core';
 import { LoggerInstance } from 'src/chat21-core/providers/logger/loggerInstance';
 import { LoggerService } from 'src/chat21-core/providers/abstract/logger.service';
 import { TranslateService } from '@ngx-translate/core';
@@ -10,18 +10,22 @@ import { WebsocketService } from 'src/app/services/websocket/websocket.service';
 import { skip } from 'rxjs/operators';
 import { AppConfigProvider } from 'src/app/services/app-config';
 import { EventsService } from 'src/app/services/events-service';
-import { tranlatedLanguage } from '../../../chat21-core/utils/constants';
+import { TEAMMATE_STATUS, tranlatedLanguage } from '../../../chat21-core/utils/constants';
 import { avatarPlaceholder, getColorBck } from 'src/chat21-core/utils/utils-user';
 import { environment } from 'src/environments/environment';
 import { Project } from 'src/chat21-core/models/projects';
 import { BRAND_BASE_INFO } from 'src/app/utils/utils-resources';
 import { getOSCode } from 'src/app/utils/utils';
+import { getUserStatusFromProjectUser } from 'src/chat21-core/utils/utils';
+import { ProjectService } from 'src/app/services/projects/project.service';
+import { ProjectUser } from 'src/chat21-core/models/projectUsers';
+
 @Component({
   selector: 'app-sidebar-user-details',
   templateUrl: './sidebar-user-details.component.html',
   styleUrls: ['./sidebar-user-details.component.scss'],
 })
-export class SidebarUserDetailsComponent implements OnInit, OnChanges {
+export class SidebarUserDetailsComponent implements OnInit, OnChanges, OnDestroy {
   // HAS_CLICKED_OPEN_USER_DETAIL: boolean = false;
   // @Output() onCloseUserDetailsSidebar = new EventEmitter();
 
@@ -51,14 +55,20 @@ export class SidebarUserDetailsComponent implements OnInit, OnChanges {
   DASHBOARD_URL: string;
 
   selectedStatus: any;
-  teammateStatus = [
-    { id: 1, name: 'Available', avatar: 'assets/img/teammate-status/avaible.svg', label: "LABEL_AVAILABLE" },
-    { id: 2, name: 'Unavailable', avatar: 'assets/img/teammate-status/unavaible.svg', label: "LABEL_NOT_AVAILABLE" },
-    { id: 3, name: 'Inactive', avatar: 'assets/img/teammate-status/inactive.svg', label: "LABEL_INACTIVE" },
-  ];
+  TEAMMATE_STATUS = TEAMMATE_STATUS;
+
+  projects: ProjectUser[] = [];
+  selectedProjectForStatus: ProjectUser | null = null;
+  public openDropdownProjects: boolean = false
+  public openStatusDropdownProjectId: string | null = null
+  statusDropdownPosition = { top: 0, left: 0 };
+  isVisibleMT = false;
+  isVisibleMPA = false;
+  private userDetailsMutationObserver: MutationObserver | null = null;
+  private statusDropdownCloseTimeout: any = null;
 
   translationsMap: Map<string, string> = new Map();
-
+  
   docEnabled: boolean = true;
   BRAND_BASE_INFO = BRAND_BASE_INFO;
   
@@ -72,7 +82,7 @@ export class SidebarUserDetailsComponent implements OnInit, OnChanges {
     public appConfigProvider: AppConfigProvider,
     public events: EventsService,
     private eRef: ElementRef,
-
+    private projectService: ProjectService,
   ) { }
 
   ngOnInit() {
@@ -81,10 +91,46 @@ export class SidebarUserDetailsComponent implements OnInit, OnChanges {
     this.subcribeToAuthStateChanged();
     this.listenTocurrentProjectUserUserAvailability$();
     this.listenToCurrentStoredProject();
+    this.listenToUserGoOnline();
     this.getOSCODE();
+    this.setupUserDetailsCloseObserver();
   }
 
   ngOnChanges() {  }
+
+  ngOnDestroy(): void {
+    this.userDetailsMutationObserver?.disconnect();
+    this.userDetailsMutationObserver = null;
+    this.cancelStatusDropdownClose();
+  }
+
+  /**
+   * Osserva la rimozione della classe 'active' da #user-details (es. chiusura via click avatar nel sidebar)
+   * per chiudere i dropdown aperti
+   */
+  private setupUserDetailsCloseObserver(): void {
+    setTimeout(() => {
+      const el = document.getElementById('user-details');
+      if (!el) return;
+    this.userDetailsMutationObserver = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+          const target = mutation.target as HTMLElement;
+          if (!target.classList.contains('active')) {
+            this.closeDropdowns();
+          }
+        }
+      });
+    });
+    this.userDetailsMutationObserver.observe(el, { attributes: true, attributeFilter: ['class'] });
+    }, 0);
+  }
+
+  private closeDropdowns(): void {
+    this.openDropdownProjects = false;
+    this.openStatusDropdownProjectId = null;
+    this.selectedProjectForStatus = null;
+  }
 
   subcribeToAuthStateChanged() {
     this.messagingAuthService.BSAuthStateChanged.subscribe((state) => {
@@ -241,8 +287,10 @@ export class SidebarUserDetailsComponent implements OnInit, OnChanges {
                           .set('LABEL_LOGOUT', text['LABEL_LOGOUT'])
                           .set('SubscriptionPaymentProblem', text['SubscriptionPaymentProblem'])
                           .set('ThePlanHasExpired', text['ThePlanHasExpired'])
+                          .set('NAVBAR.RECENT_PROJECTS', text['NAVBAR.RECENT_PROJECTS'])
+                          .set('NAVBAR.OTHER_PROJECTS', text['NAVBAR.OTHER_PROJECTS'])
 
-      this.teammateStatus.forEach(element => {
+      this.TEAMMATE_STATUS.forEach(element => {
         element.label = this.translationsMap.get(element.label)
       });
       
@@ -256,6 +304,36 @@ export class SidebarUserDetailsComponent implements OnInit, OnChanges {
     this.logger.log('[SIDEBAR-USER-DETAILS] AppConfigService getAppConfig', this.appConfigProvider.getConfig());
     
     this.isVisiblePAY = getOSCode("PAY", this.public_Key);
+    this.isVisibleMT = getOSCode("MTT", this.public_Key);
+    this.isVisibleMPA = getOSCode("MPA", this.public_Key);
+  }
+
+  listenToUserGoOnline() {
+    this.events.subscribe('go:online', (isOnline: boolean) => {
+      this.logger.log('[SIDEBAR-USER-DETAILS] listen to go:online --> ', isOnline);
+      if (isOnline) {
+        this.tiledeskToken = this.tiledeskAuthService.getTiledeskToken();
+        this.getProjects();
+      }
+    });
+  }
+
+  getProjects() {
+    this.logger.log('[SIDEBAR-USER-DETAILS] calling getProjects ... ');
+    this.projectService.getProjects().subscribe((projects: ProjectUser[]) => {
+      this.logger.log('[SIDEBAR-USER-DETAILS] getProjects PROJECTS ', projects);
+      if (projects) {
+        this.projects = projects.filter((prj: ProjectUser) => prj?.id_project?.status === 100);
+        this.projects.forEach((prj: ProjectUser) => {
+          prj.teammateStatus = getUserStatusFromProjectUser(prj as any);
+        });
+        this.logger.log('[SIDEBAR-USER-DETAILS] getProjects this.projects ', this.projects);
+      }
+    }, (error) => {
+      this.logger.error('[SIDEBAR-USER-DETAILS] getProjects - ERROR ', error);
+    }, () => {
+      this.logger.log('[SIDEBAR-USER-DETAILS] getProjects - COMPLETE');
+    });
   }
 
   listenToCurrentStoredProject() {
@@ -269,9 +347,9 @@ export class SidebarUserDetailsComponent implements OnInit, OnChanges {
           name: projectObjct['id_project']['name'],
           profile: projectObjct['id_project']['profile'],
           isActiveSubscription: projectObjct['id_project']['isActiveSubscription'],
-          trialExpired: projectObjct['id_project']['trialExpired']
+          trialExpired: projectObjct['id_project']['trialExpired'],
+          teammateStatus: getUserStatusFromProjectUser(projectObjct as any)
         }
-      
         if (this.project.profile.type === 'free') {
 
           if (this.project.trialExpired === false) {
@@ -284,11 +362,19 @@ export class SidebarUserDetailsComponent implements OnInit, OnChanges {
         } else if (this.project.profile.type === 'payment' && this.project.profile.name === 'enterprise') {
           this.getEnterprisePlanTranslation();
         }
+
+        this.wsService.subscriptionToWsCurrentProjectUserAvailability(this.project._id, projectObjct._id);
+        if (this.tiledeskToken) {
+          this.getProjects();
+        }
       }
     })
 
     try {
       this.tiledeskToken = this.appStorageService.getItem('tiledeskToken');
+      if (this.tiledeskToken) {
+        this.getProjects();
+      }
       // this.logger.log('[SIDEBAR-USER-DETAILS] - GET STORED TOKEN ', this.tiledeskToken)
     } catch (err) {
       this.logger.error('[SIDEBAR-USER-DETAILS] - GET STORED TOKEN ', err)
@@ -325,19 +411,11 @@ export class SidebarUserDetailsComponent implements OnInit, OnChanges {
         this.logger.log('[SIDEBAR-USER-DETAILS] - $UBSC TO WS USER AVAILABILITY & BUSY STATUS RES ', projectUser);
 
         if (projectUser) {
-          if (projectUser['user_available'] === false && projectUser['profileStatus'] === 'inactive') {
-            // this.logger.log('teammateStatus ', this.teammateStatus) 
-            this.selectedStatus = this.teammateStatus[2].id;
-            this.logger.debug('[SIDEBAR-USER-DETAILS] - PROFILE_STATUS selected option', this.teammateStatus[2].name);
-            this.teammateStatus = this.teammateStatus.slice(0)
-          } else if (projectUser['user_available'] === false && (projectUser['profileStatus'] === '' || !projectUser['profileStatus'])) {
-            this.selectedStatus = this.teammateStatus[1].id;
-            this.logger.debug('[SIDEBAR-USER-DETAILS] - PROFILE_STATUS selected option', this.teammateStatus[1].name);
-            this.teammateStatus = this.teammateStatus.slice(0)
-          } else if (projectUser['user_available'] === true && (projectUser['profileStatus'] === '' || !projectUser['profileStatus'])) {
-            this.selectedStatus = this.teammateStatus[0].id
-            this.teammateStatus = this.teammateStatus.slice(0)
-            this.logger.debug('[SIDEBAR-USER-DETAILS] - PROFILE_STATUS selected option', this.teammateStatus[0].name);
+          const status = getUserStatusFromProjectUser(projectUser as any);
+          if (status) {
+            this.selectedStatus = status.id;
+            this.logger.debug('[SIDEBAR-USER-DETAILS] - PROFILE_STATUS selected option', status.name);
+            this.TEAMMATE_STATUS = this.TEAMMATE_STATUS.slice(0);
           }
           this.IS_BUSY = projectUser['isBusy']
           this.USER_ROLE = projectUser['role']
@@ -354,6 +432,118 @@ export class SidebarUserDetailsComponent implements OnInit, OnChanges {
   translateUserRole(role) {
     this.translate.get(role).subscribe((text: string) => {
         this.USER_ROLE_LABEL = text
+    });
+  }
+
+  getCurrentStatusAvatar(): string {
+    const status = this.TEAMMATE_STATUS?.find(s => s.id === this.selectedStatus);
+    return status?.avatar || 'assets/img/teammate-status/avaible.svg';
+  }
+
+  getCurrentStatusLabel(): string {
+    const status = this.TEAMMATE_STATUS?.find(s => s.id === this.selectedStatus);
+    return status?.label || status?.name || '';
+  }
+
+  toggleProjectsDropdown() {
+    this.openDropdownProjects = !this.openDropdownProjects;
+    if (!this.openDropdownProjects) {
+      this.openStatusDropdownProjectId = null;
+      this.selectedProjectForStatus = null;
+    }
+  }
+
+  openStatusDropdownOnHover(event: Event, prjct: any) {
+    this.cancelStatusDropdownClose();
+    const projectId = prjct?.id_project?._id;
+    const el = event.currentTarget as HTMLElement;
+    const rect = el.getBoundingClientRect();
+    this.statusDropdownPosition = {
+      top: rect.top,
+      left: rect.right + 10
+    };
+    this.selectedProjectForStatus = prjct;
+    this.openStatusDropdownProjectId = projectId;
+  }
+
+  closeStatusDropdownOnLeave() {
+    this.cancelStatusDropdownClose();
+    this.statusDropdownCloseTimeout = setTimeout(() => {
+      this.closeDropdowns();
+      this.statusDropdownCloseTimeout = null;
+    }, 150);
+  }
+
+  cancelStatusDropdownClose() {
+    if (this.statusDropdownCloseTimeout) {
+      clearTimeout(this.statusDropdownCloseTimeout);
+      this.statusDropdownCloseTimeout = null;
+    }
+  }
+
+  onChangeProjectStatus(projectUser: ProjectUser, selectedStatusID: any) {
+    this.logger.log('[SIDEBAR-USER-DETAILS] onChangeProjectStatus', projectUser, selectedStatusID)
+    this.openStatusDropdownProjectId = null
+    this.selectedProjectForStatus = null
+
+    let IS_AVAILABLE = null
+    let profilestatus = ''
+    if (selectedStatusID === 1) {
+      IS_AVAILABLE = true
+    } else if (selectedStatusID === 2) {
+      IS_AVAILABLE = false
+    } else if (selectedStatusID === 3) {
+      IS_AVAILABLE = false
+      profilestatus = 'inactive'
+    }
+
+    this.wsService.updateCurrentUserAvailability(this.tiledeskToken, projectUser.id_project._id, IS_AVAILABLE, profilestatus).subscribe((projectUserUpdated: any) => {
+
+        this.logger.log('[NAVBAR] - PROJECT-USER UPDATED ', projectUser)
+        this.projects.find(p => p.id_project._id === projectUser.id_project._id).teammateStatus = getUserStatusFromProjectUser(projectUserUpdated as any);
+
+        if(projectUser.id_project._id === this.project._id) {
+          this.project.teammateStatus = getUserStatusFromProjectUser(projectUserUpdated as any);
+        }
+      }, (error) => {
+        this.logger.error('[NAVBAR] - PROJECT-USER UPDATED - ERROR  ', error);
+
+      }, () => {
+        this.logger.log('[NAVBAR] - PROJECT-USER UPDATED  * COMPLETE *');
+
+      });
+  }
+
+  onStatusDropdownOptionClick(status: { id: number; name: string; avatar: string; label: string }, projectUser: ProjectUser | null) {
+    if (!projectUser) return;
+    this.changeProjectStatus(projectUser, status.id);
+    this.openStatusDropdownProjectId = null;
+    this.selectedProjectForStatus = null;
+    if (projectUser?.id_project?._id === this.project?._id) {
+      this.selectedStatus = status.id;
+    }
+  }
+
+  changeProjectStatus(projectUser: ProjectUser, selectedStatusID: number) {
+    this.logger.log('[SIDEBAR-USER-DETAILS] changeProjectStatus projectid', projectUser?.id_project?._id, ' status: ', selectedStatusID);
+    let IS_AVAILABLE: boolean | null = null;
+    let profilestatus = '';
+    if (selectedStatusID === 1) {
+      IS_AVAILABLE = true;
+    } else if (selectedStatusID === 2) {
+      IS_AVAILABLE = false;
+    } else if (selectedStatusID === 3) {
+      IS_AVAILABLE = false;
+      profilestatus = 'inactive';
+    }
+    this.wsService.updateCurrentUserAvailability(this.tiledeskToken, projectUser.id_project._id, IS_AVAILABLE, profilestatus).subscribe((updated: any) => {
+      this.logger.log('[SIDEBAR-USER-DETAILS] - PROJECT-USER UPDATED ', updated);
+      const p = this.projects.find(prj => prj?.id_project?._id === projectUser?.id_project?._id);
+      if (p) {
+        p.teammateStatus = getUserStatusFromProjectUser(updated as any);
+      }
+    }, (error) => {
+      this.logger.error('[SIDEBAR-USER-DETAILS] - PROJECT-USER UPDATED - ERROR ', error);
     });
   }
 

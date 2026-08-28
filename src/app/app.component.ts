@@ -44,6 +44,7 @@ import { conversationToMessage } from 'src/chat21-core/utils/utils-message';
 import { ProjectService } from './services/projects/project.service';
 import { ContactsService } from './services/contacts/contacts.service';
 import { TiledeskService } from './services/tiledesk/tiledesk.service';
+import { ProjectUsersService } from './services/project_users/project-users.service';
 
 @Component({
   selector: 'app-root',
@@ -119,7 +120,6 @@ export class AppComponent implements OnInit {
     private navService: NavProxyService,
     // public chatPresenceHandler: ChatPresenceHandler,
     public typingService: TypingService,
-    public uploadService: UploadService,
     public appStorageService: AppStorageService,
 
     // public chatConversationsHandler: ChatConversationsHandler,
@@ -142,6 +142,7 @@ export class AppComponent implements OnInit {
     /**TILEDESK SERVICES */
     private tiledeskService: TiledeskService,
     private projectService: ProjectService,
+    private projectUsersService: ProjectUsersService,
     private contactsService: ContactsService
   ) {
 
@@ -342,7 +343,7 @@ export class AppComponent implements OnInit {
 
       if (event && event.data && event.data.action && event.data.parameter) {
         if (event.data.action === 'resolveConversation') {
-          this.conversationsHandlerService.archiveConversation(event.data.patameter)
+          this.conversationsHandlerService.archiveConversation(event.data.parameter)
         }
       }
       // if (event && event.data && event.data.action && event.data.parameter) {
@@ -550,7 +551,6 @@ export class AppComponent implements OnInit {
       if (pushEngine && pushEngine !== 'none') {
         this.notificationsService.initialize(this.tenant, vap_id_Key, platform)
       }
-      this.uploadService.initialize();
 
       this.setLanguage(null)
       this.initAuthentication();
@@ -891,6 +891,11 @@ export class AppComponent implements OnInit {
       if (IDConv && FullNameConv) {
         pageUrl += IDConv + '/' + encodeURIComponent(FullNameConv) + '/' + Convtype
       }
+
+      const queryParams = this.route.snapshot.queryParams;
+      const queryString = new URLSearchParams(queryParams).toString();
+      pageUrl += queryString ? `?${queryString}` : '';
+
       // replace(/\(/g, '%28').replace(/\)/g, '%29') -> used for the encoder of any round brackets
       this.router.navigateByUrl(pageUrl.replace(/\(/g, '%28').replace(/\)/g, '%29'));
 
@@ -1130,6 +1135,10 @@ export class AppComponent implements OnInit {
         if (changes.value && changes.value.sender !== currentUser.uid) {
           let checkIfStatusChanged = changes.value.is_new === changes.previousValue.is_new? true: false
           let checkIfUidChanged = changes.value.uid === changes.previousValue.uid? true: false
+          if(!this.isTabVisible){
+            this.manageTabNotification('new_message', true);
+            return
+          }
           if(changes.value.is_new && checkIfStatusChanged && checkIfUidChanged){
             this.manageTabNotification('new_message', true);
           }
@@ -1161,12 +1170,13 @@ export class AppComponent implements OnInit {
     // this.logger.info('initialize FROM [APP-COMP] - [APP-COMP] - GO-ONLINE isOnline ', this.isOnline);
     // clearTimeout(this.timeModalLogin);
     const tiledeskToken = this.tiledeskAuthService.getTiledeskToken();
+    const serverBaseURL = this.appConfigProvider.getConfig().apiUrl
     // const supportmode = this.appConfigProvider.getConfig().supportMode;
     // this.logger.log('[APP-COMP] - GO-ONLINE - supportmode ', supportmode);
     // if (supportmode === true) {
     //   this.connetWebsocket() // moved in the comp project-item
     // }
-    this.events.publish('go:online', true);
+    
     const currentUser = this.tiledeskAuthService.getCurrentUser();
     this.setLanguage(currentUser);
     // this.logger.printDebug('APP-COMP - goOnLine****', currentUser);
@@ -1174,6 +1184,13 @@ export class AppComponent implements OnInit {
     this.chatManager.setTiledeskToken(tiledeskToken);
     this.chatManager.setCurrentUser(currentUser);
 
+    this.tiledeskService.initialize(serverBaseURL)
+    this.projectService.initialize(serverBaseURL)
+    this.projectUsersService.initialize(serverBaseURL)
+    this.contactsService.initialize(serverBaseURL)
+
+
+    this.events.publish('go:online', true);
     // this.chatManager.startApp();
 
     // ----------------------------------------------
@@ -1346,7 +1363,6 @@ export class AppComponent implements OnInit {
 
   subscribeUnservedRequestCount = (unservedRequestCount) => {
     if(unservedRequestCount && unservedRequestCount > 0){
-      this.logger.debug("subscribeUnservedRequestCount appIsInitialized::::",this.isInitialized)
       if(this.isInitialized){
         this.manageTabNotification('conv_unassigned', true, unservedRequestCount) //sound and alternate title
       }

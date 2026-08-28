@@ -7,6 +7,8 @@ import { map } from 'rxjs/operators';
 import { LoggerService } from 'src/chat21-core/providers/abstract/logger.service';
 import { LoggerInstance } from 'src/chat21-core/providers/logger/loggerInstance';
 import { AppStorageService } from 'src/chat21-core/providers/abstract/app-storage.service';
+import { Project } from 'src/chat21-core/models/projects';
+import { Observable } from 'rxjs';
 
 
 @Injectable({
@@ -90,22 +92,6 @@ export class TiledeskService {
     return this.http.get(lookupUrl, httpOptions).pipe(map((res: any) => {
         this.logger.log('[TILEDESK-SERVICE] GET PROJECTID BY CONV RECIPIENT - RES ', res);
         return res
-    }))
-  }
-
-  public getProjectUsersByProjectId(project_id: string) {
-    const url = this.SERVER_BASE_URL + project_id + '/project_users/';
-    this.logger.log('[TILEDESK-SERVICE] - GET PROJECT-USER URL', url);
-    
-    const httpOptions = {
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Authorization: this.tiledeskToken
-      })
-    };
-    return this.http.get(url, httpOptions).pipe(map((res: any) => {
-      this.logger.log('[TILEDESK-SERVICE] - GET PROJECT-USER RES ', res);
-      return res
     }))
   }
 
@@ -258,6 +244,27 @@ export class TiledeskService {
     return this.http.post(url, body, httpOptions).pipe(map((res: any) => {
         this.logger.log('[TILEDESK-SERVICE] - sendEmail - RES ', res);
         return res
+    }))
+  }
+
+  // -----------------------------------------------------------------------------------------
+  // @ Add participant to request
+  // -----------------------------------------------------------------------------------------
+  public addParticipant(requestid: string, userid: string, project_id: string) {
+    const url = this.SERVER_BASE_URL + project_id + '/requests/' + requestid + '/participants';
+    this.logger.log('[TILEDESK-SERVICE] addParticipant - URL ', url)
+    const httpOptions = {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        'Authorization': this.tiledeskToken
+      })
+    };
+
+    const body = { 'member': userid };
+
+    return this.http.post(url, JSON.stringify(body), httpOptions).pipe(map((res: any) => {
+      this.logger.log('[TILEDESK-SERVICE] addParticipant - RES ', res);
+      return res
     }))
   }
   

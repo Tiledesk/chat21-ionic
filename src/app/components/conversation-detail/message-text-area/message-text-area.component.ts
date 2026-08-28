@@ -12,7 +12,7 @@ import { LoaderPreviewPage } from 'src/app/modals/loader-preview/loader-preview.
 // Services 
 import { UploadService } from 'src/chat21-core/providers/abstract/upload.service';
 // utils
-import { TYPE_MSG_EMAIL, TYPE_MSG_TEXT, CHANNEL_TYPE } from 'src/chat21-core/utils/constants';
+import { TYPE_MSG_EMAIL, TYPE_MSG_TEXT, CHANNEL_TYPE, TYPE_DIRECT } from 'src/chat21-core/utils/constants';
 // Models
 import { UploadModel } from 'src/chat21-core/models/upload';
 
@@ -26,6 +26,7 @@ import { CopilotService } from 'src/app/services/copilot/copilot.service';
 import { BRAND_BASE_INFO } from 'src/app/utils/utils-resources';
 import { ProjectService } from 'src/app/services/projects/project.service';
 import { Project } from 'src/chat21-core/models/projects';
+import { ProjectUser } from 'src/chat21-core/models/projectUsers';
 
 
 @Component({
@@ -49,6 +50,7 @@ export class MessageTextAreaComponent implements OnInit, AfterViewInit, OnChange
   @ViewChild('fileInput', { static: false }) fileInput: any;
 
   @Input() loggedUser: UserModel;
+  @Input() projectUser: ProjectUser;
   @Input() conversationWith: string;
   @Input() channelType: string;
   @Input() channel: string;
@@ -62,6 +64,7 @@ export class MessageTextAreaComponent implements OnInit, AfterViewInit, OnChange
   @Input() offlineMsgEmail: boolean;
   @Input() whatsappTemplatesSection: boolean;
   @Input() isOpenInfoConversation: boolean;
+  @Input() cannedSection: boolean;
   @Input() stylesMap: Map<string, string>;
   @Input() translationMap: Map<string, string>;
   @Input() dropEvent: any;
@@ -162,6 +165,11 @@ export class MessageTextAreaComponent implements OnInit, AfterViewInit, OnChange
 
     this.project = this.projectService.getProject();
     this.logger.log('[CONVS-DETAIL] - returnChangeTextArea ngOnChanges in [MSG-TEXT-AREA] project', this.project)
+    if (this.channelType === TYPE_DIRECT) {
+      this.uploadService.initialize();
+    } else {
+      this.uploadService.initialize(this.project?._id);
+    }
     // use case drop
     if (this.dropEvent) {
       this.presentModal(this.dropEvent)
@@ -384,7 +392,10 @@ export class MessageTextAreaComponent implements OnInit, AfterViewInit, OnChange
           this.logger.log('[CONVS-DETAIL][MSG-TEXT-AREA] FIREBASE-UPLOAD presentModal onDidDismiss currentUpload', currentUpload);
           this.logger.log('[CONVS-DETAIL][MSG-TEXT-AREA] FIREBASE-UPLOAD presentModal onDidDismiss detail.data', detail.data);
 
-          that.uploadService.upload(that.loggedUser.uid, currentUpload).then((data) => {
+          const uploadPromise = (that.channelType === TYPE_DIRECT)
+            ? that.uploadService.upload(that.loggedUser.uid, currentUpload)
+            : that.uploadService.uploadFile(that.loggedUser.uid, currentUpload)
+          uploadPromise.then((data) => {
             metadata.src = data.src;
             metadata.downloadURL = data.downloadURL;
             this.logger.log('[CONVS-DETAIL][MSG-TEXT-AREA] FIREBASE-UPLOAD presentModal invio msg metadata::: ', metadata);
