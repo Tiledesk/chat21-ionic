@@ -8,6 +8,11 @@
 ### **Copyright**: 
 *Tiledesk SRL*
 
+# 3.4.35 in PROD
+- **added**: tiledesk_project_ID url variable to define a base project
+- **added**: MPA feature token to active/inactive the multi-project availability section in user-detail panel
+- **changed**: wss 
+
 # 3.4.34 in PROD
 - **added**: role handling in the affected components (sidebar, navbar, conversations list, conversation detail) using shared `hasRole` checks and `ProjectUser.rolePermissions`.
 
