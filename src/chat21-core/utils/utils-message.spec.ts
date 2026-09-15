@@ -25,6 +25,28 @@ describe('utils-message isLastMessage', () => {
     expect(isLastMessage(undefined, '1')).toBe(false);
     expect(isLastMessage([info('1')], '1')).toBe(false);
   });
+
+  it("hides the buttons after the agent's own action click", () => {
+    const actionClick = { uid: '2', attributes: { subtype: 'info', action: 'approve' } };
+    expect(isLastMessage([text('1'), actionClick], '1')).toBe(false);
+    expect(isLastMessage([text('1'), actionClick], '2')).toBe(true);
+  });
+
+  it('hides the buttons once the conversation is closed, even after a reopen', () => {
+    const closed = { uid: '2', attributes: { subtype: 'info/support', messagelabel: { key: 'CHAT_CLOSED' } } };
+    const reopened = { uid: '3', attributes: { subtype: 'info/support', messagelabel: { key: 'CHAT_REOPENED' } } };
+    expect(isLastMessage([text('1'), closed], '1')).toBe(false);
+    expect(isLastMessage([text('1'), closed, reopened], '1')).toBe(false);
+  });
+
+  it('keeps the buttons after a member joined line', () => {
+    const joined = { uid: '2', attributes: { subtype: 'info/support', messagelabel: { key: 'MEMBER_JOINED_GROUP' } } };
+    expect(isLastMessage([text('1'), joined], '1')).toBe(true);
+  });
+
+  it('skips missing entries', () => {
+    expect(isLastMessage([text('1'), null, undefined], '1')).toBe(true);
+  });
 });
 
 describe('utils-message isWebhookConversation', () => {

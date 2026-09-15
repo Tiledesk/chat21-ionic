@@ -79,14 +79,20 @@ export function isLastMessage(messages, idMessage):boolean {
   if (!messages || messages.length === 0) {
     return false;
   }
-  // info lines (member added, conversation reopened, ...) must not hide the buttons
-  // of the last real message
+  // passive info lines (member added, conversation reopened, ...) must not hide the buttons
+  // of the last real message; the agent's own action click and the "chat closed" line do
   for (let i = messages.length - 1; i >= 0; i--) {
-    if (!isInfo(messages[i])) {
-      return messages[i].uid === idMessage;
+    const message = messages[i];
+    if (message && (!isInfo(message) || hidesPreviousButtons(message))) {
+      return message.uid === idMessage;
     }
   }
   return false;
+}
+
+function hidesPreviousButtons(message: any): boolean {
+  const attributes = message.attributes || {};
+  return !!attributes.action || !!(attributes.messagelabel && attributes.messagelabel.key === INFO_MESSAGE_TYPE.CHAT_CLOSED);
 }
 
 export function isFirstMessage(messages, senderId, index):boolean{
