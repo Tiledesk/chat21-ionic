@@ -53,6 +53,7 @@
   "CLOSE_ALERT_CANCEL_LABEL": "İPTAL ET",
   "LEAVE_ALERT_MSG": "Gruptan ayrılmak mı?",
   "CLOSE_ALERT_MSG": "Sohbeti kapat?",
+  "CLOSE_FLOW_CONVERSATION_ALERT_MSG": "Bu konuşma otomatik bir akış tarafından başlatıldı. Kapatmak akışı durdurur. Devam edilsin mi?",
   "VIDEOCHAT_ALERT_MSG": "Hizmet kullanılamıyor",
   "CLOSING_CONVERSATION_SPINNER_MSG": "Lütfen bekle.<br> Sohbeti kapatıyoruz",
   "CONVERSATION_CLOSED_ALERT_MSG": "Görüşme başarıyla kapatıldı.",

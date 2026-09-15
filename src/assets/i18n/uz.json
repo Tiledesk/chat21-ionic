@@ -53,6 +53,7 @@
   "CLOSE_ALERT_CANCEL_LABEL": "BEKOR",
   "LEAVE_ALERT_MSG": "Guruhni tark etasizmi?",
   "CLOSE_ALERT_MSG": "Suhbat yopilsinmi?",
+  "CLOSE_FLOW_CONVERSATION_ALERT_MSG": "Bu suhbat avtomatlashtirilgan oqim tomonidan boshlangan. Uni yopish oqimni to'xtatadi. Davom etilsinmi?",
   "VIDEOCHAT_ALERT_MSG": "Xizmat ish faoliyatida emas",
   "CLOSING_CONVERSATION_SPINNER_MSG": "Iltimos kuting.<br> Suhbatni yakunlaymiz",
   "CONVERSATION_CLOSED_ALERT_MSG": "Suhbat muvaffaqiyatli yakunlandi.",

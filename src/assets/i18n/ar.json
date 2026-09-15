@@ -53,6 +53,7 @@
   "CLOSE_ALERT_CANCEL_LABEL": "إلغاء",
   "LEAVE_ALERT_MSG": "مغادرة المجموعة؟",
   "CLOSE_ALERT_MSG": "أغلق المحادثة؟",
+  "CLOSE_FLOW_CONVERSATION_ALERT_MSG": "بدأ هذه المحادثة تدفق تلقائي. إغلاقها يوقف التدفق. هل تريد المتابعة؟",
   "VIDEOCHAT_ALERT_MSG": "الخدمة غير متوفرة",
   "CLOSING_CONVERSATION_SPINNER_MSG": "أرجو الإنتظار.<br> نحن نغلق المحادثة",
   "CONVERSATION_CLOSED_ALERT_MSG": "تم إغلاق المحادثة بنجاح.",

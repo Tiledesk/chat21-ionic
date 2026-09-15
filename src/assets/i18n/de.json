@@ -53,6 +53,7 @@
   "CLOSE_ALERT_CANCEL_LABEL": "ABBRECHEN",
   "LEAVE_ALERT_MSG": "Die Gruppe verlassen?",
   "CLOSE_ALERT_MSG": "Gespräch beenden?",
+  "CLOSE_FLOW_CONVERSATION_ALERT_MSG": "Diese Unterhaltung wurde von einem automatisierten Ablauf gestartet. Wenn Sie sie schließen, wird der Ablauf beendet. Fortfahren?",
   "VIDEOCHAT_ALERT_MSG": "Dienst nicht verfügbar",
   "CLOSING_CONVERSATION_SPINNER_MSG": "Warten Sie mal.<br> Wir beenden das Gespräch",
   "CONVERSATION_CLOSED_ALERT_MSG": "Die Konversation wurde erfolgreich geschlossen.",

@@ -53,6 +53,7 @@
   "CLOSE_ALERT_CANCEL_LABEL": "СКАСУВАТИ",
   "LEAVE_ALERT_MSG": "Вийти з групи?",
   "CLOSE_ALERT_MSG": "Закрити бесіду?",
+  "CLOSE_FLOW_CONVERSATION_ALERT_MSG": "Цю розмову розпочав автоматизований сценарій. Її закриття зупинить сценарій. Продовжити?",
   "VIDEOCHAT_ALERT_MSG": "Послуга недоступна",
   "CLOSING_CONVERSATION_SPINNER_MSG": "Будь ласка, зачекайте.<br> Ми закриваємо розмову",
   "CONVERSATION_CLOSED_ALERT_MSG": "Розмову було успішно закрито.",

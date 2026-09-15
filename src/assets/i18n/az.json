@@ -53,6 +53,7 @@
   "CLOSE_ALERT_CANCEL_LABEL": "LƏĞV EDİN",
   "LEAVE_ALERT_MSG": "Qrupu tərk etmək?",
   "CLOSE_ALERT_MSG": "Söhbət bağlansın?",
+  "CLOSE_FLOW_CONVERSATION_ALERT_MSG": "Bu söhbət avtomatlaşdırılmış axın tərəfindən başladılıb. Onu bağlamaq axını dayandırır. Davam edilsin?",
   "VIDEOCHAT_ALERT_MSG": "Servis mövcud deyil",
   "CLOSING_CONVERSATION_SPINNER_MSG": "Zəhmət olmasa, gözləyin.<br> Söhbəti bağlayırıq",
   "CONVERSATION_CLOSED_ALERT_MSG": "Söhbət uğurla bağlandı.",

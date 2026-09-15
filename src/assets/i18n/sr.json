@@ -53,6 +53,7 @@
   "CLOSE_ALERT_CANCEL_LABEL": "ПОНИШТИТИ, ОТКАЗАТИ",
   "LEAVE_ALERT_MSG": "Напустити групу?",
   "CLOSE_ALERT_MSG": "Затворити конверзацију?",
+  "CLOSE_FLOW_CONVERSATION_ALERT_MSG": "Овај разговор је покренуо аутоматизовани ток. Затварање зауставља ток. Наставити?",
   "VIDEOCHAT_ALERT_MSG": "Услуга није доступна",
   "CLOSING_CONVERSATION_SPINNER_MSG": "Сачекајте.<br> Затварамо разговор",
   "CONVERSATION_CLOSED_ALERT_MSG": "Разговор је успешно затворен.",
