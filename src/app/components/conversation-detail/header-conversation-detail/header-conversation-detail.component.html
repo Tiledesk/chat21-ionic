@@ -54,6 +54,7 @@
                         <img class="channel-icon" src="assets/img/channel_icons/whatsapp-logo.svg" *ngIf="conversationAvatar?.request_channel && conversationAvatar?.request_channel === CHANNEL_TYPE.WHATSAPP" >
                         <img class="channel-icon" src="assets/img/channel_icons/telegram-logo.svg" *ngIf="conversationAvatar?.request_channel && conversationAvatar?.request_channel === CHANNEL_TYPE.TELEGRAM" >
                         <img class="channel-icon" src="assets/img/channel_icons/voice.svg" *ngIf="conversationAvatar?.request_channel && conversationAvatar?.request_channel.startsWith(CHANNEL_TYPE.VOICE)" >
+                        <img class="channel-icon" src="assets/img/channel_icons/webhook.svg" *ngIf="conversationAvatar?.request_channel && conversationAvatar?.request_channel === CHANNEL_TYPE.WEBHOOK" >
                         <span *ngIf="conversationAvatar?.project_name" class="truncate">{{conversationAvatar?.project_name}}</span>
                         <span *ngIf="!conversationAvatar?.project_name" class="truncate">{{conversationAvatar?.projectId}}</span>
                       </div>

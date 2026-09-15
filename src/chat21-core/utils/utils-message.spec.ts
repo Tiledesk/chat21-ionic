@@ -1,4 +1,4 @@
-import { isLastMessage } from './utils-message';
+import { isLastMessage, isWebhookConversation } from './utils-message';
 
 describe('utils-message isLastMessage', () => {
 
@@ -24,5 +24,19 @@ describe('utils-message isLastMessage', () => {
     expect(isLastMessage([], '1')).toBe(false);
     expect(isLastMessage(undefined, '1')).toBe(false);
     expect(isLastMessage([info('1')], '1')).toBe(false);
+  });
+});
+
+describe('utils-message isWebhookConversation', () => {
+
+  it('is true for conversations whose request channel is webhook', () => {
+    expect(isWebhookConversation({ attributes: { request_channel: 'webhook' } })).toBe(true);
+  });
+
+  it('is false for other channels and missing data', () => {
+    expect(isWebhookConversation({ attributes: { request_channel: 'chat21' } })).toBe(false);
+    expect(isWebhookConversation({ attributes: {} })).toBe(false);
+    expect(isWebhookConversation({})).toBe(false);
+    expect(isWebhookConversation(null)).toBe(false);
   });
 });

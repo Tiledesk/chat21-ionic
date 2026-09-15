@@ -115,6 +115,7 @@
           <img class="channel-icon" src="assets/img/channel_icons/whatsapp-logo.svg" *ngIf="conversation?.attributes && conversation?.attributes?.request_channel && conversation?.attributes?.request_channel === CHANNEL_TYPE.WHATSAPP" >
           <img class="channel-icon" src="assets/img/channel_icons/telegram-logo.svg" *ngIf="conversation?.attributes && conversation?.attributes?.request_channel && conversation?.attributes?.request_channel === CHANNEL_TYPE.TELEGRAM" >
           <img class="channel-icon" src="assets/img/channel_icons/voice.svg" *ngIf="conversation?.attributes && conversation?.attributes?.request_channel && conversation?.attributes?.request_channel.startsWith(CHANNEL_TYPE.VOICE)" >
+          <img class="channel-icon" src="assets/img/channel_icons/webhook.svg" *ngIf="conversation?.attributes && conversation?.attributes?.request_channel && conversation?.attributes?.request_channel === CHANNEL_TYPE.WEBHOOK" >
           <span *ngIf="conversation?.attributes?.project_name" class="truncate">{{conversation?.attributes?.project_name}}</span>
           <span *ngIf="!conversation?.attributes?.project_name" class="truncate">{{conversation?.attributes?.projectId}}</span>
         </div>

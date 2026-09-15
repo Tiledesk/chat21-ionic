@@ -274,4 +274,8 @@ export function commandToMessage(msg: MessageModel, conversation: ConversationMo
   return message as MessageModel
 }
 
+/** Conversations started by a webhook flow (tiledesk-server request.channel.name === 'webhook') */
+export function isWebhookConversation(conversation: any): boolean {
+  return !!(conversation && conversation.attributes && conversation.attributes.request_channel === CHANNEL_TYPE.WEBHOOK);
+}
 
