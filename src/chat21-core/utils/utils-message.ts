@@ -76,8 +76,15 @@ export function isSameSender(messages, senderId, index):boolean{
 }
 
 export function isLastMessage(messages, idMessage):boolean {
-  if (idMessage === messages[messages.length - 1].uid) {
-    return true;
+  if (!messages || messages.length === 0) {
+    return false;
+  }
+  // info lines (member added, conversation reopened, ...) must not hide the buttons
+  // of the last real message
+  for (let i = messages.length - 1; i >= 0; i--) {
+    if (!isInfo(messages[i])) {
+      return messages[i].uid === idMessage;
+    }
   }
   return false;
 }
