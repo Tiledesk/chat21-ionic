@@ -1,7 +1,7 @@
 import { AppStorageService } from 'src/chat21-core/providers/abstract/app-storage.service';
 import { ArchivedConversationsHandlerService } from 'src/chat21-core/providers/abstract/archivedconversations-handler.service'
 import { Component, isDevMode, OnInit, ViewChild } from '@angular/core'
-import { IonContent, ModalController } from '@ionic/angular'
+import { AlertController, IonContent, ModalController } from '@ionic/angular'
 import { ActivatedRoute, Router, NavigationExtras } from '@angular/router'
 // config
 import { environment } from '../../../environments/environment'
@@ -47,7 +47,7 @@ import { NetworkService } from 'src/app/services/network-service/network.service
 import { Subject } from 'rxjs'
 import { skip, takeUntil } from 'rxjs/operators'
 import { REQUEST_ARCHIVED, TYPE_DIRECT } from 'src/chat21-core/utils/constants';
-import { getProjectIdSelectedConversation } from 'src/chat21-core/utils/utils-message';
+import { getProjectIdSelectedConversation, isWebhookConversation } from 'src/chat21-core/utils/utils-message';
 import { WebsocketService } from 'src/app/services/websocket/websocket.service';
 import { Globals } from 'src/app/utils/globals';
 import { TriggerEvents } from 'src/app/services/triggerEvents/triggerEvents';
@@ -130,6 +130,7 @@ export class ConversationListPage implements OnInit {
     private navService: NavProxyService,
     public events: EventsService,
     public modalController: ModalController,
+    public alertController: AlertController,
     // public databaseProvider: DatabaseProvider,
     public conversationsHandlerService: ConversationsHandlerService,
     public archivedConversationsHandlerService: ArchivedConversationsHandlerService,
@@ -1059,6 +1060,38 @@ export class ConversationListPage implements OnInit {
   // ----------------------------------------------------------------------------------------------
   onCloseConversation(conversation: ConversationModel) {
     this.logger.log('[CONVS-LIST-PAGE] onCloseConversation  conversation', conversation)
+    if (isWebhookConversation(conversation)) {
+      this.presentAlertConfirmCloseFlowConversation(conversation)
+      return
+    }
+    this.closeConversationConfirmed(conversation)
+  }
+
+  async presentAlertConfirmCloseFlowConversation(conversation: ConversationModel) {
+    const keys = ['ALERT_TITLE', 'CLOSE_FLOW_CONVERSATION_ALERT_MSG', 'CLOSE_ALERT_CANCEL_LABEL', 'CLOSE_ALERT_CONFIRM_LABEL']
+    const translationMap = this.translateService.translateLanguage(keys)
+    const alert = await this.alertController.create({
+      cssClass: 'my-custom-class',
+      header: translationMap.get('ALERT_TITLE'),
+      message: translationMap.get('CLOSE_FLOW_CONVERSATION_ALERT_MSG'),
+      buttons: [
+        {
+          text: translationMap.get('CLOSE_ALERT_CANCEL_LABEL'),
+          role: 'cancel',
+          cssClass: 'secondary',
+        },
+        {
+          text: translationMap.get('CLOSE_ALERT_CONFIRM_LABEL'),
+          handler: () => {
+            this.closeConversationConfirmed(conversation)
+          },
+        },
+      ],
+    })
+    await alert.present()
+  }
+
+  closeConversationConfirmed(conversation: ConversationModel) {
 
     // -------------------------------------------------------------------------------------
     // Fix the display of the message "No conversation yet" when a conversation is archived

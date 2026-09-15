@@ -53,6 +53,7 @@
     "CLOSE_ALERT_CANCEL_LABEL": "ANNULLA",
     "LEAVE_ALERT_MSG": "Abbandonare il gruppo?",
     "CLOSE_ALERT_MSG": "Chiudere la conversazione?",
+    "CLOSE_FLOW_CONVERSATION_ALERT_MSG": "Questa conversazione è stata avviata da un flusso automatico. Chiuderla interrompe il flusso. Continuare?",
     "VIDEOCHAT_ALERT_MSG": "Servizio non disponibile",
     "CLOSING_CONVERSATION_SPINNER_MSG": "Attendere prego.. <br> Stiamo chiudendo la conversazione",
     "CONVERSATION_CLOSED_ALERT_MSG": "La conversazione è stata chiusa con successo.",
