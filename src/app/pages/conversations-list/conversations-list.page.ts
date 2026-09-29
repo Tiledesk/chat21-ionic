@@ -1152,12 +1152,9 @@ export class ConversationListPage implements OnInit {
     this.leaveRequestInFlight = true
     const conversationId = conversation.uid
     // The project id always comes from the conversation itself: support-group-<projectId>-<...>
-    const segments = conversationId.split('-')
-    if (segments[segments.length - 1] === '') {
-      segments.pop()
-    }
-    if (segments.length === 4) {
-      this.removeParticipantFromConversation(segments[2], conversationId)
+    const projectId = getProjectIdSelectedConversation(conversationId)
+    if (projectId) {
+      this.removeParticipantFromConversation(projectId, conversationId)
       return
     }
     this.tiledeskService.getProjectIdByConvRecipient(conversationId).subscribe((res) => {
