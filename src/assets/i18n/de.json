@@ -54,7 +54,7 @@
   "LEAVE_ALERT_MSG": "Die Gruppe verlassen?",
   "CLOSE_ALERT_MSG": "Gespräch beenden?",
   "CLOSE_FLOW_CONVERSATION_ALERT_MSG": "Diese Unterhaltung wurde von einem automatisierten Ablauf gestartet. Wenn Sie sie schließen, wird der Ablauf beendet. Fortfahren?",
-  "LEAVE_FLOW_CONVERSATION_ALERT_MSG": "Sie verlassen diese Unterhaltung. Der Ablauf sucht einen anderen Mitarbeiter oder läuft ohne Sie weiter. Fortfahren?",
+  "LEAVE_FLOW_CONVERSATION_ALERT_MSG": "Sie verlassen diese Unterhaltung. Wenn ein Ablauf Sie eingeladen hat, sucht er einen anderen Mitarbeiter oder läuft ohne Sie weiter. Fortfahren?",
   "LEAVE_CONVERSATION_CONFIRM_LABEL": "Verlassen",
   "LEAVE_CONVERSATION_ERROR": "Die Unterhaltung kann nicht verlassen werden",
   "VIDEOCHAT_ALERT_MSG": "Dienst nicht verfügbar",

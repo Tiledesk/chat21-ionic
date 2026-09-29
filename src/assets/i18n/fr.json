@@ -54,7 +54,7 @@
   "LEAVE_ALERT_MSG": "Quitter le groupe?",
   "CLOSE_ALERT_MSG": "Fermer la conversation?",
   "CLOSE_FLOW_CONVERSATION_ALERT_MSG": "Cette conversation a été démarrée par un flux automatisé. La fermer arrête le flux. Continuer ?",
-  "LEAVE_FLOW_CONVERSATION_ALERT_MSG": "Vous allez quitter cette conversation. Le flux cherchera un autre opérateur ou continuera sans vous. Continuer ?",
+  "LEAVE_FLOW_CONVERSATION_ALERT_MSG": "Vous allez quitter cette conversation. Si un flux vous a invité, il cherchera un autre opérateur ou continuera sans vous. Continuer ?",
   "LEAVE_CONVERSATION_CONFIRM_LABEL": "Quitter",
   "LEAVE_CONVERSATION_ERROR": "Impossible de quitter la conversation",
   "VIDEOCHAT_ALERT_MSG": "Service indisponible",

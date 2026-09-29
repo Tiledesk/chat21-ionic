@@ -54,7 +54,7 @@
   "LEAVE_ALERT_MSG": "Gruptan ayrılmak mı?",
   "CLOSE_ALERT_MSG": "Sohbeti kapat?",
   "CLOSE_FLOW_CONVERSATION_ALERT_MSG": "Bu konuşma otomatik bir akış tarafından başlatıldı. Kapatmak akışı durdurur. Devam edilsin mi?",
-  "LEAVE_FLOW_CONVERSATION_ALERT_MSG": "Bu konuşmadan ayrılacaksınız. Akış başka bir operatör arayacak veya sizsiz devam edecek. Devam edilsin mi?",
+  "LEAVE_FLOW_CONVERSATION_ALERT_MSG": "Bu konuşmadan ayrılacaksınız. Sizi bir akış davet ettiyse, başka bir operatör arayacak veya sizsiz devam edecek. Devam edilsin mi?",
   "LEAVE_CONVERSATION_CONFIRM_LABEL": "Ayrıl",
   "LEAVE_CONVERSATION_ERROR": "Konuşmadan ayrılınamadı",
   "VIDEOCHAT_ALERT_MSG": "Hizmet kullanılamıyor",

@@ -54,7 +54,7 @@
   "LEAVE_ALERT_MSG": "¿Abandonar el grupo?",
   "CLOSE_ALERT_MSG": "¿Cerrar la conversación?",
   "CLOSE_FLOW_CONVERSATION_ALERT_MSG": "Esta conversación fue iniciada por un flujo automatizado. Cerrarla detiene el flujo. ¿Continuar?",
-  "LEAVE_FLOW_CONVERSATION_ALERT_MSG": "Saldrás de esta conversación. El flujo buscará otro operador o continuará sin ti. ¿Continuar?",
+  "LEAVE_FLOW_CONVERSATION_ALERT_MSG": "Saldrás de esta conversación. Si un flujo te invitó, buscará otro operador o continuará sin ti. ¿Continuar?",
   "LEAVE_CONVERSATION_CONFIRM_LABEL": "Salir",
   "LEAVE_CONVERSATION_ERROR": "No se puede salir de la conversación",
   "VIDEOCHAT_ALERT_MSG": "Servicio no disponible",

@@ -54,7 +54,7 @@
   "LEAVE_ALERT_MSG": "مغادرة المجموعة؟",
   "CLOSE_ALERT_MSG": "أغلق المحادثة؟",
   "CLOSE_FLOW_CONVERSATION_ALERT_MSG": "بدأ هذه المحادثة تدفق تلقائي. إغلاقها يوقف التدفق. هل تريد المتابعة؟",
-  "LEAVE_FLOW_CONVERSATION_ALERT_MSG": "ستغادر هذه المحادثة. سيبحث التدفق عن مشغل آخر أو يتابع بدونك. هل تريد المتابعة؟",
+  "LEAVE_FLOW_CONVERSATION_ALERT_MSG": "ستغادر هذه المحادثة. إذا دعاك تدفق، فسيبحث عن مشغل آخر أو يتابع بدونك. هل تريد المتابعة؟",
   "LEAVE_CONVERSATION_CONFIRM_LABEL": "مغادرة",
   "LEAVE_CONVERSATION_ERROR": "تعذر مغادرة المحادثة",
   "VIDEOCHAT_ALERT_MSG": "الخدمة غير متوفرة",
