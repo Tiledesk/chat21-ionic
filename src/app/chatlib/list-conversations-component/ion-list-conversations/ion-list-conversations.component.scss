@@ -220,6 +220,11 @@ ion-item {
     display: none;
 }
 
+// Leave is always visible (unlike the archive button, hidden on desktop); size/spacing come from `ion-item ion-buttons ion-button`
+.leave-conversation-button {
+    display: block;
+}
+
 ion-item:hover {
     ion-buttons {
         ion-button {

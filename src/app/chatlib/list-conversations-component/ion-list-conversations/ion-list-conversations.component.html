@@ -174,8 +174,8 @@
     </ion-button>
 
     <ion-button *ngIf="canLeave(conversation)" placement="bottom"
-      [ngClass]="{'hide': !IS_ON_MOBILE_DEVICE, 'button-on-desktop': !IS_ON_MOBILE_DEVICE, 'button-on-mobile': IS_ON_MOBILE_DEVICE  }"
-      id="{{ 'leave_conversation_button' + conversation.uid }}" class="close-conversation-button" ion-button clear
+      [ngClass]="{'button-on-desktop': !IS_ON_MOBILE_DEVICE, 'button-on-mobile': IS_ON_MOBILE_DEVICE  }"
+      id="{{ 'leave_conversation_button' + conversation.uid }}" class="leave-conversation-button" ion-button clear
       item-end (click)="leaveConversation(conversation);$event.stopPropagation();" padding>
       <ion-icon slot="icon-only" style="display:block;" id="{{ 'leave_button_icon' + conversation.uid }}" name="exit-outline" item-end></ion-icon>
     </ion-button>
