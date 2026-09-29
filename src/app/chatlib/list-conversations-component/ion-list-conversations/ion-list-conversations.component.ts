@@ -15,7 +15,7 @@ import { DomSanitizer } from '@angular/platform-browser'
 import { TiledeskAuthService } from 'src/chat21-core/providers/tiledesk/tiledesk-auth.service';
 import { AlertController } from '@ionic/angular';
 import { CustomTranslateService } from 'src/chat21-core/providers/custom-translate.service';
-import { isAudio, isFile, isFrame, isImage } from 'src/chat21-core/utils/utils-message';
+import { canLeaveConversation, isAudio, isFile, isFrame, isImage } from 'src/chat21-core/utils/utils-message';
 // import { LoggerService } from 'src/chat21-core/providers/abstract/logger.service';
 // import { LoggerInstance } from 'src/chat21-core/providers/logger/loggerInstance';
 
@@ -29,6 +29,7 @@ export class IonListConversationsComponent extends ListConversationsComponent im
   @Input() archiveActionNotAllowed: boolean;
   @Input() uidConvSelected: string;
   @Output() onCloseConversation = new EventEmitter<ConversationModel>();
+  @Output() onLeaveConversation = new EventEmitter<ConversationModel>();
   @Output() onJoinConversation = new EventEmitter<ConversationModel>();
   @Output() onCloseAlert = new EventEmitter();
 
@@ -213,6 +214,15 @@ export class IonListConversationsComponent extends ListConversationsComponent im
     this.logger.log('[ION-LIST-CONVS-COMP] - closeConversation - conversationId ', conversationId)
     this.onCloseConversation.emit(conversation)
     let currentIndex = this.listConversations.findIndex(conv => conv.uid === conversation.uid)
+  }
+
+  canLeave(conversation: ConversationModel): boolean {
+    return canLeaveConversation(conversation)
+  }
+
+  leaveConversation(conversation: ConversationModel) {
+    this.logger.log('[ION-LIST-CONVS-COMP] - leaveConversation - conversationId ', conversation.uid)
+    this.onLeaveConversation.emit(conversation)
   }
 
   joinConversation(conversation: ConversationModel) {

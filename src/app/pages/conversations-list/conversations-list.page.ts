@@ -1,7 +1,7 @@
 import { AppStorageService } from 'src/chat21-core/providers/abstract/app-storage.service';
 import { ArchivedConversationsHandlerService } from 'src/chat21-core/providers/abstract/archivedconversations-handler.service'
 import { Component, isDevMode, OnInit, ViewChild } from '@angular/core'
-import { AlertController, IonContent, ModalController } from '@ionic/angular'
+import { AlertController, IonContent, ModalController, ToastController } from '@ionic/angular'
 import { ActivatedRoute, Router, NavigationExtras } from '@angular/router'
 // config
 import { environment } from '../../../environments/environment'
@@ -47,7 +47,7 @@ import { NetworkService } from 'src/app/services/network-service/network.service
 import { Subject } from 'rxjs'
 import { skip, takeUntil } from 'rxjs/operators'
 import { REQUEST_ARCHIVED, TYPE_DIRECT } from 'src/chat21-core/utils/constants';
-import { getProjectIdSelectedConversation, isWebhookConversation } from 'src/chat21-core/utils/utils-message';
+import { canLeaveConversation, getProjectIdSelectedConversation, isWebhookConversation } from 'src/chat21-core/utils/utils-message';
 import { WebsocketService } from 'src/app/services/websocket/websocket.service';
 import { Globals } from 'src/app/utils/globals';
 import { TriggerEvents } from 'src/app/services/triggerEvents/triggerEvents';
@@ -73,6 +73,9 @@ export class ConversationListPage implements OnInit {
   private subscriptions: Array<string>
   public tenant: string
   public loggedUserUid: string
+  // uid of the conversation whose leave alert/request is pending (prevents double requests)
+  public leavingConversationUid: string | null = null
+  private leaveRequestInFlight = false
   public conversations: Array<ConversationModel> = []
   public archivedConversations: Array<ConversationModel> = []
   public unassignedConversations: Array<ConversationModel> = []
@@ -131,6 +134,7 @@ export class ConversationListPage implements OnInit {
     public events: EventsService,
     public modalController: ModalController,
     public alertController: AlertController,
+    public toastController: ToastController,
     // public databaseProvider: DatabaseProvider,
     public conversationsHandlerService: ConversationsHandlerService,
     public archivedConversationsHandlerService: ArchivedConversationsHandlerService,
@@ -1089,6 +1093,111 @@ export class ConversationListPage implements OnInit {
       ],
     })
     await alert.present()
+  }
+
+  // ----------------------------------------------------------------------------------------------
+  // onLeaveConversation: the operator leaves a conversation started by a webhook flow
+  // ----------------------------------------------------------------------------------------------
+  onLeaveConversation(conversation: ConversationModel) {
+    this.logger.log('[CONVS-LIST-PAGE] onLeaveConversation conversation', conversation)
+    if (!conversation || !canLeaveConversation(conversation)) {
+      return
+    }
+    if (this.leavingConversationUid === conversation.uid) {
+      return
+    }
+    this.leavingConversationUid = conversation.uid
+    this.presentAlertConfirmLeaveConversation(conversation)
+  }
+
+  async presentAlertConfirmLeaveConversation(conversation: ConversationModel) {
+    try {
+      const keys = ['ALERT_TITLE', 'LEAVE_FLOW_CONVERSATION_ALERT_MSG', 'CLOSE_ALERT_CANCEL_LABEL', 'LEAVE_CONVERSATION_CONFIRM_LABEL']
+      const translationMap = this.translateService.translateLanguage(keys)
+      const alert = await this.alertController.create({
+        cssClass: 'my-custom-class',
+        header: translationMap.get('ALERT_TITLE'),
+        message: translationMap.get('LEAVE_FLOW_CONVERSATION_ALERT_MSG'),
+        buttons: [
+          {
+            text: translationMap.get('CLOSE_ALERT_CANCEL_LABEL'),
+            role: 'cancel',
+            cssClass: 'secondary',
+            handler: () => {
+              this.leavingConversationUid = null
+            },
+          },
+          {
+            text: translationMap.get('LEAVE_CONVERSATION_CONFIRM_LABEL'),
+            handler: () => {
+              this.leaveConversationConfirmed(conversation)
+            },
+          },
+        ],
+      })
+      // also clears when dismissed by backdrop/escape (the request keeps the field set while in flight)
+      alert.onDidDismiss().then(() => {
+        if (this.leavingConversationUid === conversation.uid && !this.leaveRequestInFlight) {
+          this.leavingConversationUid = null
+        }
+      })
+      await alert.present()
+    } catch (error) {
+      this.leavingConversationUid = null
+      this.logger.error('[CONVS-LIST-PAGE] presentAlertConfirmLeaveConversation - ERROR ', error)
+    }
+  }
+
+  leaveConversationConfirmed(conversation: ConversationModel) {
+    this.leaveRequestInFlight = true
+    const conversationId = conversation.uid
+    // The project id always comes from the conversation itself: support-group-<projectId>-<...>
+    const segments = conversationId.split('-')
+    if (segments[segments.length - 1] === '') {
+      segments.pop()
+    }
+    if (segments.length === 4) {
+      this.removeParticipantFromConversation(segments[2], conversationId)
+      return
+    }
+    this.tiledeskService.getProjectIdByConvRecipient(conversationId).subscribe((res) => {
+      if (res && res.id_project) {
+        this.removeParticipantFromConversation(res.id_project, conversationId)
+      } else {
+        this.onLeaveConversationError(null)
+      }
+    }, (error) => {
+      this.logger.error('[CONVS-LIST-PAGE] leaveConversationConfirmed - GET PROJECTID BY CONV RECIPIENT - ERROR ', error)
+      this.onLeaveConversationError(error)
+    })
+  }
+
+  private removeParticipantFromConversation(project_id: string, conversationId: string) {
+    this.tiledeskService.removeParticipant(conversationId, this.loggedUserUid, project_id).subscribe((res) => {
+      this.logger.log('[CONVS-LIST-PAGE] removeParticipant RES ', res)
+      // on success chat21 removes the conversation from the list
+      this.leaveRequestInFlight = false
+      this.leavingConversationUid = null
+    }, (error) => {
+      this.logger.error('[CONVS-LIST-PAGE] removeParticipant - ERROR ', error)
+      this.onLeaveConversationError(error)
+    })
+  }
+
+  private async onLeaveConversationError(error: any) {
+    this.leaveRequestInFlight = false
+    this.leavingConversationUid = null
+    const serverMsg = error && error.error && error.error.error
+    let message = typeof serverMsg === 'string' && serverMsg.trim() ? serverMsg : null
+    if (!message) {
+      message = this.translateService.translateLanguage(['LEAVE_CONVERSATION_ERROR']).get('LEAVE_CONVERSATION_ERROR')
+    }
+    const toast = await this.toastController.create({
+      message: message,
+      duration: 3000,
+      position: 'top',
+    })
+    await toast.present()
   }
 
   closeConversationConfirmed(conversation: ConversationModel) {
