@@ -1173,6 +1173,8 @@ export class ConversationListPage implements OnInit {
     this.tiledeskService.removeParticipant(conversationId, this.loggedUserUid, project_id).subscribe((res) => {
       this.logger.log('[CONVS-LIST-PAGE] removeParticipant RES ', res)
       // on success chat21 removes the conversation from the list
+      // same reason as closeConversationConfirmed: show the empty-list message if this was the last conversation
+      this.loadingIsActive = false
       this.leaveRequestInFlight = false
       this.leavingConversationUid = null
     }, (error) => {
