@@ -267,5 +267,24 @@ export class TiledeskService {
       return res
     }))
   }
-  
+
+  // -----------------------------------------------------------------------------------------
+  // @ Remove participant from request
+  // -----------------------------------------------------------------------------------------
+  public removeParticipant(requestid: string, userid: string, project_id: string): Observable<any> {
+    const url = this.SERVER_BASE_URL + project_id + '/requests/' + requestid + '/participants/' + userid;
+    this.logger.log('[TILEDESK-SERVICE] removeParticipant - URL ', url)
+    const httpOptions = {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        'Authorization': this.tiledeskToken
+      })
+    };
+
+    return this.http.delete(url, httpOptions).pipe(map((res: any) => {
+      this.logger.log('[TILEDESK-SERVICE] removeParticipant - RES ', res);
+      return res
+    }))
+  }
+
 }

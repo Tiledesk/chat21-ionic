@@ -1,4 +1,4 @@
-import { isLastMessage, isWebhookConversation } from './utils-message';
+import { canLeaveConversation, isLastMessage, isWebhookConversation } from './utils-message';
 
 describe('utils-message isLastMessage', () => {
 
@@ -60,5 +60,24 @@ describe('utils-message isWebhookConversation', () => {
     expect(isWebhookConversation({ attributes: {} })).toBe(false);
     expect(isWebhookConversation({})).toBe(false);
     expect(isWebhookConversation(null)).toBe(false);
+  });
+});
+
+describe('utils-message canLeaveConversation', () => {
+
+  it('returns true for an open webhook conversation', () => {
+    expect(canLeaveConversation({ attributes: { request_channel: 'webhook' }, archived: false })).toBe(true);
+  });
+
+  it('returns false for an archived webhook conversation', () => {
+    expect(canLeaveConversation({ attributes: { request_channel: 'webhook' }, archived: true })).toBe(false);
+  });
+
+  it('returns false for a non-webhook conversation', () => {
+    expect(canLeaveConversation({ attributes: { request_channel: 'chat21' }, archived: false })).toBe(false);
+  });
+
+  it('returns false for a missing conversation', () => {
+    expect(canLeaveConversation(null)).toBe(false);
   });
 });

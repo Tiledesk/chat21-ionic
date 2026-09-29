@@ -285,3 +285,7 @@ export function isWebhookConversation(conversation: any): boolean {
   return !!(conversation && conversation.attributes && conversation.attributes.request_channel === CHANNEL_TYPE.WEBHOOK);
 }
 
+/** The agent can leave (be removed from) an open webhook-started conversation */
+export function canLeaveConversation(conversation: any): boolean {
+  return isWebhookConversation(conversation) && !conversation.archived;
+}
