@@ -1022,10 +1022,13 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
       this.logger.debug('[CONVS-DETAIL] getLeadDetail - section ', projectId)
       this.tiledeskService.getRequest(this.conversationWith, projectId).subscribe((request: any) => {
         that.logger.debug('[CONVS-DETAIL] getLeadDetail - selected REQUEST detail', request)
-        if(request && request.channel){
+        if(request && request.channel && this.conversation && this.conversation.attributes){
           this.conversation.attributes['request_channel'] = request.channel.name
-        } 
-        if (request.lead && request.lead.email) { //LEAD has an email
+        }
+        if (!request || !request.lead) {
+          return
+        }
+        if (request.lead.email) { //LEAD has an email
           that.leadInfo = {
             lead_id: request.lead.lead_id,
             hasEmail: true,
@@ -1387,9 +1390,9 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
         this.conversationWithFullname,
         this.channelType,
         null,
-        this.conversation.attributes['projectId'],
-        this.conversation.attributes['project_name'],
-        this.conversation.attributes['request_channel']
+        this.conversation?.attributes?.['projectId'],
+        this.conversation?.attributes?.['project_name'],
+        this.conversation?.attributes?.['request_channel']
       )
     }
     if (msg.attributes && msg.attributes.hasOwnProperty("updateUserEmail")) {
@@ -1400,9 +1403,9 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
         this.conversationWithFullname,
         this.channelType,
         userEmail,
-        this.conversation.attributes['projectId'],
-        this.conversation.attributes['project_name'],
-        this.conversation.attributes['request_channel']
+        this.conversation?.attributes?.['projectId'],
+        this.conversation?.attributes?.['project_name'],
+        this.conversation?.attributes?.['request_channel']
       )
     }
     this.getLeadDetail()
@@ -1886,7 +1889,8 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
     // console.log(event);
     const action = event.action ? event.action : ''
     const message = event.value ? event.value : ''
-    const subtype = event.show_reply ? '' : 'info'
+    // show_echo as in the web widget (show_reply kept as legacy fallback)
+    const subtype = (event.show_echo || event.show_reply) ? '' : 'info'
 
     const attributes = {
       action: action,

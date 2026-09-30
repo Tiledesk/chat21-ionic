@@ -52,6 +52,7 @@ export enum CHANNEL_TYPE {
     WHATSAPP = 'whatsapp',
     TELEGRAM = 'telegram',
     VOICE = 'voice',
+    WEBHOOK = 'webhook',
 }
 
 // TYPES MESSAGES

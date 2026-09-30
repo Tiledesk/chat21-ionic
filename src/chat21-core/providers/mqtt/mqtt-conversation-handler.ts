@@ -18,7 +18,7 @@ import { ConversationHandlerService } from '../abstract/conversation-handler.ser
 import { MSG_STATUS_RECEIVED, TYPE_DIRECT, MESSAGE_TYPE_INFO, INFO_MESSAGE_TYPE } from '../../utils/constants';
 import { compareValues, searchIndexInArrayForUid, } from '../../utils/utils';
 import { v4 as uuidv4 } from 'uuid';
-import { infoMessageType, isSender, messageType } from '../../utils/utils-message';
+import { expandCommandsMessage, infoMessageType, isSender, messageType } from '../../utils/utils-message';
 
 
 @Injectable({ providedIn: 'root' })
@@ -257,7 +257,18 @@ export class MQTTConversationHandler extends ConversationHandlerService {
 
     /** */
     private addedMessage(messageSnapshot: any) {
-        const msg = this.messageGenerate(messageSnapshot);
+        const parent = this.messageGenerate(messageSnapshot);
+        // messages with attributes.commands (e.g. tybot Reply V2) are shown as one message per `message` command
+        // (as the web widget does); `wait` commands are ignored, no delay is applied for operators
+        if (parent.attributes && Array.isArray(parent.attributes.commands)) {
+            this.updateMessageStatusReceived(parent);
+            expandCommandsMessage(parent).forEach(child => this.addSingleMessage(child, false));
+            return;
+        }
+        this.addSingleMessage(parent, true);
+    }
+
+    private addSingleMessage(msg: MessageModel, updateStatus: boolean) {
         
         if(this.skipInfoMessage && messageType(MESSAGE_TYPE_INFO, msg)){
             return;
@@ -271,7 +282,9 @@ export class MQTTConversationHandler extends ConversationHandlerService {
         // this.logger.log('childSnapshot.key:' + msg.key);
         // this.logger.log('childSnapshot.uid:' + msg.uid);
         this.addReplaceMessageInArray(msg.uid, msg);
-        this.updateMessageStatusReceived(msg);
+        if (updateStatus) {
+            this.updateMessageStatusReceived(msg);
+        }
         this.messageAdded.next(msg);
     }
 

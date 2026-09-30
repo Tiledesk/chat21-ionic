@@ -76,10 +76,23 @@ export function isSameSender(messages, senderId, index):boolean{
 }
 
 export function isLastMessage(messages, idMessage):boolean {
-  if (idMessage === messages[messages.length - 1].uid) {
-    return true;
+  if (!messages || messages.length === 0) {
+    return false;
+  }
+  // passive info lines (member added, conversation reopened, ...) must not hide the buttons
+  // of the last real message; the agent's own action click and the "chat closed" line do
+  for (let i = messages.length - 1; i >= 0; i--) {
+    const message = messages[i];
+    if (message && (!isInfo(message) || hidesPreviousButtons(message))) {
+      return message.uid === idMessage;
+    }
   }
   return false;
+}
+
+function hidesPreviousButtons(message: any): boolean {
+  const attributes = message.attributes || {};
+  return !!attributes.action || !!(attributes.messagelabel && attributes.messagelabel.key === INFO_MESSAGE_TYPE.CHAT_CLOSED);
 }
 
 export function isFirstMessage(messages, senderId, index):boolean{
@@ -267,4 +280,51 @@ export function commandToMessage(msg: MessageModel, conversation: ConversationMo
   return message as MessageModel
 }
 
+/** Conversations started by a webhook flow (tiledesk-server request.channel.name === 'webhook') */
+export function isWebhookConversation(conversation: any): boolean {
+  return !!(conversation && conversation.attributes && conversation.attributes.request_channel === CHANNEL_TYPE.WEBHOOK);
+}
 
+/** The agent can leave (be removed from) an open webhook-started conversation */
+export function canLeaveConversation(conversation: any): boolean {
+  return isWebhookConversation(conversation) && !conversation.archived;
+}
+
+/**
+ * Expands a message carrying `attributes.commands` (e.g. tybot Reply V2) into the messages to display,
+ * like the web widget does: every `{type:'message'}` command becomes its own message, `wait` commands
+ * produce nothing (operators don't need the typing simulation).
+ * uids are `<parent uid>_<command index>` (stable across reloads, so re-delivery replaces instead of duplicating);
+ * `attributes.parentUid` points to the original message. Messages without commands are returned as is.
+ * The input is never mutated.
+ */
+export function expandCommandsMessage(msg: any): any[] {
+  const commands = msg && msg.attributes && msg.attributes.commands;
+  if (!Array.isArray(commands) || commands.length === 0) {
+    return [msg];
+  }
+  const expanded = [];
+  commands.forEach((command, index) => {
+    if (!command || command.type !== 'message' || !command.message) {
+      return;
+    }
+    const cm = command.message;
+    expanded.push({
+      ...cm,
+      uid: msg.uid + '_' + index,
+      text: cm.text ? cm.text.trim() : cm.text,
+      language: msg.language,
+      recipient: msg.recipient,
+      recipient_fullname: msg.recipient_fullname,
+      sender: msg.sender,
+      sender_fullname: msg.sender_fullname,
+      channel_type: msg.channel_type,
+      status: msg.status,
+      isSender: msg.isSender,
+      // keep the order of the commands (the list is sorted by timestamp)
+      timestamp: msg.timestamp + expanded.length,
+      attributes: { ...msg.attributes, ...cm.attributes, commands: true, parentUid: msg.uid }
+    });
+  });
+  return expanded;
+}

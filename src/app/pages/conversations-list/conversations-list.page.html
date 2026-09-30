@@ -68,6 +68,7 @@
           (onImageLoaded)="onImageLoaded($event)"
           (onConversationLoaded)="onConversationLoaded($event)" 
           (onCloseConversation)="onCloseConversation($event)" 
+          (onLeaveConversation)="onLeaveConversation($event)"
           [archiveActionNotAllowed]="archiveActionNotAllowed"
           (onCloseAlert)="onCloseAlert($event)">
         </ion-list-conversations>
@@ -93,6 +94,7 @@
           [translationMap]="translationMapConversation"
           (onConversationSelected)=onConversationSelected($event)
           (onCloseConversation)="onCloseConversation($event)" 
+          (onLeaveConversation)="onLeaveConversation($event)"
           (onJoinConversation) ="onJoinConversation($event)"
           (onImageLoaded)="onImageLoaded($event)"
           (onConversationLoaded)="onConversationLoaded($event)">

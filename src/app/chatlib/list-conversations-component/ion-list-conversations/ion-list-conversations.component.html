@@ -115,6 +115,7 @@
           <img class="channel-icon" src="assets/img/channel_icons/whatsapp-logo.svg" *ngIf="conversation?.attributes && conversation?.attributes?.request_channel && conversation?.attributes?.request_channel === CHANNEL_TYPE.WHATSAPP" >
           <img class="channel-icon" src="assets/img/channel_icons/telegram-logo.svg" *ngIf="conversation?.attributes && conversation?.attributes?.request_channel && conversation?.attributes?.request_channel === CHANNEL_TYPE.TELEGRAM" >
           <img class="channel-icon" src="assets/img/channel_icons/voice.svg" *ngIf="conversation?.attributes && conversation?.attributes?.request_channel && conversation?.attributes?.request_channel.startsWith(CHANNEL_TYPE.VOICE)" >
+          <img class="channel-icon" src="assets/img/channel_icons/webhook.svg" *ngIf="conversation?.attributes && conversation?.attributes?.request_channel && conversation?.attributes?.request_channel === CHANNEL_TYPE.WEBHOOK" >
           <span *ngIf="conversation?.attributes?.project_name" class="truncate">{{conversation?.attributes?.project_name}}</span>
           <span *ngIf="!conversation?.attributes?.project_name" class="truncate">{{conversation?.attributes?.projectId}}</span>
         </div>
@@ -148,7 +149,7 @@
     </ion-label>
   </div>
 
-  <ion-note *ngIf="!conversation.archived" class="conversation_time" [ngClass]="{'is-on-mobile': IS_ON_MOBILE_DEVICE}">
+  <ion-note *ngIf="!conversation.archived" class="conversation_time" [ngClass]="{'is-on-mobile': IS_ON_MOBILE_DEVICE, 'with-leave-button': canLeave(conversation)}">
     {{conversation.timestamp | amTimeAgo}}
   </ion-note>
   <ion-note item-end *ngIf="conversation?.archived" class="conversation_time">
@@ -170,6 +171,13 @@
       <ion-icon slot="icon-only" style="display:block;" id="{{ 'close_button_icon' + conversation.uid }}" name="archive-outline" item-end></ion-icon>
       <!-- <div *ngIf="conversation?.recipient.startsWith('support-group')" tooltip="{{ translationsMap?.get('Resolve')}}"></div>
       <div *ngIf="conversation?.recipient.startsWith('support-group')" tooltip="{{ translationsMap?.get('Archive')}}"></div> -->
+    </ion-button>
+
+    <ion-button *ngIf="canLeave(conversation)" placement="bottom"
+      [ngClass]="{'button-on-desktop': !IS_ON_MOBILE_DEVICE, 'button-on-mobile': IS_ON_MOBILE_DEVICE  }"
+      id="{{ 'leave_conversation_button' + conversation.uid }}" class="leave-conversation-button" ion-button clear
+      item-end (click)="leaveConversation(conversation);$event.stopPropagation();" padding>
+      <ion-icon slot="icon-only" style="display:block;" id="{{ 'leave_button_icon' + conversation.uid }}" name="exit-outline" item-end></ion-icon>
     </ion-button>
 
     <!-- <ion-button *ngIf="conversation?.recipient.startsWith('support-group') && !conversation.archived" 
