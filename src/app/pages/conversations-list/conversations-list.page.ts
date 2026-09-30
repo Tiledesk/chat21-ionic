@@ -1,3 +1,4 @@
+import { shouldStopLoadingAfterRemoval } from './conversations-list-state'
 import { AppStorageService } from 'src/chat21-core/providers/abstract/app-storage.service';
 import { ArchivedConversationsHandlerService } from 'src/chat21-core/providers/abstract/archivedconversations-handler.service'
 import { Component, isDevMode, OnInit, ViewChild } from '@angular/core'
@@ -643,6 +644,10 @@ export class ConversationListPage implements OnInit {
 
     this.conversationsHandlerService.conversationRemoved.subscribe((conversation: ConversationModel) => {
         this.logger.log('[CONVS-LIST-PAGE] ***** conversationsRemoved *****',conversation)
+        // whatever removed the last conversation, show "No conversation yet" instead of skeletons
+        if (shouldStopLoadingAfterRemoval(conversation, this.conversationsHandlerService.conversations?.length)) {
+          this.loadingIsActive = false
+        }
     })
 
     this.archivedConversationsHandlerService.archivedConversationAdded.subscribe((conversation: ConversationModel) => {
