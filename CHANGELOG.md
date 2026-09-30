@@ -8,6 +8,14 @@
 ### **Copyright**: 
 *Tiledesk SRL*
 
+# 3.4.35-rc3
+- **added**: conversations started by a webhook flow — webhook channel icon in the list and conversation header, and archive confirmation ("started by an automated flow") before closing.
+- **added**: Leave button for operators on webhook-flow conversations (confirmation, error toast, double-click guard); the server reassigns the flow's question or lets the flow continue.
+- **added**: bot messages with `attributes.commands` (Reply V2) are expanded like in the web widget, so operators see and can click the chatbot's buttons; button echo follows `show_echo`.
+- **changed**: buttons stay clickable on the last non-info message (the "X added" info line no longer hides them).
+- **fixed**: the conversation list shows "No conversation yet" when the last conversation is removed by the flow, a handoff or a close from the dashboard (instead of loading placeholders).
+- **fixed**: null guards on lead details for conversations without attributes.
+
 # 3.4.35-rc2
 - **changed**: conversations-list — `hideUnassignedConversations` is now read from chat-config via `getParameterValue` instead of a hardcoded value.
 - **changed**: conversations-list — default value for `hideUnassignedConversations` set to `false` (unassigned block visible unless explicitly hidden in config).
