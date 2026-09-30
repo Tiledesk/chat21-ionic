@@ -1,4 +1,4 @@
-import { canLeaveConversation, isLastMessage, isWebhookConversation } from './utils-message';
+import { canLeaveConversation, expandCommandsMessage, isLastMessage, isWebhookConversation } from './utils-message';
 
 describe('utils-message isLastMessage', () => {
 
@@ -79,5 +79,81 @@ describe('utils-message canLeaveConversation', () => {
 
   it('returns false for a missing conversation', () => {
     expect(canLeaveConversation(null)).toBe(false);
+  });
+});
+
+
+describe('utils-message expandCommandsMessage', () => {
+
+  const buttons = [{ uid: 'b1', type: 'action', value: 'Healthy', action: '#a1', show_echo: true }];
+  const commandsMessage = (): any => ({
+    uid: 'm1', message_id: 'm1', text: 'first', sender: 'bot', sender_fullname: 'Bot', recipient: 'r', recipient_fullname: 'R',
+    channel_type: 'group', status: 100, timestamp: 1000, type: 'text', language: 'en',
+    attributes: {
+      disableInputMessage: false,
+      intentName: 'ask_check',
+      commands: [
+        { type: 'wait', time: 500 },
+        { type: 'message', message: { type: 'text', text: 'First reply', attributes: {} } },
+        { type: 'wait', time: 500 },
+        { type: 'message', message: { type: 'text', text: ' Is it healthy? ', attributes: { attachment: { type: 'template', buttons: buttons } } } }
+      ]
+    }
+  });
+
+  it('turns each message command into a message, in order, with its own text and attachment', () => {
+    const out = expandCommandsMessage(commandsMessage());
+    expect(out.length).toBe(2);
+    expect(out[0].text).toBe('First reply');
+    expect(out[0].attributes.attachment).toBeUndefined();
+    expect(out[1].text).toBe('Is it healthy?');
+    expect(out[1].attributes.attachment.buttons).toEqual(buttons);
+    expect(out[0].timestamp).toBeLessThan(out[1].timestamp);
+  });
+
+  it('gives unique, stable uids and links the parent', () => {
+    const a = expandCommandsMessage(commandsMessage());
+    const b = expandCommandsMessage(commandsMessage());
+    expect(a[0].uid).not.toBe(a[1].uid);
+    expect(a.map(m => m.uid)).toEqual(b.map(m => m.uid));
+    expect(a[1].uid).toBe('m1_3');
+    expect(a[1].attributes.parentUid).toBe('m1');
+  });
+
+  it('inherits sender data and parent attributes, replacing the commands array', () => {
+    const out = expandCommandsMessage(commandsMessage());
+    expect(out[1].sender).toBe('bot');
+    expect(out[1].recipient).toBe('r');
+    expect(out[1].status).toBe(100);
+    expect(out[1].attributes.intentName).toBe('ask_check');
+    expect(out[1].attributes.commands).toBe(true);
+  });
+
+  it('does not mutate the original message', () => {
+    const msg = commandsMessage();
+    expandCommandsMessage(msg);
+    expect(Array.isArray(msg.attributes.commands)).toBe(true);
+    expect(msg.attributes.commands[3].message.uid).toBeUndefined();
+  });
+
+  it('leaves messages without commands unchanged', () => {
+    const msg: any = { uid: 'x', text: 'hi', attributes: { a: 1 } };
+    expect(expandCommandsMessage(msg)).toEqual([msg]);
+    const noAttrs: any = { uid: 'y', text: 'hi' };
+    expect(expandCommandsMessage(noAttrs)).toEqual([noAttrs]);
+  });
+
+  it('produces no messages for wait-only or empty commands', () => {
+    const msg: any = commandsMessage();
+    msg.attributes.commands = [{ type: 'wait', time: 500 }];
+    expect(expandCommandsMessage(msg)).toEqual([]);
+    msg.attributes.commands = [];
+    expect(expandCommandsMessage(msg)).toEqual([msg]);
+  });
+
+  it('keeps the buttons only on the last expanded message via isLastMessage', () => {
+    const out = expandCommandsMessage(commandsMessage());
+    expect(isLastMessage(out, out[1].uid)).toBe(true);
+    expect(isLastMessage(out, out[0].uid)).toBe(false);
   });
 });

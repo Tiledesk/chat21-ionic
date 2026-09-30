@@ -149,7 +149,7 @@
     </ion-label>
   </div>
 
-  <ion-note *ngIf="!conversation.archived" class="conversation_time" [ngClass]="{'is-on-mobile': IS_ON_MOBILE_DEVICE}">
+  <ion-note *ngIf="!conversation.archived" class="conversation_time" [ngClass]="{'is-on-mobile': IS_ON_MOBILE_DEVICE, 'with-leave-button': canLeave(conversation)}">
     {{conversation.timestamp | amTimeAgo}}
   </ion-note>
   <ion-note item-end *ngIf="conversation?.archived" class="conversation_time">

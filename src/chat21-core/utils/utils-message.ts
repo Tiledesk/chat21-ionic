@@ -289,3 +289,42 @@ export function isWebhookConversation(conversation: any): boolean {
 export function canLeaveConversation(conversation: any): boolean {
   return isWebhookConversation(conversation) && !conversation.archived;
 }
+
+/**
+ * Expands a message carrying `attributes.commands` (e.g. tybot Reply V2) into the messages to display,
+ * like the web widget does: every `{type:'message'}` command becomes its own message, `wait` commands
+ * produce nothing (operators don't need the typing simulation).
+ * uids are `<parent uid>_<command index>` (stable across reloads, so re-delivery replaces instead of duplicating);
+ * `attributes.parentUid` points to the original message. Messages without commands are returned as is.
+ * The input is never mutated.
+ */
+export function expandCommandsMessage(msg: any): any[] {
+  const commands = msg && msg.attributes && msg.attributes.commands;
+  if (!Array.isArray(commands) || commands.length === 0) {
+    return [msg];
+  }
+  const expanded = [];
+  commands.forEach((command, index) => {
+    if (!command || command.type !== 'message' || !command.message) {
+      return;
+    }
+    const cm = command.message;
+    expanded.push({
+      ...cm,
+      uid: msg.uid + '_' + index,
+      text: cm.text ? cm.text.trim() : cm.text,
+      language: msg.language,
+      recipient: msg.recipient,
+      recipient_fullname: msg.recipient_fullname,
+      sender: msg.sender,
+      sender_fullname: msg.sender_fullname,
+      channel_type: msg.channel_type,
+      status: msg.status,
+      isSender: msg.isSender,
+      // keep the order of the commands (the list is sorted by timestamp)
+      timestamp: msg.timestamp + expanded.length,
+      attributes: { ...msg.attributes, ...cm.attributes, commands: true, parentUid: msg.uid }
+    });
+  });
+  return expanded;
+}

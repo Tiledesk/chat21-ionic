@@ -1875,7 +1875,8 @@ export class ConversationDetailPage implements OnInit, OnDestroy, AfterViewInit 
     // console.log(event);
     const action = event.action ? event.action : ''
     const message = event.value ? event.value : ''
-    const subtype = event.show_reply ? '' : 'info'
+    // show_echo as in the web widget (show_reply kept as legacy fallback)
+    const subtype = (event.show_echo || event.show_reply) ? '' : 'info'
 
     const attributes = {
       action: action,
