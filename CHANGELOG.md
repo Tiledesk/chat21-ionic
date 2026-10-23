@@ -8,6 +8,12 @@
 ### **Copyright**: 
 *Tiledesk SRL*
 
+# 3.4.36-rc1
+- **added**: operators can leave a conversation started by a flow (Leave button, desktop and mobile; leave confirmation text accurate when no flow invited the operator)
+- **added**: chatbot messages with `attributes.commands` are shown together with their buttons (flow buttons expanded for operators)
+- **added**: webhook channel icon for flow-started conversations
+- **bug-fixed**: empty-list message shown after leaving or removing the last conversation
+
 # 3.4.35 in PROD
 - **added**: tiledesk_project_ID url variable to define a base project
 - **added**: MPA feature token to active/inactive the multi-project availability section in user-detail panel
