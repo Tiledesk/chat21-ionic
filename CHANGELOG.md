@@ -8,6 +8,9 @@
 ### **Copyright**: 
 *Tiledesk SRL*
 
+# 3.4.36
+- Release of 3.4.36-rc1, tested on stage on 2026-10-26; no code change.
+
 # 3.4.36-rc1
 - **added**: operators can leave a conversation started by a flow (Leave button, desktop and mobile; leave confirmation text accurate when no flow invited the operator)
 - **added**: chatbot messages with `attributes.commands` are shown together with their buttons (flow buttons expanded for operators)
