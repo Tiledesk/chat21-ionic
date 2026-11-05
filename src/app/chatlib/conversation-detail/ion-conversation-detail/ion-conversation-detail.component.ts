@@ -172,8 +172,71 @@ export class IonConversationDetailComponent extends ConversationContentComponent
 
   onClickCopyMessage(message: MessageModel){
     this.logger.log('[CONVS-DETAIL][ION-CONVS-DETAIL] - onClickCopyMessage');
-    navigator.clipboard.writeText(message.text)
-    this.presentToast()
+    const text = message?.text ?? '';
+    this.copyMessageText(text).then((copied) => {
+      if (copied) {
+        this.presentToast();
+      }
+    });
+  }
+
+  /**
+   * The async Clipboard API is blocked in a cross-origin iframe unless the
+   * host sets allow="clipboard-write". execCommand('copy') still runs from
+   * the same click, so it is used when writeText is refused.
+   */
+  private async copyMessageText(text: string): Promise<boolean> {
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+        return true;
+      }
+    } catch (error) {
+      this.logger.error('[CONVS-DETAIL][ION-CONVS-DETAIL] - clipboard.writeText blocked, falling back to execCommand', error);
+    }
+    return this.copyWithExecCommand(text);
+  }
+
+  private copyWithExecCommand(text: string): boolean {
+    this.logger.log('[CONVS-DETAIL][ION-CONVS-DETAIL] - copyWithExecCommand', text);
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.setAttribute('readonly', 'true');
+    textarea.style.position = 'fixed';
+    textarea.style.top = '0';
+    textarea.style.left = '0';
+    textarea.style.opacity = '0';
+    textarea.style.pointerEvents = 'none';
+    document.body.appendChild(textarea);
+
+    const selection = document.getSelection();
+    const previousRange = selection && selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
+
+    textarea.focus();
+    textarea.select();
+    textarea.setSelectionRange(0, textarea.value.length);
+
+    let copied = false;
+    try {
+      copied = document.execCommand('copy');
+    } catch (error) {
+      this.logger.error('[CONVS-DETAIL][ION-CONVS-DETAIL] - execCommand copy failed', error);
+      copied = false;
+    }
+
+    document.body.removeChild(textarea);
+
+    if (selection) {
+      selection.removeAllRanges();
+      if (previousRange) {
+        selection.addRange(previousRange);
+      }
+    }
+
+    if (!copied) {
+      this.logger.error('[CONVS-DETAIL][ION-CONVS-DETAIL] - unable to copy message text');
+    }
+    return copied;
   }
 
   onClickInfoMessage(message: MessageModel, index: number){
