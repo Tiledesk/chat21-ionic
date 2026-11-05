@@ -8,6 +8,9 @@
 ### **Copyright**: 
 *Tiledesk SRL*
 
+# 3.4.35-rc4
+- **fixed**: copy message inside a cross-origin iframe — falls back to `document.execCommand('copy')` when the Clipboard API is blocked by Permissions Policy, and the success toast is shown only if the copy succeeds.
+
 # 3.4.35-rc3
 - **added**: conversations started by a webhook flow — webhook channel icon in the list and conversation header, and archive confirmation ("started by an automated flow") before closing.
 - **added**: Leave button for operators on webhook-flow conversations (confirmation, error toast, double-click guard); the server reassigns the flow's question or lets the flow continue.
