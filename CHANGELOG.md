@@ -8,6 +8,9 @@
 ### **Copyright**: 
 *Tiledesk SRL*
 
+# 3.4.37
+- Fixed: copy message inside a cross-origin iframe — falls back to document.execCommand('copy') when the Clipboard API is blocked by Permissions Policy, and the success toast is shown only if the copy succeeds.
+
 # 3.4.36
 - Release of 3.4.36-rc1, tested on stage on 2026-10-26; no code change.
 
